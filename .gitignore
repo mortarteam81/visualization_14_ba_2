@@ -1,5 +1,35 @@
+# Python
 __pycache__/
 *.pyc
-.streamlit/
+*.pyo
+*.pyd
+.Python
 *.egg-info/
+.eggs/
+dist/
+build/
+
+# 환경변수
 .env
+.env.*
+
+# Streamlit
+.streamlit/secrets.toml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로컬 테스트용 스크립트 (절대경로 하드코딩 등)
+test_app.py
+
+# Claude AI
+.claude/
+
+# 원본 파일명이 긴 CSV (data/ 로 이전 완료)
+14-ba-*.csv
