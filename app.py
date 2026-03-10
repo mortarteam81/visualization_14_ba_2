@@ -1,121 +1,72 @@
+"""
+서울 소재 사립대학교 교육여건 지표 시각화 — 홈 페이지
+사이드바에서 지표별 페이지로 이동하세요.
+"""
+
 import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import os
-
-CSV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '14-ba-2.-beobjeongbudamgeum-budam-hyeonhwang_daehag_beobjeongbudamgeum-budamryul-20260309-seoul-sojae-saribdaehag.csv')
-
-@st.cache_data
-def load_data():
-    df = pd.read_csv(CSV_PATH, encoding='cp949')
-    # 필요한 컬럼만 선택 및 정리
-    df = df[['기준년도', '학교명', '부담율']].copy()
-    df['부담율'] = pd.to_numeric(df['부담율'], errors='coerce')
-    df = df.dropna(subset=['부담율'])
-    df['기준년도'] = df['기준년도'].astype(int)
-    return df
-
-st.set_page_config(page_title="서울대 대학 부담율 시각화", layout="wide")
-
-st.title("🛡️ 서울 소재 사립대학교 법정부담금 부담율 추이")
-
-# 데이터 로드
-df = load_data()
-
-# 학교 목록 (중복 제거, 정렬)
-schools = sorted(df['학교명'].unique())
-
-# 사이드바: 학교 선택 (최대 10개)
-st.sidebar.header("학교 선택")
-selected_schools = st.sidebar.multiselect(
-    "최대 60개 학교 선택",
-    schools,
-    max_selections=60,  # 최대 60개 선택 가능 (전체 학교 수에 따라 조정)
-    default=['성신여자대학교'] if '성신여자대학교' in schools else []
+from utils.config import (
+    APP_ICON, APP_SUBTITLE, APP_TITLE, DATA_UPDATED,
+    RESEARCH_THRESHOLD_IN, RESEARCH_THRESHOLD_OUT,
+    PAPER_THRESHOLD_JAEJI, PAPER_THRESHOLD_SCI,
+    JIROSUNG_THRESHOLD,
 )
 
-if not selected_schools:
-    st.warning("학교를 선택해주세요.")
-    st.stop()
+st.set_page_config(
+    page_title=APP_TITLE,
+    page_icon=APP_ICON,
+    layout="wide",
+)
 
-# 필터링된 데이터
-filtered_df = df[df['학교명'].isin(selected_schools)]
+st.title(f"{APP_ICON} {APP_TITLE}")
+st.caption(APP_SUBTITLE)
+st.divider()
 
-if filtered_df.empty:
-    st.error("선택된 학교에 데이터가 없습니다.")
-    st.stop()
+st.markdown("#### 📋 수록 지표")
 
-# 메인 시각화
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns(2)
+col3, col4 = st.columns(2)
+col5, col6 = st.columns(2)
 
 with col1:
-    st.subheader("부담율 추이 (기준연도별)")
-    
-    # 라인 차트
-    fig = px.line(
-        filtered_df,
-        x='기준년도',
-        y='부담율',
-        color='학교명',
-        title=f"선택 학교 ({len(selected_schools)}개) 부담율 변화",
-        labels={'부담율': '부담율 (%)', '기준년도': '기준연도'},
-        markers=True
+    st.info(
+        "**🛡️ 법정부담금 부담율**\n\n"
+        "설립자가 법정기준액 대비 실제 부담한 비율\n\n"
+        "4주기 인증 기준: **10% 이상**"
     )
-    
-    # 10% 기준선 추가
-    fig.add_hline(
-        y=10,
-        line_dash="dash",
-        line_color="red",
-        annotation_text="10% 기준선",
-        annotation_position="top right"
-    )
-    
-    # 레이아웃 개선
-    fig.update_layout(
-        hovermode='x unified',
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
-        height=500
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    st.subheader("통계 요약")
-    
-    # 연도별 통계
-    yearly_stats = filtered_df.groupby('기준년도')['부담율'].agg(['mean', 'max', 'min', 'count']).round(1)
-    yearly_stats.columns = ['평균', '최고', '최저', '학교수']
-    st.dataframe(yearly_stats, use_container_width=True)
-    
-    # 전체 통계
-    col_a, col_b, col_c = st.columns(3)
-    with col_a:
-        st.metric("전체 평균", f"{filtered_df['부담율'].mean():.1f}%")
-    with col_b:
-        st.metric("최고 부담율", f"{filtered_df['부담율'].max():.1f}%")
-    with col_c:
-        st.metric("10% 초과 학교", f"{(filtered_df['부담율'] > 10).sum()}/{len(filtered_df)}")
+    st.info(
+        "**👨‍🏫 전임교원 확보율**\n\n"
+        "법정기준 교원 수 대비 실제 전임교원 수의 비율\n\n"
+        "4주기 인증 기준: **61% 이상** (학생정원 기준)"
+    )
 
-# 하단: 상세 테이블
-with st.expander("📊 상세 데이터 보기"):
-    st.dataframe(filtered_df.pivot(index='기준년도', columns='학교명', values='부담율').round(1), use_container_width=True)
+with col3:
+    st.info(
+        "**🔬 전임교원 1인당 연구비**\n\n"
+        "전임교원 1인당 교내·교외 연구비 수혜 실적\n\n"
+        f"4주기 인증 기준: 교내 **{RESEARCH_THRESHOLD_IN:,.0f}천원** / "
+        f"교외 **{RESEARCH_THRESHOLD_OUT:,.0f}천원** 이상"
+    )
 
-# 정보 패널
-with st.expander("ℹ️ 데이터 정보"):
-    st.info("""
-    - **데이터 출처**: 업로드된 CSV 파일 (서울 소재 사립대학교 법정부담금 현황)
-    - **기준년도**: 실제 기준년도 (공시연도 -1)
-    - **부담율**: (법정부담금부담액 / 법정부담금기준액) * 100 (%)
-    - **기준선**: 10% (사용자 요청)
-    - **공유 방법**: 
-      1. `pip install streamlit pandas plotly`
-      2. `streamlit run app.py`
-      3. Streamlit Cloud에 GitHub 연동으로 배포
-    """)
+with col4:
+    st.info(
+        "**📄 전임교원 1인당 논문실적**\n\n"
+        "등재(후보지) 논문 및 SCI급/SCOPUS 국제 논문 실적\n\n"
+        f"4주기 인증 기준: 등재 **{PAPER_THRESHOLD_JAEJI}편/인** / "
+        f"SCI급 **{PAPER_THRESHOLD_SCI}편/인** *(확인 필요)*"
+    )
 
-# 푸터
-st.markdown("---")
-st.caption("📈 Perplexity AI로 생성 | 데이터: 2026-03-09 기준")
+with col5:
+    st.info(
+        "**🎓 졸업생 진로 성과**\n\n"
+        "취업자·진학자 합산 비율 (입대자·취업불가능자 등 제외)\n\n"
+        f"4주기 인증 기준: **{JIROSUNG_THRESHOLD:.0f}% 이상**"
+    )
+
+st.divider()
+st.markdown(
+    f"📅 데이터 기준일: **{DATA_UPDATED}** | "
+    "출처: [대학알리미](https://www.academyinfo.go.kr) | "
+    "대상: 서울 소재 사립 4년제 대학교"
+)
