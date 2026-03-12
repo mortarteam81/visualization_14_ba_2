@@ -64,6 +64,20 @@ JIROSUNG_DEFAULT_SCHOOL = "성신여자대학교"
 JIROSUNG_PAGE_TITLE     = "졸업생 진로 성과"
 JIROSUNG_PAGE_ICON      = "🎓"
 
+# ── 세입 중 등록금 비율 ───────────────────────────────────────────────────────
+GYEOLSAN_CSV             = "결산(22,23,24).csv"
+GYEOLSAN_CSV_ENCODING    = "utf-8-sig"
+TUITION_THRESHOLD        = 72.0          # 4주기 인증 기준 (%)
+TUITION_DEFAULT_SCHOOL   = "성신여자대학교"
+TUITION_PAGE_TITLE       = "세입 중 등록금 비율"
+TUITION_PAGE_ICON        = "💰"
+
+# ── 세입 중 기부금 비율 ───────────────────────────────────────────────────────
+DONATION_THRESHOLD       = 0.4           # 4주기 인증 기준 (%)
+DONATION_DEFAULT_SCHOOL  = "성신여자대학교"
+DONATION_PAGE_TITLE      = "세입 중 기부금 비율"
+DONATION_PAGE_ICON       = "🤝"
+
 # ── 차트 공통 설정 ───────────────────────────────────────────────────────────
 CHART_HEIGHT          = 500
 CHART_THRESHOLD_COLOR = "red"

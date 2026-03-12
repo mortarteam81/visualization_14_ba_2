@@ -9,6 +9,8 @@ from utils.config import (
     RESEARCH_THRESHOLD_IN, RESEARCH_THRESHOLD_OUT,
     PAPER_THRESHOLD_JAEJI, PAPER_THRESHOLD_SCI,
     JIROSUNG_THRESHOLD,
+    TUITION_THRESHOLD,
+    DONATION_THRESHOLD,
 )
 
 st.set_page_config(
@@ -26,6 +28,7 @@ st.markdown("#### 📋 수록 지표")
 col1, col2 = st.columns(2)
 col3, col4 = st.columns(2)
 col5, col6 = st.columns(2)
+col7, col8 = st.columns(2)
 
 with col1:
     st.info(
@@ -62,6 +65,20 @@ with col5:
         "**🎓 졸업생 진로 성과**\n\n"
         "취업자·진학자 합산 비율 (입대자·취업불가능자 등 제외)\n\n"
         f"4주기 인증 기준: **{JIROSUNG_THRESHOLD:.0f}% 이상**"
+    )
+
+with col7:
+    st.info(
+        "**💰 세입 중 등록금 비율**\n\n"
+        "교비 회계 운영수입 대비 등록금수입의 비율\n\n"
+        f"4주기 인증 기준: **{TUITION_THRESHOLD:.0f}% 이하**"
+    )
+
+with col8:
+    st.info(
+        "**🤝 세입 중 기부금 비율**\n\n"
+        "교비 회계 운영수입 대비 기부금수입의 비율\n\n"
+        f"4주기 인증 기준: **{DONATION_THRESHOLD:.1f}% 이상**"
     )
 
 st.divider()

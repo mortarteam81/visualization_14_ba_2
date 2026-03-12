@@ -18,6 +18,7 @@ from utils.config import (
     PAPER_CSV, PAPER_CSV_ENCODING,
     PAPER_COL_JAEJI, PAPER_COL_SCI,
     JIROSUNG_CSV, JIROSUNG_CSV_ENCODING,
+    GYEOLSAN_CSV, GYEOLSAN_CSV_ENCODING,
 )
 
 # 프로젝트 루트 기준 data/ 디렉토리
@@ -294,6 +295,85 @@ def load_jirosung_data(bonkyo_only: bool = True) -> pd.DataFrame:
 
     return (
         df[["기준년도", "학교명", "본분교명", "졸업생_진로_성과"]]
+        .sort_values(["기준년도", "학교명"])
+        .reset_index(drop=True)
+    )
+
+
+# ── 세입 중 등록금 비율 / 기부금 비율 (결산 데이터) ──────────────────────────
+
+@st.cache_data(show_spinner="데이터 로딩 중…")
+def load_gyeolsan_data() -> pd.DataFrame:
+    """
+    결산(22,23,24) CSV 로드 및 전처리.
+    서울 소재 사립 4년제 대학교 교비 회계 데이터만 필터링.
+
+    산식
+    ----
+    - 등록금비율 = 등록금수입[1002] / 운영수입[1086] × 100
+    - 기부금비율 = 기부금수입[1035] / 운영수입[1086] × 100
+
+    Returns
+    -------
+    pd.DataFrame
+        columns: ['기준년도', '학교명', '운영수입', '등록금수입', '기부금수입',
+                  '등록금비율', '기부금비율']
+        기준년도 오름차순 정렬
+
+    Raises
+    ------
+    FileNotFoundError / ValueError
+    """
+    path = DATA_DIR / GYEOLSAN_CSV
+    _check_file(path)
+
+    df = pd.read_csv(path, encoding=GYEOLSAN_CSV_ENCODING)
+
+    # 컬럼명 공백 제거
+    df.columns = df.columns.str.strip()
+
+    required = {"학교명", "회계", "지역", "학급", "회계연도",
+                "2.운영수입[1086]", "4.등록금수입[1002]", "4.기부금수입[1035]"}
+    _check_columns(df, required)
+
+    # 서울 소재 / 사립 4년제 대학교 / 교비 회계
+    df["회계"] = df["회계"].str.strip()
+    df["지역"] = df["지역"].str.strip()
+    df["학급"] = df["학급"].str.strip()
+    df["학교명"] = df["학교명"].str.strip()
+    df["회계연도"] = df["회계연도"].str.strip()
+
+    df = df[
+        (df["회계"] == "교비") &
+        (df["지역"] == "서울") &
+        (df["학급"] == "대학")
+    ].copy()
+
+    # 회계연도 → 정수 기준년도 (예: '2022년' → 2022)
+    df["기준년도"] = df["회계연도"].str.replace("년", "").astype(int)
+
+    # 숫자 변환 (콤마 제거)
+    for raw_col, new_col in [
+        ("2.운영수입[1086]", "운영수입"),
+        ("4.등록금수입[1002]", "등록금수입"),
+        ("4.기부금수입[1035]", "기부금수입"),
+    ]:
+        df[new_col] = (
+            pd.to_numeric(
+                df[raw_col].astype(str).str.replace(",", ""),
+                errors="coerce",
+            )
+        )
+
+    df = df.dropna(subset=["운영수입", "등록금수입", "기부금수입"])
+    df = df[df["운영수입"] > 0].copy()
+
+    df["등록금비율"] = (df["등록금수입"] / df["운영수입"] * 100).round(2)
+    df["기부금비율"] = (df["기부금수입"] / df["운영수입"] * 100).round(2)
+
+    return (
+        df[["기준년도", "학교명", "운영수입", "등록금수입", "기부금수입",
+            "등록금비율", "기부금비율"]]
         .sort_values(["기준년도", "학교명"])
         .reset_index(drop=True)
     )
