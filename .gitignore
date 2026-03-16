@@ -9,9 +9,10 @@ __pycache__/
 dist/
 build/
 
-# 환경변수
+# 환경변수 (실제 인증키가 담긴 파일 제외, 템플릿은 포함)
 .env
 .env.*
+!.env.example
 
 # Streamlit
 .streamlit/secrets.toml
