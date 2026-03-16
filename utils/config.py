@@ -1,7 +1,10 @@
 """
 앱 전역 설정 및 상수 중앙 관리
 - 기준값·임계치 등 변경이 필요한 값은 이 파일에서만 수정
+- API 연동 설정은 .env 파일에서 관리 (이 파일에는 기본값만 기재)
 """
+
+import os
 
 # ── 앱 기본 정보 ─────────────────────────────────────────────────────────────
 APP_TITLE    = "서울 소재 사립대학교 교육여건 지표 시각화"
@@ -82,3 +85,14 @@ DONATION_PAGE_ICON       = "🤝"
 CHART_HEIGHT          = 500
 CHART_THRESHOLD_COLOR = "red"
 CHART_TEMPLATE        = "plotly_white"
+
+# ── data.go.kr API 연동 설정 ─────────────────────────────────────────────────
+# 실제 인증키와 데이터 소스 선택은 .env 파일에서 관리합니다.
+# .env.example 파일을 복사하여 .env를 생성하고 값을 입력하세요.
+
+# 데이터 소스: "csv" (기본값, 오프라인 가능) | "api" (실시간 data.go.kr 호출)
+DATA_SOURCE: str = os.getenv("DATA_SOURCE", "csv")
+
+# data.go.kr 인증키 (Encoding 또는 Decoding 키 중 하나)
+# 보안상 이 파일에 직접 입력하지 말고 .env 파일에 입력하세요.
+DATAGOKR_API_KEY: str = os.getenv("DATAGOKR_API_KEY", "")

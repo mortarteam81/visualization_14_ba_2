@@ -1,11 +1,16 @@
 """
 전임교원 확보율 — 서울 소재 사립대학교
+
+데이터 소스: DATA_SOURCE 환경변수에 따라 CSV 또는 data.go.kr API 자동 선택
+- csv (기본값): data/ 디렉토리의 전임교원_확보율.csv
+- api          : data.go.kr 전임교원확보현황 API (DATAGOKR_API_KEY 필요)
 """
 
 import streamlit as st
 
 from utils.config import (
     APP_SUBTITLE,
+    DATA_SOURCE,
     DATA_UPDATED,
     GYOWON_COL_JAEHAK,
     GYOWON_COL_JEONGWON,
@@ -15,13 +20,31 @@ from utils.config import (
     GYOWON_THRESHOLD,
 )
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
-from utils.data_loader import load_gyowon_data
+# Repository 패턴: get_repository()가 DATA_SOURCE에 따라 CSV 또는 API 저장소를 반환
+from utils.repository import get_repository
+from utils.services.data_service import GyowonDataService
 
 st.set_page_config(
     page_title=f"{GYOWON_PAGE_TITLE} | 교육여건 지표",
     page_icon=GYOWON_PAGE_ICON,
     layout="wide",
 )
+
+
+# ── 데이터 로딩 (캐시 적용) ──────────────────────────────────────────────────
+
+@st.cache_data(show_spinner="데이터 로딩 중…")
+def _load_data(bonkyo_only: bool) -> st.dataframe:
+    """
+    Repository에서 원시 데이터를 가져와 DataService로 전처리합니다.
+
+    st.cache_data를 통해 동일한 bonkyo_only 값으로 반복 호출 시 캐시를 사용합니다.
+    데이터 소스(CSV/API)는 get_repository()가 환경변수를 읽어 자동으로 결정합니다.
+    """
+    repo = get_repository()
+    raw_df = repo.get_gyowon_data()
+    return GyowonDataService.prepare(raw_df, bonkyo_only=bonkyo_only)
+
 
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
 st.title(f"{GYOWON_PAGE_ICON} {GYOWON_PAGE_TITLE}")
@@ -38,7 +61,7 @@ with st.sidebar:
         help="가톨릭대 제2·3캠퍼스 등 분교 데이터를 포함합니다.",
     )
 
-    # 기준 선택
+    # 확보율 기준 선택 (학생정원 기준이 4주기 인증 주요 기준)
     criterion = st.radio(
         "확보율 기준",
         options=["학생정원 기준", "재학생 기준"],
@@ -53,9 +76,13 @@ with st.sidebar:
 
 # ── 데이터 로드 ───────────────────────────────────────────────────────────────
 try:
-    df = load_gyowon_data(bonkyo_only=not include_branch)
+    df = _load_data(bonkyo_only=not include_branch)
 except (FileNotFoundError, ValueError) as e:
     st.error(f"❌ 데이터 오류\n\n{e}")
+    st.stop()
+except Exception as e:
+    # API 호출 실패 등 예상치 못한 오류 처리
+    st.error(f"❌ 데이터를 불러오는 중 오류가 발생했습니다.\n\n{e}")
     st.stop()
 
 # 선택 기준에 따른 컬럼 지정
@@ -78,6 +105,9 @@ with st.sidebar:
         help=f"전체 {len(schools)}개 학교 중 선택",
     )
 
+    # 현재 데이터 소스 표시 (CSV / API 구분)
+    source_label = "🌐 data.go.kr API" if DATA_SOURCE == "api" else "📂 로컬 CSV"
+    st.caption(f"📡 데이터 소스: {source_label}")
     st.caption(f"📅 기준일: {DATA_UPDATED}")
     st.caption(f"🏫 전체 학교 수: {len(schools)}개")
     st.caption(f"📆 수록 기간: {min(years)} ~ {latest_year}년")
@@ -93,7 +123,7 @@ if filtered_df.empty:
     st.error("선택된 학교에 데이터가 없습니다.")
     st.stop()
 
-# 최신 연도 KPI (학생정원 기준으로 고정 — 인증 주요 기준)
+# 최신 연도 KPI
 latest_df   = filtered_df[filtered_df["기준년도"] == latest_year]
 above_count = (latest_df[y_col] >= GYOWON_THRESHOLD).sum()
 total_count = len(latest_df)
@@ -215,7 +245,7 @@ with st.expander("ℹ️ 지표 설명"):
 | **산식 (재학생 기준)** | 전임교원 수 ÷ 교원법정정원(재학생 기준) × 100 (%) |
 | **4주기 인증 기준** | **{GYOWON_THRESHOLD}% 이상** (학생정원 기준) |
 | **분교 처리** | 기본값: 본교만 표시 / 사이드바에서 분교 포함 선택 가능 |
-| **데이터 기준일** | {DATA_UPDATED} |
+| **데이터 소스** | {DATA_SOURCE.upper()} ({DATA_UPDATED} 기준) |
 """)
 
 st.markdown("---")
