@@ -56,7 +56,7 @@ def _render_single_chart(
     style_traces_by_name_contains(fig, "평균")
     if chart_styler is not None:
         chart_styler(fig)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def render_single_metric_page(
@@ -231,7 +231,7 @@ def render_optional_page(
             thresholds = [metric.threshold for metric in comparison_metrics if metric.threshold is not None]
             if thresholds:
                 add_threshold_hlines(fig, thresholds)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
     for section in sections:
         if section.when is not None and not section.when(merged_context):

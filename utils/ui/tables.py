@@ -53,7 +53,7 @@ def render_stats_table(
     title: str = "Yearly stats",
 ) -> None:
     st.subheader(title)
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df, width="stretch")
 
 
 def render_pivot_table(
@@ -63,7 +63,7 @@ def render_pivot_table(
     expanded: bool = False,
 ) -> None:
     with st.expander(label, expanded=expanded):
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, width="stretch")
 
 
 def render_definition_table(rows: Mapping[str, str], *, label: str = "Definitions") -> None:

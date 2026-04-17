@@ -253,7 +253,7 @@ def render_ai_analysis_panel(
     with control_col2:
         focus = st.selectbox("분석 초점", ["선택 학교 중심", "그룹 비교 중심"], key="budam_ai_focus")
     with control_col3:
-        run_analysis = st.button("AI 분석 실행", use_container_width=True, type="primary")
+        run_analysis = st.button("AI 분석 실행", width="stretch", type="primary")
 
     if run_analysis:
         payload = build_budam_analysis_payload(
