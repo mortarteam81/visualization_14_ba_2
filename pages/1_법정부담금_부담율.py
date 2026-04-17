@@ -134,7 +134,15 @@ def build_group_definitions(schools: list[str]) -> dict[str, list[str]]:
 
 
 def build_chart_frame(df: pd.DataFrame, selected_schools: list[str], group_definitions: dict[str, list[str]]) -> pd.DataFrame:
-    selected_df = df[df[SCHOOL_COL].isin(selected_schools)].copy()
+    grouped_schools = sorted(
+        {
+            school
+            for schools_in_group in group_definitions.values()
+            for school in schools_in_group
+        }
+    )
+    visible_schools = sorted(set(selected_schools) | set(grouped_schools))
+    selected_df = df[df[SCHOOL_COL].isin(visible_schools)].copy()
     group_average_df = build_group_average_frame(
         df,
         year_col=YEAR_COL,
@@ -198,12 +206,12 @@ def main() -> None:
         year_col=YEAR_COL,
         school_col=SCHOOL_COL,
         latest_year=latest_year,
-        chart_title=f"선택 학교 ({len(selected_schools)}개) 및 그룹 평균 {PAGE.title} 추이",
+        chart_title=f"선택 학교, 그룹 구성 학교, 그룹 평균 {PAGE.title} 추이",
         definition_rows={
             "출처": "대학알리미 공시자료 (서울 소재 사립대학)",
             "산식": "법정부담금 부담액 ÷ 법정부담금 기준액 × 100 (%)",
             "4주기 인증 기준": PAGE.threshold_note,
-            "그룹 비교": "프리셋 또는 사용자 정의 그룹의 연도별 평균값을 점선으로 함께 표시",
+            "그룹 비교": "개별 선택 학교와 그룹 구성 학교의 추이, 그룹 평균값을 함께 표시",
             "데이터 기준일": DATA_UPDATED,
         },
         kpi_threshold_suffix=f"{SERIES.threshold:.1f}% 이상",
