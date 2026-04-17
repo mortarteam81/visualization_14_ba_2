@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from typing import Any
 
 import requests
 
@@ -56,13 +57,33 @@ class LMStudioClient:
             )
         return data[0]["id"]
 
+    @staticmethod
+    def _extract_content(data: dict[str, Any]) -> str:
+        choices = data.get("choices", [])
+        if not choices:
+            raise LMStudioError("LM Studio 응답에 choices가 없습니다.")
+
+        message = choices[0].get("message", {}) or {}
+        content = message.get("content")
+        if isinstance(content, str) and content.strip():
+            return content.strip()
+
+        reasoning_content = message.get("reasoning_content")
+        if isinstance(reasoning_content, str) and reasoning_content.strip():
+            raise LMStudioError(
+                "LM Studio 모델이 최종 답변(content) 없이 reasoning_content만 반환했습니다. "
+                "Gemma 모델 설정 또는 프롬프트를 더 단순화해 보거나, reasoning 비노출 설정을 확인해 주세요."
+            )
+
+        raise LMStudioError("LM Studio 응답 본문이 비어 있습니다.")
+
     def chat_completion(
         self,
         *,
         system_prompt: str,
         user_prompt: str,
-        temperature: float = 0.2,
-        max_tokens: int = 1200,
+        temperature: float = 0.1,
+        max_tokens: int = 900,
     ) -> str:
         model = self._resolve_model()
         payload = {
@@ -89,12 +110,4 @@ class LMStudioClient:
             ) from exc
 
         data = response.json()
-        choices = data.get("choices", [])
-        if not choices:
-            raise LMStudioError("LM Studio 응답에 choices가 없습니다.")
-
-        message = choices[0].get("message", {})
-        content = message.get("content", "")
-        if not content:
-            raise LMStudioError("LM Studio 응답 본문이 비어 있습니다.")
-        return content
+        return self._extract_content(data)
