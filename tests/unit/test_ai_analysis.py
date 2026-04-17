@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pandas as pd
 
 from utils.ai_analysis import build_budam_analysis_payload, normalize_analysis_result
@@ -30,6 +32,31 @@ def test_build_budam_analysis_payload_summarizes_selected_school_and_group() -> 
     assert payload["selected_schools"][0]["latest_value"] == 11.0
     assert payload["groups"][0]["group_name"] == "서울 소재 여대"
     assert payload["groups"][0]["latest_average"] == 11.5
+
+
+def test_build_budam_analysis_payload_returns_json_safe_primitives() -> None:
+    frame = pd.DataFrame(
+        {
+            "기준년도": pd.Series([2023, 2024], dtype="int64"),
+            "학교명": ["A대", "A대"],
+            "부담율": pd.Series([9.0, 11.0], dtype="float64"),
+        }
+    )
+
+    payload = build_budam_analysis_payload(
+        frame,
+        year_col="기준년도",
+        school_col="학교명",
+        value_col="부담율",
+        selected_schools=["A대"],
+        group_definitions={"그룹1": ["A대"]},
+        latest_year=frame["기준년도"].max(),
+        threshold=10.0,
+    )
+
+    serialized = json.dumps(payload, ensure_ascii=False)
+
+    assert serialized
 
 
 def test_normalize_analysis_result_parses_json_block() -> None:
