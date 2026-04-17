@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 from utils.chart_utils import (
@@ -26,7 +27,15 @@ from .tables import (
 )
 
 
-def _render_single_chart(df: pd.DataFrame, *, year_col: str, school_col: str, metric: MetricSpec, title: str) -> None:
+def _render_single_chart(
+    df: pd.DataFrame,
+    *,
+    year_col: str,
+    school_col: str,
+    metric: MetricSpec,
+    title: str,
+    chart_styler: Callable[[go.Figure], None] | None = None,
+) -> None:
     fig = create_trend_line_chart(
         df,
         x=year_col,
@@ -45,6 +54,8 @@ def _render_single_chart(df: pd.DataFrame, *, year_col: str, school_col: str, me
             dash=metric.threshold.dash,
         )
     style_traces_by_name_contains(fig, "평균")
+    if chart_styler is not None:
+        chart_styler(fig)
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -61,6 +72,7 @@ def render_single_metric_page(
     pivot_label: str = "Year by school",
     definition_rows: Mapping[str, str] | None = None,
     kpi_threshold_suffix: str = "",
+    chart_styler: Callable[[go.Figure], None] | None = None,
 ) -> None:
     """Render the standard single-metric layout."""
 
@@ -90,6 +102,7 @@ def render_single_metric_page(
             school_col=school_col,
             metric=metric,
             title=chart_title,
+            chart_styler=chart_styler,
         )
     with stats_col:
         render_stats_table(

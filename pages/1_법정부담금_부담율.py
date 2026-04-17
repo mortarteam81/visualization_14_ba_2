@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 from registry import get_metric, get_series
 from ui import MetricSpec, SidebarConfig, SidebarMeta, ThresholdSpec, render_school_sidebar, render_single_metric_page
 from utils.config import APP_SUBTITLE, DATA_UPDATED
-from utils.grouping import build_group_average_frame
+from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 from utils.query import get_dataset
 
 
@@ -53,8 +54,13 @@ def build_metric() -> MetricSpec:
         value_col=SERIES.column,
         y_axis_label=f"{SERIES.label} ({SERIES.unit})",
         precision=SERIES.decimals,
-        threshold=ThresholdSpec(value=SERIES.threshold or 0.0, label=SERIES.threshold_label or "Threshold"),
-        chart_title=f"{PAGE.title} 연도별 추이",
+        threshold=ThresholdSpec(
+            value=SERIES.threshold or 0.0,
+            label=SERIES.threshold_label or "Threshold",
+            color="#B45309",
+            dash="dot",
+        ),
+        chart_title=f"{PAGE.title} 비교 추이",
     )
 
 
@@ -155,6 +161,68 @@ def build_chart_frame(df: pd.DataFrame, selected_schools: list[str], group_defin
     return pd.concat([selected_df, group_average_df], ignore_index=True)
 
 
+def build_chart_styler(selected_schools: list[str], group_definitions: dict[str, list[str]]):
+    grouped_schools = {
+        school
+        for schools_in_group in group_definitions.values()
+        for school in schools_in_group
+    }
+    average_line_names = {
+        f"{group_name} {AVERAGE_LINE_SUFFIX}"
+        for group_name, schools_in_group in group_definitions.items()
+        if group_name and schools_in_group
+    }
+    selected_school_set = set(selected_schools)
+
+    selected_palette = ["#0F4C81", "#C44E52", "#2C7C5B", "#7A4FA3", "#C17C10", "#1F6F8B"]
+    selected_colors = {
+        school_name: selected_palette[index % len(selected_palette)]
+        for index, school_name in enumerate(selected_schools)
+    }
+    average_palette = ["#111827", "#7C3AED", "#D97706"]
+    average_colors = {
+        line_name: average_palette[index % len(average_palette)]
+        for index, line_name in enumerate(sorted(average_line_names))
+    }
+
+    def _style(fig: go.Figure) -> None:
+        for trace in fig.data:
+            trace_name = getattr(trace, "name", "") or ""
+
+            if trace_name in average_line_names:
+                trace.update(
+                    opacity=1.0,
+                    line={"width": 4, "dash": "dash", "color": average_colors.get(trace_name, "#111827")},
+                    marker={"size": 8, "color": average_colors.get(trace_name, "#111827")},
+                )
+                continue
+
+            if trace_name in selected_school_set:
+                color = selected_colors.get(trace_name, "#0F4C81")
+                trace.update(
+                    opacity=1.0,
+                    line={"width": 3, "color": color},
+                    marker={"size": 8, "color": color},
+                )
+                continue
+
+            if trace_name in grouped_schools:
+                trace.update(
+                    opacity=0.22,
+                    line={"width": 1.2, "color": "#94A3B8"},
+                    marker={"size": 4, "color": "#CBD5E1"},
+                )
+
+        fig.update_layout(
+            legend_title_text="비교 대상",
+            title={"x": 0.02, "xanchor": "left"},
+            plot_bgcolor="#FAFAF8",
+            paper_bgcolor="#FFFFFF",
+        )
+
+    return _style
+
+
 def main() -> None:
     st.set_page_config(page_title=f"{PAGE.title} | 교육여건 지표", page_icon=PAGE.icon, layout="wide")
     st.title(f"{PAGE.icon} {PAGE.title}")
@@ -192,12 +260,13 @@ def main() -> None:
         st.stop()
 
     chart_df = build_chart_frame(df, selected_schools, group_definitions)
+    chart_styler = build_chart_styler(selected_schools, group_definitions)
     active_groups = [name for name, school_list in group_definitions.items() if name and school_list]
 
     if active_groups:
-        st.info(f"그래프에 그룹 평균선이 함께 표시됩니다: {', '.join(active_groups)}")
+        st.info(f"그래프에는 선택 학교, 그룹 구성 학교, 그룹 평균선이 함께 표시됩니다: {', '.join(active_groups)}")
     else:
-        st.caption("활성화된 그룹이 없어서 현재는 개별 학교 추이만 표시됩니다.")
+        st.caption("활성화된 그룹이 없어서 현재는 선택 학교 추이만 표시됩니다.")
 
     render_single_metric_page(
         df=filtered_df,
@@ -206,15 +275,16 @@ def main() -> None:
         year_col=YEAR_COL,
         school_col=SCHOOL_COL,
         latest_year=latest_year,
-        chart_title=f"선택 학교, 그룹 구성 학교, 그룹 평균 {PAGE.title} 추이",
+        chart_title=f"{PAGE.title} 비교 추이",
         definition_rows={
             "출처": "대학알리미 공시자료 (서울 소재 사립대학)",
             "산식": "법정부담금 부담액 ÷ 법정부담금 기준액 × 100 (%)",
             "4주기 인증 기준": PAGE.threshold_note,
-            "그룹 비교": "개별 선택 학교와 그룹 구성 학교의 추이, 그룹 평균값을 함께 표시",
+            "그래프 읽기": "선택 학교는 진하게, 그룹 평균은 굵은 점선으로, 그룹 구성 학교는 옅은 배경선으로 표시",
             "데이터 기준일": DATA_UPDATED,
         },
         kpi_threshold_suffix=f"{SERIES.threshold:.1f}% 이상",
+        chart_styler=chart_styler,
     )
     st.markdown("---")
     st.caption(f"데이터 출처: 대학알리미 | 기준일: {DATA_UPDATED}")
