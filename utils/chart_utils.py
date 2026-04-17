@@ -160,3 +160,19 @@ def create_multi_metric_line_chart(
         height=height,
     )
     return fig
+
+
+def style_traces_by_name_contains(
+    fig: go.Figure,
+    text: str,
+    *,
+    dash: str = "dash",
+    width: int = 4,
+) -> go.Figure:
+    """Apply a shared style to traces whose label contains the given text."""
+
+    for trace in fig.data:
+        trace_name = getattr(trace, "name", "") or ""
+        if text in trace_name:
+            trace.update(line={"dash": dash, "width": width})
+    return fig

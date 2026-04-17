@@ -12,6 +12,7 @@ from utils.chart_utils import (
     add_threshold_hlines,
     create_multi_metric_line_chart,
     create_trend_line_chart,
+    style_traces_by_name_contains,
 )
 
 from .kpi import build_dual_metric_kpis, build_single_metric_kpis, render_kpis
@@ -43,12 +44,14 @@ def _render_single_chart(df: pd.DataFrame, *, year_col: str, school_col: str, me
             color=metric.threshold.color or "red",
             dash=metric.threshold.dash,
         )
+    style_traces_by_name_contains(fig, "평균")
     st.plotly_chart(fig, use_container_width=True)
 
 
 def render_single_metric_page(
     *,
     df: pd.DataFrame,
+    chart_df: pd.DataFrame | None = None,
     metric: MetricSpec,
     year_col: str,
     school_col: str,
@@ -82,7 +85,7 @@ def render_single_metric_page(
     with chart_col:
         st.subheader(metric.chart_title or metric.label)
         _render_single_chart(
-            df,
+            chart_df if chart_df is not None else df,
             year_col=year_col,
             school_col=school_col,
             metric=metric,
