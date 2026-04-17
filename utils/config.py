@@ -1,98 +1,82 @@
-"""
-앱 전역 설정 및 상수 중앙 관리
-- 기준값·임계치 등 변경이 필요한 값은 이 파일에서만 수정
-- API 연동 설정은 .env 파일에서 관리 (이 파일에는 기본값만 기재)
-"""
+"""Global config constants backed by the typed metric registry."""
+
+from __future__ import annotations
 
 import os
 
-# ── 앱 기본 정보 ─────────────────────────────────────────────────────────────
-APP_TITLE    = "서울 소재 사립대학교 교육여건 지표 시각화"
-APP_SUBTITLE = "대학알리미 공시자료 기반 대학기관평가인증 정량지표 추이 분석"
-APP_ICON     = "🎓"
-DATA_UPDATED = "2026-03-09"
+from registry import APP_METADATA, get_metric, get_series
 
-# ── 법정부담금 부담율 ─────────────────────────────────────────────────────────
-BUDAM_CSV            = "법정부담금_부담율.csv"
-BUDAM_CSV_ENCODING   = "utf-8-sig"
-BUDAM_THRESHOLD      = 10.0          # 4주기 인증 기준 (%)
-BUDAM_DEFAULT_SCHOOL = "성신여자대학교"
-BUDAM_PAGE_TITLE     = "법정부담금 부담율"
-BUDAM_PAGE_ICON      = "🛡️"
 
-# ── 전임교원 확보율 ───────────────────────────────────────────────────────────
-GYOWON_CSV            = "전임교원_확보율.csv"
-GYOWON_CSV_ENCODING   = "utf-8-sig"
-GYOWON_THRESHOLD      = 61.0         # 4주기 인증 기준 (학생정원 기준, %)
-GYOWON_DEFAULT_SCHOOL = "성신여자대학교"
-GYOWON_PAGE_TITLE     = "전임교원 확보율"
-GYOWON_PAGE_ICON      = "👨‍🏫"
+APP_TITLE = APP_METADATA["title"]
+APP_SUBTITLE = APP_METADATA["subtitle"]
+APP_ICON = APP_METADATA["icon"]
+DATA_UPDATED = APP_METADATA["data_updated"]
 
-# 전임교원 확보율 컬럼명 매핑
-GYOWON_COL_JEONGWON   = "전임교원 확보율(학생정원 기준)"
-GYOWON_COL_JAEHAK     = "전임교원 확보율(재학생 기준)"
+_BUDAM = get_metric("budam")
+BUDAM_CSV = _BUDAM.csv_file
+BUDAM_CSV_ENCODING = _BUDAM.csv_encoding
+BUDAM_THRESHOLD = get_series("budam_rate").threshold
+BUDAM_DEFAULT_SCHOOL = _BUDAM.default_school
+BUDAM_PAGE_TITLE = _BUDAM.title
+BUDAM_PAGE_ICON = _BUDAM.icon
 
-# ── 연구비 수혜실적 ───────────────────────────────────────────────────────────
-RESEARCH_CSV            = "연구비_수혜실적.csv"
-RESEARCH_CSV_ENCODING   = "utf-8-sig"
-RESEARCH_THRESHOLD_IN   = 1_000.0    # 교내 기준 (천원, 4주기 인증 기준)
-RESEARCH_THRESHOLD_OUT  = 10_000.0   # 교외 기준 (천원, 4주기 인증 기준)
-RESEARCH_DEFAULT_SCHOOL = "성신여자대학교"
-RESEARCH_PAGE_TITLE     = "전임교원 1인당 연구비"
-RESEARCH_PAGE_ICON      = "🔬"
+_GYOWON = get_metric("gyowon")
+GYOWON_CSV = _GYOWON.csv_file
+GYOWON_CSV_ENCODING = _GYOWON.csv_encoding
+GYOWON_THRESHOLD = get_series("gyowon_jeongwon").threshold
+GYOWON_DEFAULT_SCHOOL = _GYOWON.default_school
+GYOWON_PAGE_TITLE = _GYOWON.title
+GYOWON_PAGE_ICON = _GYOWON.icon
+GYOWON_COL_JEONGWON = get_series("gyowon_jeongwon").column
+GYOWON_COL_JAEHAK = get_series("gyowon_jaehak").column
 
-# 연구비 컬럼명
-RESEARCH_COL_IN         = "전임교원 1인당 연구비(교내)"
-RESEARCH_COL_OUT        = "전임교원 1인당 연구비(교외)"
+_RESEARCH = get_metric("research")
+RESEARCH_CSV = _RESEARCH.csv_file
+RESEARCH_CSV_ENCODING = _RESEARCH.csv_encoding
+RESEARCH_THRESHOLD_IN = get_series("research_in").threshold
+RESEARCH_THRESHOLD_OUT = get_series("research_out").threshold
+RESEARCH_DEFAULT_SCHOOL = _RESEARCH.default_school
+RESEARCH_PAGE_TITLE = _RESEARCH.title
+RESEARCH_PAGE_ICON = _RESEARCH.icon
+RESEARCH_COL_IN = get_series("research_in").column
+RESEARCH_COL_OUT = get_series("research_out").column
 
-# ── 전임교원 1인당 논문실적 ──────────────────────────────────────────────────
-PAPER_CSV            = "전임교원_논문실적.csv"
-PAPER_CSV_ENCODING   = "utf-8-sig"
-# TODO: 4주기 인증 기준값 확인 후 수정 필요, 처리완료(2026.3.10)
-PAPER_THRESHOLD_JAEJI = 0.35          # 등재(후보지) 논문 기준 (편/인)
-PAPER_THRESHOLD_SCI   = 0.05          # SCI급/SCOPUS 논문 기준 (편/인)
-PAPER_DEFAULT_SCHOOL  = "성신여자대학교"
-PAPER_PAGE_TITLE      = "전임교원 1인당 논문실적"
-PAPER_PAGE_ICON       = "📄"
+_PAPER = get_metric("paper")
+PAPER_CSV = _PAPER.csv_file
+PAPER_CSV_ENCODING = _PAPER.csv_encoding
+PAPER_THRESHOLD_JAEJI = get_series("paper_jaeji").threshold
+PAPER_THRESHOLD_SCI = get_series("paper_sci").threshold
+PAPER_DEFAULT_SCHOOL = _PAPER.default_school
+PAPER_PAGE_TITLE = _PAPER.title
+PAPER_PAGE_ICON = _PAPER.icon
+PAPER_COL_JAEJI = get_series("paper_jaeji").column
+PAPER_COL_SCI = get_series("paper_sci").column
 
-# 논문실적 컬럼명
-PAPER_COL_JAEJI = "전임교원1인당논문실적(국내, 연구재단등재지(후보포함))"
-PAPER_COL_SCI   = "전임교원1인당논문실적(국제, SCI급/SCOPUS학술지)"
+_JIROSUNG = get_metric("jirosung")
+JIROSUNG_CSV = _JIROSUNG.csv_file
+JIROSUNG_CSV_ENCODING = _JIROSUNG.csv_encoding
+JIROSUNG_THRESHOLD = get_series("jirosung_outcome").threshold
+JIROSUNG_DEFAULT_SCHOOL = _JIROSUNG.default_school
+JIROSUNG_PAGE_TITLE = _JIROSUNG.title
+JIROSUNG_PAGE_ICON = _JIROSUNG.icon
 
-# ── 졸업생 진로 성과 ─────────────────────────────────────────────────────────
-JIROSUNG_CSV            = "졸업생_취업률.csv"
-JIROSUNG_CSV_ENCODING   = "utf-8-sig"
-JIROSUNG_THRESHOLD      = 55.0        # 4주기 인증 기준 (%)
-JIROSUNG_DEFAULT_SCHOOL = "성신여자대학교"
-JIROSUNG_PAGE_TITLE     = "졸업생 진로 성과"
-JIROSUNG_PAGE_ICON      = "🎓"
+_TUITION = get_metric("tuition")
+GYEOLSAN_CSV = _TUITION.csv_file
+GYEOLSAN_CSV_ENCODING = _TUITION.csv_encoding
+TUITION_THRESHOLD = get_series("tuition_ratio").threshold
+TUITION_DEFAULT_SCHOOL = _TUITION.default_school
+TUITION_PAGE_TITLE = _TUITION.title
+TUITION_PAGE_ICON = _TUITION.icon
 
-# ── 세입 중 등록금 비율 ───────────────────────────────────────────────────────
-GYEOLSAN_CSV             = "결산(22,23,24).csv"
-GYEOLSAN_CSV_ENCODING    = "utf-8-sig"
-TUITION_THRESHOLD        = 72.0          # 4주기 인증 기준 (%)
-TUITION_DEFAULT_SCHOOL   = "성신여자대학교"
-TUITION_PAGE_TITLE       = "세입 중 등록금 비율"
-TUITION_PAGE_ICON        = "💰"
+_DONATION = get_metric("donation")
+DONATION_THRESHOLD = get_series("donation_ratio").threshold
+DONATION_DEFAULT_SCHOOL = _DONATION.default_school
+DONATION_PAGE_TITLE = _DONATION.title
+DONATION_PAGE_ICON = _DONATION.icon
 
-# ── 세입 중 기부금 비율 ───────────────────────────────────────────────────────
-DONATION_THRESHOLD       = 0.4           # 4주기 인증 기준 (%)
-DONATION_DEFAULT_SCHOOL  = "성신여자대학교"
-DONATION_PAGE_TITLE      = "세입 중 기부금 비율"
-DONATION_PAGE_ICON       = "🤝"
-
-# ── 차트 공통 설정 ───────────────────────────────────────────────────────────
-CHART_HEIGHT          = 500
+CHART_HEIGHT = 500
 CHART_THRESHOLD_COLOR = "red"
-CHART_TEMPLATE        = "plotly_white"
+CHART_TEMPLATE = "plotly_white"
 
-# ── data.go.kr API 연동 설정 ─────────────────────────────────────────────────
-# 실제 인증키와 데이터 소스 선택은 .env 파일에서 관리합니다.
-# .env.example 파일을 복사하여 .env를 생성하고 값을 입력하세요.
-
-# 데이터 소스: "csv" (기본값, 오프라인 가능) | "api" (실시간 data.go.kr 호출)
 DATA_SOURCE: str = os.getenv("DATA_SOURCE", "csv")
-
-# data.go.kr 인증키 (Encoding 또는 Decoding 키 중 하나)
-# 보안상 이 파일에 직접 입력하지 말고 .env 파일에 입력하세요.
 DATAGOKR_API_KEY: str = os.getenv("DATAGOKR_API_KEY", "")

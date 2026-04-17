@@ -15,6 +15,7 @@ from utils.api.endpoints import (
     GYOWON_ENDPOINT,
     GYOWON_COLUMN_MAP,
 )
+from utils.data_pipeline import COLUMN_ALIASES
 from utils.repository.base import AbstractUniversityRepository
 
 
@@ -76,5 +77,8 @@ class ApiUniversityRepository(AbstractUniversityRepository):
         # GYOWON_COLUMN_MAP에 없는 컬럼은 그대로 유지 (추후 DataService가 필요 컬럼만 사용)
         existing_map = {k: v for k, v in GYOWON_COLUMN_MAP.items() if k in df.columns}
         df = df.rename(columns=existing_map)
+        aliases = {source: target for source, target in COLUMN_ALIASES.items() if source in df.columns}
+        if aliases:
+            df = df.rename(columns=aliases)
 
         return df

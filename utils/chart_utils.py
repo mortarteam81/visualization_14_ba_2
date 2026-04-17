@@ -5,6 +5,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -83,5 +86,77 @@ def add_threshold_hline(
         line_color=color,
         annotation_text=label,
         annotation_position="top right",
+    )
+    return fig
+
+
+def add_threshold_hlines(
+    fig: go.Figure,
+    thresholds: Sequence[object],
+) -> go.Figure:
+    """
+    Add multiple threshold lines to a chart.
+
+    The threshold objects are expected to expose `value`, `label`,
+    and optionally `color`, `dash`, and `annotation_position`.
+    """
+
+    for threshold in thresholds:
+        fig.add_hline(
+            y=threshold.value,
+            line_dash=getattr(threshold, "dash", "dash"),
+            line_color=getattr(threshold, "color", CHART_THRESHOLD_COLOR) or CHART_THRESHOLD_COLOR,
+            annotation_text=threshold.label,
+            annotation_position=getattr(threshold, "annotation_position", "top right"),
+        )
+    return fig
+
+
+def create_multi_metric_line_chart(
+    df,
+    x: str,
+    metrics: Sequence[tuple[str, str]],
+    title: str,
+    y_label: str = "",
+    height: int = CHART_HEIGHT,
+    color_map: dict[str, str] | None = None,
+) -> go.Figure:
+    """
+    Create a comparison line chart for multiple metric columns in one dataframe.
+    """
+
+    rename_map = {value_col: label for label, value_col in metrics}
+    long_df = (
+        pd.DataFrame(df[[x] + [value_col for _, value_col in metrics]])
+        .rename(columns=rename_map)
+        .melt(
+            id_vars=x,
+            value_vars=[label for label, _ in metrics],
+            var_name="metric",
+            value_name="value",
+        )
+    )
+
+    fig = px.line(
+        long_df,
+        x=x,
+        y="value",
+        color="metric",
+        markers=True,
+        title=title,
+        labels={x: x, "value": y_label or "value", "metric": "Metric"},
+        template=CHART_TEMPLATE,
+        color_discrete_map=color_map,
+    )
+    fig.update_layout(
+        hovermode="x unified",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5,
+        ),
+        height=height,
     )
     return fig

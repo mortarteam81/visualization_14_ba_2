@@ -20,6 +20,7 @@ from utils.config import (
     GYOWON_COL_JAEHAK,
 )
 from utils.repository.base import AbstractUniversityRepository
+from utils.data_pipeline import COLUMN_ALIASES
 
 # 프로젝트 루트 기준 data/ 디렉토리 (기본값)
 _DEFAULT_DATA_DIR = Path(__file__).parent.parent.parent / "data"
@@ -61,6 +62,9 @@ class CsvUniversityRepository(AbstractUniversityRepository):
         self._check_file(path)
 
         df = pd.read_csv(path, encoding=GYOWON_CSV_ENCODING)
+        aliases = {source: target for source, target in COLUMN_ALIASES.items() if source in df.columns}
+        if aliases:
+            df = df.rename(columns=aliases)
 
         # 필수 컬럼 존재 여부 검증
         required = {
