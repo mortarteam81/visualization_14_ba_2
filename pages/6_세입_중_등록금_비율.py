@@ -69,6 +69,7 @@ def main() -> None:
         school_col="학교명",
         latest_year=latest_year,
         chart_title=f"선택 학교 ({len(selected_schools)}개) {PAGE.title} 추이",
+        selected_schools=selected_schools,
         definition_rows={
             "출처": "대학알리미 공시자료 결산 현황 (서울 소재 사립대학교)",
             "산식": "등록금수입 ÷ 운영수입 × 100 (%)",

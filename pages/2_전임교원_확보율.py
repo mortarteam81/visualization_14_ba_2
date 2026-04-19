@@ -95,6 +95,7 @@ def main() -> None:
         school_col="학교명",
         latest_year=latest_year,
         chart_title=f"선택 학교 ({len(selected_schools)}개) {PAGE.title} 추이 ({criterion})",
+        selected_schools=selected_schools,
         definition_rows={
             "출처": "대학알리미 공시자료 (서울 소재 사립대학교)",
             "학생정원 기준 산식": "전임교원 수 ÷ 교원법정정원(학생정원 기준) × 100 (%)",

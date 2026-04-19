@@ -66,6 +66,7 @@ def main() -> None:
         year_col="기준년도",
         school_col="학교명",
         latest_year=latest_year,
+        selected_schools=selected_schools,
         definition_rows={
             "출처": "대학알리미 공시자료 (서울 소재 사립대학교)",
             "교내 산식": "교내 연구비 합계 ÷ 전임교원 수",

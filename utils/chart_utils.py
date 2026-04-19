@@ -229,3 +229,92 @@ def style_traces_by_name_contains(
         if text in trace_name:
             trace.update(line={"dash": dash, "width": width})
     return fig
+
+
+def _add_end_label_annotation(
+    fig: go.Figure,
+    *,
+    trace: go.Scatter,
+    label: str,
+    font_size: int,
+    font_color: str = "#F8FBFF",
+    yshift: int = 0,
+) -> None:
+    raw_x = getattr(trace, "x", None)
+    raw_y = getattr(trace, "y", None)
+    x_values = list(raw_x) if raw_x is not None else []
+    y_values = list(raw_y) if raw_y is not None else []
+    if not x_values or not y_values:
+        return
+
+    fig.add_annotation(
+        x=1.02,
+        y=y_values[-1],
+        xref="paper",
+        yref="y",
+        text=label,
+        yshift=yshift,
+        showarrow=False,
+        xanchor="left",
+        align="left",
+        font={"size": font_size, "color": font_color},
+        bgcolor="rgba(15, 23, 42, 0.0)",
+        borderpad=0,
+    )
+
+
+def emphasize_selected_traces(
+    fig: go.Figure,
+    selected_names: Sequence[str],
+    *,
+    line_width: float = 4.2,
+    marker_size: int = 8,
+    dim_opacity: float = 0.22,
+    label_font_size: int = 12,
+) -> go.Figure:
+    """Make selected traces easier to read with stronger lines and end labels."""
+
+    selected_set = {name for name in selected_names if name}
+    if not selected_set:
+        return fig
+
+    label_offsets = (-14, 0, 14, -24, 24)
+    offset_map = {
+        name: label_offsets[index % len(label_offsets)]
+        for index, name in enumerate(selected_names)
+        if name
+    }
+
+    for trace in fig.data:
+        trace_name = getattr(trace, "name", "") or ""
+        raw_x = getattr(trace, "x", None)
+        x_values = list(raw_x) if raw_x is not None else []
+        point_count = len(x_values)
+
+        if trace_name in selected_set:
+            current_line = dict(getattr(trace, "line", {}) or {})
+            current_marker = dict(getattr(trace, "marker", {}) or {})
+            labels = [""] * point_count
+            if point_count:
+                labels[-1] = trace_name
+
+            trace.update(
+                opacity=1.0,
+                line={**current_line, "width": max(float(current_line.get("width", 2.5)), line_width)},
+                marker={**current_marker, "size": max(int(current_marker.get("size", 6)), marker_size)},
+                mode="lines+markers",
+                cliponaxis=False,
+            )
+            _add_end_label_annotation(
+                fig,
+                trace=trace,
+                label=trace_name,
+                font_size=label_font_size,
+                yshift=offset_map.get(trace_name, 0),
+            )
+        else:
+            trace.update(opacity=min(getattr(trace, "opacity", 1.0), dim_opacity))
+
+    current_margin = dict(getattr(fig.layout, "margin", {}) or {})
+    fig.update_layout(margin={**current_margin, "r": max(int(current_margin.get("r", 40)), 220)})
+    return fig

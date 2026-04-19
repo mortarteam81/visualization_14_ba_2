@@ -212,17 +212,30 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
     selected_school_set = set(selected_schools)
     grouped_school_names = sorted(grouped_schools - selected_school_set)
 
-    selected_palette = ["#4F8CFF", "#F97316", "#22C55E", "#A855F7", "#F43F5E", "#06B6D4"]
+    selected_palette = ["#6EA8FF", "#FF9A4D", "#4ADE80", "#C084FC", "#FF6B9A", "#67E8F9"]
     selected_colors = {
         school_name: selected_palette[index % len(selected_palette)]
         for index, school_name in enumerate(selected_schools)
     }
-    grouped_palette = qualitative.Safe + qualitative.Set2 + qualitative.Pastel
+    grouped_palette = [
+        "#8EC5FF",
+        "#FDBA74",
+        "#86EFAC",
+        "#F9A8D4",
+        "#C4B5FD",
+        "#7DD3FC",
+        "#FDE68A",
+        "#93C5FD",
+        "#FCA5A5",
+        "#A7F3D0",
+        "#D8B4FE",
+        "#BFDBFE",
+    ]
     grouped_colors = {
         school_name: grouped_palette[index % len(grouped_palette)]
         for index, school_name in enumerate(grouped_school_names)
     }
-    average_palette = ["#F6C453", "#C084FC", "#FB923C"]
+    average_palette = ["#FFD166", "#D8B4FE", "#FDBA74"]
     average_colors = {
         line_name: average_palette[index % len(average_palette)]
         for index, line_name in enumerate(sorted(average_line_names))
@@ -234,17 +247,50 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
         )
     }
 
-    def _apply_last_point_label(trace: go.Scatter, text: str) -> None:
-        point_count = len(trace.x) if getattr(trace, "x", None) is not None else 0
+    def _apply_last_point_label(fig: go.Figure, trace: go.Scatter, text: str) -> None:
+        raw_x = getattr(trace, "x", None)
+        raw_y = getattr(trace, "y", None)
+        x_values = list(raw_x) if raw_x is not None else []
+        y_values = list(raw_y) if raw_y is not None else []
+        if not x_values or not y_values:
+            return
+
+        trace.update(mode="lines+markers", cliponaxis=False)
+        fig.add_annotation(
+            x=1.02,
+            y=y_values[-1],
+            xref="paper",
+            yref="y",
+            text=text,
+            yshift={"middle right": 0, "top right": -14, "bottom right": 14}.get(
+                label_positions.get(text, "middle right"),
+                0,
+            ),
+            showarrow=False,
+            xanchor="left",
+            align="left",
+            font={"size": 12, "color": "#F8FBFF"},
+            bgcolor="rgba(15, 23, 42, 0.0)",
+            borderpad=0,
+        )
+
+    def _apply_last_point_trace_label(trace: go.Scatter, text: str) -> None:
+        raw_x = getattr(trace, "x", None)
+        if raw_x is None:
+            return
+
+        point_count = len(list(raw_x))
         if point_count == 0:
             return
+
         labels = [""] * point_count
         labels[-1] = text
+        trace_color = getattr(getattr(trace, "line", None), "color", None) or "#E7EEF8"
         trace.update(
             mode="lines+markers+text",
             text=labels,
             textposition=label_positions.get(text, "middle right"),
-            textfont={"size": 12, "color": "#F8FBFF"},
+            textfont={"size": 11, "color": trace_color},
             cliponaxis=False,
         )
 
@@ -259,7 +305,7 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
                     line={"width": 3.2, "dash": "dash", "color": color},
                     marker={"size": 7, "color": color},
                 )
-                _apply_last_point_label(trace, trace_name)
+                _apply_last_point_label(fig, trace, trace_name)
                 continue
 
             if trace_name in selected_school_set:
@@ -269,7 +315,7 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
                     line={"width": 3.8, "color": color},
                     marker={"size": 8, "color": color},
                 )
-                _apply_last_point_label(trace, trace_name)
+                _apply_last_point_label(fig, trace, trace_name)
                 continue
 
             if trace_name in grouped_schools:
@@ -278,14 +324,16 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
                     opacity=0.5,
                     line={"width": 2.1, "color": color},
                     marker={"size": 5, "color": color},
+                    visible="legendonly",
                 )
+                _apply_last_point_trace_label(trace, trace_name)
 
         fig.update_layout(
             title={"x": 0.02, "xanchor": "left"},
             plot_bgcolor="rgba(15, 23, 42, 0.82)",
             paper_bgcolor="rgba(15, 23, 42, 0.0)",
             hovermode="closest",
-            margin={"r": 180, "b": 132, "t": 56},
+            margin={"r": 220, "b": 132, "t": 56},
             legend={
                 "orientation": "h",
                 "yanchor": "top",
@@ -479,12 +527,38 @@ def render_bump_chart(
     if ranking_frame.empty:
         return
 
-    selected_palette = ["#4F8CFF", "#F97316", "#22C55E", "#A855F7", "#F43F5E", "#06B6D4"]
+    selected_palette = ["#7CB8FF", "#FFAE66", "#5AF08D", "#D09CFF", "#FF85AD", "#7CEBFF"]
     selected_colors = {
         school_name: selected_palette[index % len(selected_palette)]
         for index, school_name in enumerate(selected_schools)
     }
-    average_palette = ["#F6C453", "#C084FC", "#FB923C"]
+    grouped_school_names = sorted(
+        {
+            school
+            for schools_in_group in group_definitions.values()
+            for school in schools_in_group
+        }
+        - set(selected_schools)
+    )
+    grouped_palette = [
+        "#8EC5FF",
+        "#FDBA74",
+        "#86EFAC",
+        "#F9A8D4",
+        "#C4B5FD",
+        "#7DD3FC",
+        "#FDE68A",
+        "#93C5FD",
+        "#FCA5A5",
+        "#A7F3D0",
+        "#D8B4FE",
+        "#BFDBFE",
+    ]
+    grouped_colors = {
+        school_name: grouped_palette[index % len(grouped_palette)]
+        for index, school_name in enumerate(grouped_school_names)
+    }
+    average_palette = ["#FFD76A", "#E2C1FF", "#FFC98B"]
     average_colors = {
         line_name: average_palette[index % len(average_palette)]
         for index, line_name in enumerate(sorted(average_line_names))
@@ -503,10 +577,10 @@ def render_bump_chart(
 
         is_selected = school_name in selected_schools
         is_average = school_name in average_line_names
-        color = "#64748B"
+        color = grouped_colors.get(school_name, "#A8B6CC")
         width = 2.0
         dash = "solid"
-        opacity = 0.45
+        opacity = 0.52
         marker_size = 7
 
         if is_average:
@@ -522,22 +596,24 @@ def render_bump_chart(
             marker_size = 8
 
         labels = [""] * len(school_frame)
-        if is_average or is_selected:
+        if len(school_frame) > 0:
             labels[-1] = school_name
 
         hover_name = school_name
+        is_default_visible = show_selected_only or is_average or is_selected
         fig.add_trace(
             go.Scatter(
                 x=school_frame[YEAR_COL],
                 y=school_frame["rank"],
-                mode="lines+markers+text" if labels[-1] else "lines+markers",
+                mode="lines+markers+text",
                 name=school_name,
-                text=labels if labels[-1] else None,
+                text=labels,
                 textposition=label_positions.get(school_name, "middle right"),
-                textfont={"size": 11, "color": "#F8FBFF"},
+                textfont={"size": 11, "color": color},
                 line={"color": color, "width": width, "dash": dash},
                 marker={"size": marker_size, "color": color},
                 opacity=opacity,
+                visible=True if is_default_visible else "legendonly",
                 hovertemplate=(
                     f"학교명={hover_name}<br>기준연도=%{{x}}<br>순위=%{{y}}위<extra></extra>"
                 ),
@@ -564,7 +640,7 @@ def render_bump_chart(
             "bgcolor": "rgba(15, 23, 42, 0.72)",
             "bordercolor": "rgba(148, 163, 184, 0.16)",
             "borderwidth": 1,
-            "font": {"size": 11, "color": "#E7EEF8"},
+            "font": {"size": 11, "color": "#F8FBFF"},
             "title": {"text": "학교명", "font": {"size": 12, "color": "#F6C453"}},
         },
     )
@@ -768,6 +844,7 @@ def main() -> None:
         school_col=SCHOOL_COL,
         latest_year=latest_year,
         chart_title=f"{PAGE.title} 비교 추이",
+        selected_schools=selected_schools,
         definition_rows={
             "출처": "대학알리미 공시자료 (서울 소재 사립대학)",
             "산식": "법정부담금 부담액 ÷ 법정부담금 기준액 × 100 (%)",

@@ -13,6 +13,7 @@ from utils.chart_utils import (
     add_threshold_hlines,
     create_multi_metric_line_chart,
     create_trend_line_chart,
+    emphasize_selected_traces,
     style_traces_by_name_contains,
 )
 
@@ -34,6 +35,7 @@ def _render_single_chart(
     school_col: str,
     metric: MetricSpec,
     title: str,
+    selected_schools: Sequence[str] | None = None,
     chart_styler: Callable[[go.Figure], None] | None = None,
 ) -> None:
     fig = create_trend_line_chart(
@@ -56,6 +58,8 @@ def _render_single_chart(
     style_traces_by_name_contains(fig, "평균")
     if chart_styler is not None:
         chart_styler(fig)
+    else:
+        emphasize_selected_traces(fig, list(selected_schools or []))
     st.plotly_chart(fig, width="stretch")
 
 
@@ -68,6 +72,7 @@ def render_single_metric_page(
     school_col: str,
     latest_year: int | str,
     chart_title: str,
+    selected_schools: Sequence[str] | None = None,
     stats_title: str = "Yearly stats",
     pivot_label: str = "Year by school",
     definition_rows: Mapping[str, str] | None = None,
@@ -100,6 +105,7 @@ def render_single_metric_page(
         school_col=school_col,
         metric=metric,
         title=chart_title,
+        selected_schools=selected_schools,
         chart_styler=chart_styler,
     )
 
@@ -129,6 +135,7 @@ def render_dual_metric_page(
     year_col: str,
     school_col: str,
     latest_year: int | str,
+    selected_schools: Sequence[str] | None = None,
     pivot_label: str = "Year by school",
     definition_rows: Mapping[str, str] | None = None,
 ) -> None:
@@ -160,6 +167,7 @@ def render_dual_metric_page(
                 school_col=school_col,
                 metric=metric,
                 title=metric.chart_title or metric.label,
+                selected_schools=selected_schools,
             )
 
             with st.expander("Yearly stats", expanded=False):
@@ -191,6 +199,7 @@ def render_optional_page(
     school_col: str,
     latest_year: int | str,
     chart_title: str,
+    selected_schools: Sequence[str] | None = None,
     definition_rows: Mapping[str, str] | None = None,
     sections: Sequence[OptionSection] = (),
     context: Mapping[str, Any] | None = None,
@@ -212,6 +221,7 @@ def render_optional_page(
         school_col=school_col,
         latest_year=latest_year,
         chart_title=chart_title,
+        selected_schools=selected_schools,
         definition_rows=definition_rows,
     )
 
