@@ -13,7 +13,7 @@ from utils.ai_providers import LMStudioError
 def _render_analysis_list(title: str, items: list[str]) -> None:
     st.markdown(f"**{title}**")
     if not items:
-        st.caption("표시할 내용이 없습니다.")
+        st.caption("생성된 내용이 없습니다.")
         return
     for item in items:
         st.markdown(f"- {item}")
@@ -31,7 +31,7 @@ def render_metric_ai_analysis_panel(
     group_definitions: dict[str, list[str]] | None = None,
 ) -> None:
     st.subheader("AI 분석")
-    st.caption("LM Studio 로컬 모델로 현재 선택 학교와 그룹 비교를 요약합니다.")
+    st.caption("LM Studio 기반으로 선택 학교와 비교 그룹 흐름을 함께 해석합니다.")
 
     group_definitions = group_definitions or {}
     result_key = f"{page_key}_ai_analysis_result"
@@ -44,9 +44,9 @@ def render_metric_ai_analysis_panel(
     with control_col1:
         selected_metric_label = st.selectbox("분석 지표", metric_labels, key=f"{page_key}_ai_metric")
     with control_col2:
-        tone = st.selectbox("분석 톤", ["보고서형", "간결형"], key=f"{page_key}_ai_tone")
+        tone = st.selectbox("분석 톤", ["실무 보고형", "전략 제안형"], key=f"{page_key}_ai_tone")
     with control_col3:
-        focus = st.selectbox("분석 초점", ["선택 학교 중심", "그룹 비교 중심"], key=f"{page_key}_ai_focus")
+        focus = st.selectbox("분석 초점", ["선택 학교 중심", "비교 그룹 중심"], key=f"{page_key}_ai_focus")
     with control_col4:
         run_analysis = st.button("AI 분석 실행", width="stretch", type="primary", key=f"{page_key}_ai_run")
 
@@ -67,7 +67,7 @@ def render_metric_ai_analysis_panel(
             threshold_label=selected_metric.threshold.label if selected_metric.threshold else None,
         )
         try:
-            with st.spinner("LM Studio로 분석 결과를 생성하는 중입니다..."):
+            with st.spinner("LM Studio로 AI 분석을 생성하고 있습니다..."):
                 st.session_state[result_key] = analyze_metric_with_lmstudio(
                     payload,
                     tone=tone,
@@ -84,7 +84,7 @@ def render_metric_ai_analysis_panel(
     error_message = st.session_state.get(error_key, "")
     if error_message:
         st.error(error_message)
-        st.caption("LM Studio 서버 주소, 모델 로드 상태, base URL 또는 포트 설정을 확인해 주세요.")
+        st.caption("LM Studio 연결 상태, 모델 설정, base URL을 확인해 주세요.")
         return
 
     result = st.session_state.get(result_key)
@@ -94,11 +94,19 @@ def render_metric_ai_analysis_panel(
 
     summary_col, threshold_col = st.columns([1.3, 1])
     with summary_col:
-        st.markdown("**핵심 요약**")
+        st.markdown("**요약**")
         st.write(result["summary"] or "요약이 생성되지 않았습니다.")
     with threshold_col:
         st.markdown("**기준 해석**")
         st.write(result["threshold_assessment"] or "기준 해석이 생성되지 않았습니다.")
+
+    st.markdown("**경영 시사점**")
+    management_implications = result.get("management_implications", [])
+    if management_implications:
+        for item in management_implications:
+            st.markdown(f"- {item}")
+    else:
+        st.caption("경영 시사점이 생성되지 않았습니다.")
 
     detail_col1, detail_col2 = st.columns(2)
     with detail_col1:

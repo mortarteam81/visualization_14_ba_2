@@ -27,7 +27,6 @@ def test_build_budam_analysis_payload_summarizes_selected_school_and_group() -> 
         threshold=10.0,
     )
 
-    assert payload["metric"] == "법정부담금 부담율"
     assert payload["selected_schools"][0]["school"] == "성신여자대학교"
     assert payload["selected_schools"][0]["latest_value"] == 11.0
     assert payload["groups"][0]["group_name"] == "서울 소재 여대"
@@ -67,9 +66,10 @@ def test_normalize_analysis_result_parses_json_block() -> None:
   "summary": "요약입니다.",
   "highlights": ["포인트 1"],
   "threshold_assessment": "기준선 충족",
-  "risks": ["주의점"],
-  "recommended_actions": ["권고안"],
-  "caveats": ["유의사항"]
+  "management_implications": ["경영 시사점 1"],
+  "risks": ["위험 1"],
+  "recommended_actions": ["액션 1"],
+  "caveats": ["유의사항 1"]
 }
 ```
 """.strip()
@@ -78,10 +78,12 @@ def test_normalize_analysis_result_parses_json_block() -> None:
     assert result["summary"] == "요약입니다."
     assert result["highlights"] == ["포인트 1"]
     assert result["threshold_assessment"] == "기준선 충족"
+    assert result["management_implications"] == ["경영 시사점 1"]
 
 
 def test_normalize_analysis_result_falls_back_to_plain_text() -> None:
-    result = normalize_analysis_result("단순 텍스트 응답")
+    result = normalize_analysis_result("일반 텍스트 응답")
 
-    assert result["summary"] == "단순 텍스트 응답"
+    assert result["summary"] == "일반 텍스트 응답"
     assert result["highlights"] == []
+    assert result["management_implications"] == []

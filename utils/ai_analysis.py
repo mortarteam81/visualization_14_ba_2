@@ -14,6 +14,7 @@ DEFAULT_ANALYSIS_RESULT = {
     "summary": "",
     "highlights": [],
     "threshold_assessment": "",
+    "management_implications": [],
     "risks": [],
     "recommended_actions": [],
     "caveats": [],
@@ -322,7 +323,7 @@ def normalize_analysis_result(text: str) -> dict[str, Any]:
         parsed = {"summary": text.strip()}
 
     result = DEFAULT_ANALYSIS_RESULT | parsed
-    for key in ("highlights", "risks", "recommended_actions", "caveats"):
+    for key in ("highlights", "management_implications", "risks", "recommended_actions", "caveats"):
         value = result.get(key)
         if isinstance(value, list):
             result[key] = [str(item) for item in value if str(item).strip()]

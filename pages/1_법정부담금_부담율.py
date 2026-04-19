@@ -773,6 +773,14 @@ def render_ai_analysis_panel(
         st.markdown("**기준선 해석**")
         st.write(result["threshold_assessment"] or "기준선 해석이 생성되지 않았습니다.")
 
+    st.markdown("**ê²½ì˜ ì‹œì‚¬ì **")
+    management_implications = result.get("management_implications", [])
+    if management_implications:
+        for item in management_implications:
+            st.markdown(f"- {item}")
+    else:
+        st.caption("ê²½ì˜ ì‹œì‚¬ì ì´ ìƒì„±ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.")
+
     detail_col1, detail_col2 = st.columns(2)
     with detail_col1:
         _render_analysis_list("주요 시사점", result["highlights"])
