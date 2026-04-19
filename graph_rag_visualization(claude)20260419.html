@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>visualization_14_ba_2 · 코드 관계 아카이브</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  :root {
+    --paper: #f1e8d6;
+    --paper-2: #ebe1cc;
+    --paper-3: #e3d7be;
+    --ink: #1c1612;
+    --ink-2: #3a302a;
+    --ink-3: #6b5d50;
+    --rule: #2a221c;
+    --accent: #b54a2c;
+    --accent-2: #8b3a26;
+
+    --c-entry: #8b3a26;
+    --c-page: #c47b3a;
+    --c-registry: #8a7c2f;
+    --c-data: #3f6678;
+    --c-ui: #4a6b3f;
+    --c-ai: #6b4a6b;
+    --c-external: #5c5246;
+
+    --font-display: "Gowun Batang", "Noto Serif KR", serif;
+    --font-body: "Gowun Dodum", "Pretendard", -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", "D2Coding", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  /* paper grain texture overlay */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(120,90,50,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(60,40,20,0.08) 0%, transparent 40%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.07 0 0 0 0 0.04 0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 0 48px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ─── HEADER ─── */
+  header.masthead {
+    border-bottom: 1.5px solid var(--rule);
+    padding: 36px 0 28px;
+    margin-bottom: 56px;
+    position: relative;
+  }
+  header.masthead::after {
+    content: "";
+    position: absolute;
+    bottom: -5px; left: 0; right: 0;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .masthead-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .masthead-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .masthead-meta span { white-space: nowrap; }
+  .masthead-meta .dot { color: var(--accent); }
+
+  .hero {
+    padding: 56px 0 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: end;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: ""; width: 28px; height: 1px; background: var(--accent);
+  }
+  h1.hero-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(48px, 6vw, 88px);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  h1.hero-title em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .hero-lede {
+    font-family: var(--font-display);
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--ink-2);
+    border-left: 2px solid var(--accent);
+    padding-left: 22px;
+  }
+  .hero-lede strong { color: var(--ink); }
+
+  /* ─── SECTION HEADER ─── */
+  .section {
+    margin-bottom: 96px;
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 14px;
+    margin-bottom: 36px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: var(--ink-3);
+    margin-left: auto;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+  }
+  .section-intro {
+    max-width: 720px;
+    margin-bottom: 32px;
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  /* ─── GRAPH SECTION ─── */
+  .graph-shell {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 0;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-2);
+    box-shadow: 8px 8px 0 -2px var(--rule);
+    overflow: hidden;
+  }
+  .graph-canvas {
+    position: relative;
+    background:
+      linear-gradient(var(--paper-2) 0%, var(--paper) 100%);
+    background-image:
+      linear-gradient(to right, rgba(40,30,20,0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(40,30,20,0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+    border-right: 1.5px solid var(--rule);
+    height: 720px;
+    overflow: hidden;
+  }
+  #graph-svg {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+  }
+  #graph-svg:active { cursor: grabbing; }
+
+  .canvas-toolbar {
+    position: absolute;
+    top: 14px; left: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 10;
+  }
+  .filter-group {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 10px 12px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    box-shadow: 3px 3px 0 -1px var(--rule);
+  }
+  .filter-group-title {
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 6px;
+    font-size: 10px;
+  }
+  .filter-row {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s ease;
+    color: var(--ink-2);
+    border-radius: 1px;
+  }
+  .filter-chip .swatch {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .filter-chip:hover {
+    background: var(--paper-3);
+    border-color: var(--rule);
+  }
+  .filter-chip.off { opacity: 0.35; }
+  .filter-chip.off .swatch { filter: grayscale(1); }
+
+  .canvas-hint {
+    position: absolute;
+    bottom: 14px; right: 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 6px 10px;
+    text-transform: uppercase;
+  }
+
+  /* Detail panel */
+  .detail-panel {
+    background: var(--paper);
+    padding: 28px 26px;
+    overflow-y: auto;
+    height: 720px;
+    position: relative;
+  }
+  .detail-empty {
+    color: var(--ink-3);
+    font-style: italic;
+    font-family: var(--font-display);
+    font-size: 15px;
+    text-align: center;
+    margin-top: 80px;
+    padding: 0 16px;
+  }
+  .detail-empty .pulse {
+    display: inline-block;
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 1.8s ease-in-out infinite;
+    vertical-align: middle;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.4); }
+  }
+
+  .detail-cat {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    color: var(--paper);
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  .detail-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 6px;
+    word-break: break-all;
+  }
+  .detail-path {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-bottom: 22px;
+    word-break: break-all;
+  }
+
+  .detail-block {
+    margin-bottom: 22px;
+    padding-bottom: 22px;
+    border-bottom: 0.5px dashed var(--ink-3);
+  }
+  .detail-block:last-child { border-bottom: none; }
+  .detail-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 8px;
+  }
+  .detail-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+  .detail-analogy {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-style: italic;
+    color: var(--accent);
+    border-left: 2px solid var(--accent);
+    padding-left: 12px;
+  }
+  .detail-connections {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .detail-conn-item {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    color: var(--ink-2);
+  }
+  .detail-conn-item:hover {
+    border-color: var(--rule);
+    background: var(--paper-3);
+    color: var(--ink);
+  }
+  .detail-conn-item .arrow {
+    color: var(--accent);
+    margin: 0 6px;
+  }
+
+  /* ─── QUESTION CARDS ─── */
+  .questions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .q-card {
+    border: 1.5px solid var(--rule);
+    background: var(--paper-2);
+    padding: 24px 26px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(.4,0,.2,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .q-card:hover {
+    background: var(--paper);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 -1px var(--rule);
+  }
+  .q-card.active {
+    background: var(--ink);
+    color: var(--paper);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 -1px var(--accent);
+  }
+  .q-card.active .q-num,
+  .q-card.active .q-text,
+  .q-card.active .q-action { color: var(--paper); }
+  .q-card.active .q-num { color: var(--paper-3); }
+
+  .q-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .q-text {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .q-path {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    line-height: 1.6;
+  }
+  .q-card.active .q-path { color: var(--paper-3); }
+  .q-path .step { color: var(--ink-2); }
+  .q-card.active .q-path .step { color: var(--paper); }
+  .q-path .arrow { color: var(--accent); margin: 0 4px; }
+  .q-action {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-top: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .q-action::after {
+    content: "→";
+    transition: transform 0.2s;
+  }
+  .q-card:hover .q-action::after,
+  .q-card.active .q-action::after {
+    transform: translateX(4px);
+  }
+
+  /* ─── ANALOGY GALLERY ─── */
+  .analogy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0;
+    border: 1.5px solid var(--rule);
+    border-right: 0; border-bottom: 0;
+    background: var(--paper-2);
+  }
+  .analogy-card {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 22px 20px;
+    background: var(--paper-2);
+    transition: background 0.2s;
+    position: relative;
+    cursor: pointer;
+  }
+  .analogy-card:hover {
+    background: var(--paper);
+  }
+  .analogy-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 2px 2px 0 0 var(--rule);
+  }
+  .analogy-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .analogy-file {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    margin-bottom: 10px;
+    word-break: break-all;
+  }
+  .analogy-role {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    font-style: italic;
+    font-family: var(--font-display);
+  }
+
+  /* ─── READING ORDER ─── */
+  .timeline {
+    position: relative;
+    padding-left: 0;
+  }
+  .timeline-track {
+    position: relative;
+    border-left: 2px solid var(--rule);
+    margin-left: 22px;
+    padding-left: 0;
+  }
+  .timeline-item {
+    position: relative;
+    padding: 0 0 26px 38px;
+    counter-increment: tl;
+  }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item::before {
+    content: counter(tl, decimal-leading-zero);
+    position: absolute;
+    left: -22px;
+    top: -2px;
+    width: 42px; height: 42px;
+    background: var(--paper);
+    border: 1.5px solid var(--rule);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    box-shadow: 2px 2px 0 0 var(--rule);
+  }
+  .timeline { counter-reset: tl; }
+  .timeline-item h4 {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 4px;
+    word-break: break-all;
+  }
+  .timeline-item p {
+    color: var(--ink-2);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  /* ─── FOOTER ─── */
+  footer.colophon {
+    border-top: 1.5px solid var(--rule);
+    padding: 32px 0 48px;
+    margin-top: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  footer.colophon .imprint {
+    font-family: var(--font-display);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+
+  /* ─── GRAPH NODE STYLES (in SVG) ─── */
+  .node circle {
+    cursor: pointer;
+    transition: stroke-width 0.18s;
+  }
+  .node:hover circle {
+    stroke-width: 3px;
+  }
+  .node.dimmed { opacity: 0.18; }
+  .node.highlighted circle {
+    stroke-width: 4px;
+    stroke: var(--accent) !important;
+  }
+  .node text {
+    pointer-events: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--ink);
+    font-weight: 500;
+  }
+  .node.dimmed text { opacity: 0.3; }
+
+  .link {
+    stroke: var(--ink-3);
+    stroke-opacity: 0.45;
+    fill: none;
+    transition: all 0.2s;
+  }
+  .link.dimmed { stroke-opacity: 0.08; }
+  .link.highlighted {
+    stroke: var(--accent);
+    stroke-opacity: 1;
+    stroke-width: 2.5px !important;
+  }
+  .link.path-active {
+    stroke: var(--accent);
+    stroke-opacity: 1;
+    stroke-width: 3px !important;
+    stroke-dasharray: 8 4;
+    animation: dashflow 0.8s linear infinite;
+  }
+  @keyframes dashflow {
+    to { stroke-dashoffset: -12; }
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .graph-shell { grid-template-columns: 1fr; }
+    .detail-panel { height: auto; max-height: 480px; border-top: 1.5px solid var(--rule); }
+    .graph-canvas { border-right: none; }
+    .hero { grid-template-columns: 1fr; gap: 32px; }
+    .questions-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .container { padding: 0 24px; }
+    .section-title { font-size: 24px; }
+    .graph-canvas { height: 540px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-row">
+      <div class="masthead-meta">
+        <span>Vol. 01</span>
+        <span class="dot">●</span>
+        <span>Code Architecture Atlas</span>
+        <span class="dot">●</span>
+        <span>2026 / 04 / 19</span>
+      </div>
+      <div class="masthead-meta">
+        <span>성신여자대학교 · 기획평가팀</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow">Graph RAG · Interactive Atlas</div>
+      <h1 class="hero-title">코드<br>관계의 <em>지형도</em></h1>
+    </div>
+    <div class="hero-lede">
+      <strong>visualization_14_ba_2</strong>는 18개 모듈이 협력해
+      대학 인증 정량지표를 시각화하는 Streamlit 대시보드입니다.<br><br>
+      이 페이지는 코드를 한 줄도 읽지 않고도, 어떤 파일이 누구와
+      어떻게 일하는지를 한눈에 보기 위한 <strong>인터랙티브 아카이브</strong>입니다.
+    </div>
+  </section>
+
+  <!-- SECTION 1: GRAPH -->
+  <section class="section" id="sec-graph">
+    <div class="section-head">
+      <span class="section-num">§ 01</span>
+      <h2 class="section-title">전체 코드 관계도</h2>
+      <span class="section-sub">Force-directed Network · 18 nodes</span>
+    </div>
+    <p class="section-intro">
+      각 원은 하나의 파일/모듈입니다. 선은 한쪽이 다른 쪽을 호출하거나
+      참조하는 관계를 뜻합니다. <strong>원을 클릭</strong>하면 오른쪽에 그 모듈의
+      역할과 연결된 이웃이 펼쳐집니다. 좌측 상단 칩으로 카테고리를 켜고 끌 수 있습니다.
+    </p>
+
+    <div class="graph-shell">
+      <div class="graph-canvas">
+        <svg id="graph-svg"></svg>
+        <div class="canvas-toolbar">
+          <div class="filter-group">
+            <div class="filter-group-title">Categories · 클릭으로 토글</div>
+            <div class="filter-row" id="filter-row"></div>
+          </div>
+        </div>
+        <div class="canvas-hint">Drag to move · Scroll to zoom · Click node</div>
+      </div>
+      <aside class="detail-panel" id="detail-panel">
+        <div class="detail-empty" id="detail-empty">
+          <span class="pulse"></span>
+          노드를 클릭하면<br>이곳에 상세 정보가 펼쳐집니다.
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SECTION 2: QUESTIONS -->
+  <section class="section" id="sec-questions">
+    <div class="section-head">
+      <span class="section-num">§ 02</span>
+      <h2 class="section-title">질문으로 따라가는 경로</h2>
+      <span class="section-sub">Question-Driven Path Tracing</span>
+    </div>
+    <p class="section-intro">
+      카드를 클릭하면 위 그래프에서 해당 질문의 <strong>탐색 경로가 점선으로 흐르며 강조</strong>됩니다.
+      어떤 파일들이 어떤 순서로 협력하는지를 시각적으로 따라가 보세요.
+    </p>
+
+    <div class="questions-grid" id="questions-grid"></div>
+  </section>
+
+  <!-- SECTION 3: ANALOGY -->
+  <section class="section" id="sec-analogy">
+    <div class="section-head">
+      <span class="section-num">§ 03</span>
+      <h2 class="section-title">코드를 사람에 비유하면</h2>
+      <span class="section-sub">Cast of Characters · 13 roles</span>
+    </div>
+    <p class="section-intro">
+      이 프로젝트는 작은 박물관과 닮았습니다. 안내데스크가 손님을 맞이하고,
+      큐레이터가 전시관을 운영하며, 디자이너가 시각 자료를 만들고,
+      통역사가 외국 손님(AI 모델)과 대화합니다. 각 모듈은 이 박물관의 한 명의 직원입니다.
+    </p>
+
+    <div class="analogy-grid" id="analogy-grid"></div>
+  </section>
+
+  <!-- SECTION 4: READING ORDER -->
+  <section class="section" id="sec-reading">
+    <div class="section-head">
+      <span class="section-num">§ 04</span>
+      <h2 class="section-title">처음 읽는 사람을 위한 순서</h2>
+      <span class="section-sub">Recommended Reading Path</span>
+    </div>
+    <p class="section-intro">
+      비전공자가 코드를 처음 읽는다면, 아래 순서대로 따라가는 것이 가장 빠릅니다.
+      "전체 → 카탈로그 → 한 사례 → 데이터 → 비교 → AI" 의 흐름입니다.
+    </p>
+
+    <div class="timeline">
+      <div class="timeline-track" id="timeline-track"></div>
+    </div>
+  </section>
+
+  <!-- COLOPHON -->
+  <footer class="colophon">
+    <span>Built for 성신여자대학교 기획평가팀 · IR Dashboard Project</span>
+    <span class="imprint">— Graph RAG, rendered in interactive form.</span>
+  </footer>
+
+</div>
+
+<script>
+/* ──────────────────────────────────────────────────────────────
+   DATA
+   ────────────────────────────────────────────────────────────── */
+const CATEGORIES = {
+  entry:    { label: "Entry",     color: "#8b3a26", desc: "진입점" },
+  page:     { label: "Pages",     color: "#c47b3a", desc: "지표 페이지" },
+  registry: { label: "Registry",  color: "#8a7c2f", desc: "메타데이터" },
+  data:     { label: "Data",      color: "#3f6678", desc: "데이터 처리" },
+  ui:       { label: "UI/Charts", color: "#4a6b3f", desc: "화면·차트" },
+  ai:       { label: "AI",        color: "#6b4a6b", desc: "AI 분석" },
+  external: { label: "External",  color: "#5c5246", desc: "원천 자료" },
+};
+
+const NODES = [
+  { id: "app",            name: "app.py",                  cat: "entry",    path: "app.py",
+    role: "전체 앱의 진입점. 홈 화면을 보여주고 7개 페이지로 들어가는 문을 만듭니다.",
+    analogy: "박물관 안내데스크" },
+  { id: "pages",          name: "pages/1~7",               cat: "page",     path: "pages/*.py",
+    role: "각 정량지표를 보여주는 7개의 Streamlit 페이지. 모든 공통 유틸을 호출하는 지휘자.",
+    analogy: "각 전시관의 큐레이터" },
+  { id: "registry",       name: "registry/metadata.py",    cat: "registry", path: "registry/metadata.py",
+    role: "각 페이지가 어떤 지표·CSV·기준선을 사용하는지 등록되어 있는 카탈로그.",
+    analogy: "전시 카탈로그" },
+  { id: "query",          name: "utils/query.py",          cat: "data",     path: "utils/query.py",
+    role: "데이터셋을 어디서 가져올지 결정하는 조회 창구. CSV/API 양쪽을 다룸.",
+    analogy: "자료 요청 창구" },
+  { id: "pipeline",       name: "utils/data_pipeline.py",  cat: "data",     path: "utils/data_pipeline.py",
+    role: "원천 CSV/API 데이터를 분석 가능한 DataFrame으로 정제·변환.",
+    analogy: "원본 자료 정리팀" },
+  { id: "csv",            name: "data/*.csv",              cat: "external", path: "data/*.csv",
+    role: "원천 데이터 파일들. 대학알리미 등에서 받아온 정량지표.",
+    analogy: "수장고의 원본 자료" },
+  { id: "comp_sidebar",   name: "comparison_sidebar.py",   cat: "ui",       path: "utils/comparison_sidebar.py",
+    role: "비교 그룹 프리셋과 학교 선택 UI를 관리. '서울 소재 여대' 같은 묶음을 만드는 곳.",
+    analogy: "비교 대상 설정 도우미" },
+  { id: "comp_charts",    name: "comparison_charts.py",    cat: "ui",       path: "utils/comparison_charts.py",
+    role: "선택 학교 + 그룹 학교 + 평균선을 합쳐 라인·히트맵·범프 차트로 그려냄.",
+    analogy: "시각화 디자이너" },
+  { id: "comp_page",      name: "comparison_page.py",      cat: "ui",       path: "utils/comparison_page.py",
+    role: "복수 지표를 가진 페이지에서 탭/KPI/단일학교 비교 차트를 공통 처리.",
+    analogy: "전시 동선 기획자" },
+  { id: "ui_render",      name: "utils/ui/*",              cat: "ui",       path: "utils/ui/renderers.py",
+    role: "사이드바/KPI/표/기본 차트 등 화면 공통 블록을 렌더링.",
+    analogy: "화면 배치 디자이너" },
+  { id: "chart_utils",    name: "utils/chart_utils.py",    cat: "ui",       path: "utils/chart_utils.py",
+    role: "Plotly 차트 공통 도우미 함수 모음. 색상·축·레이블 표준화.",
+    analogy: "디자이너의 도구상자" },
+  { id: "grouping",       name: "utils/grouping.py",       cat: "ui",       path: "utils/grouping.py",
+    role: "비교 그룹의 평균선을 계산. 예: '서울 소재 여대 평균'.",
+    analogy: "그룹 평균 계산 분석관" },
+  { id: "ai_panel",       name: "utils/ai_panel.py",       cat: "ai",       path: "utils/ai_panel.py",
+    role: "AI 분석 버튼·결과 표시 등 사용자 대면 UI 패널.",
+    analogy: "AI 분석 상담 창구" },
+  { id: "ai_analysis",    name: "utils/ai_analysis.py",    cat: "ai",       path: "utils/ai_analysis.py",
+    role: "AI에게 보낼 payload를 만들고, 응답을 표준 형식으로 정규화.",
+    analogy: "AI 보고서 초안 작성자" },
+  { id: "prompt_generic", name: "ai_prompts/generic.py",   cat: "ai",       path: "utils/ai_prompts/generic.py",
+    role: "범용 분석 프롬프트 템플릿.",
+    analogy: "범용 프롬프트 작가" },
+  { id: "prompt_budam",   name: "ai_prompts/budam.py",     cat: "ai",       path: "utils/ai_prompts/budam.py",
+    role: "법정부담금 전용 프롬프트 템플릿.",
+    analogy: "전문 분야 프롬프트 작가" },
+  { id: "lmstudio",       name: "ai_providers/lmstudio.py",cat: "ai",       path: "utils/ai_providers/lmstudio.py",
+    role: "LM Studio에 떠 있는 로컬 LLM 모델에 실제로 요청을 보내는 통신 모듈.",
+    analogy: "AI 모델과 대화하는 통역사" },
+  { id: "api",            name: "공공데이터 API",            cat: "external", path: "External · 대학알리미",
+    role: "대학알리미 등 외부 API. 정량지표를 실시간 또는 주기적으로 받아옴.",
+    analogy: "외부 자료 공급처" },
+];
+
+const LINKS = [
+  { source: "app",          target: "registry"      },
+  { source: "app",          target: "pages"         },
+  { source: "pages",        target: "registry"      },
+  { source: "pages",        target: "query"         },
+  { source: "pages",        target: "comp_sidebar"  },
+  { source: "pages",        target: "comp_charts"   },
+  { source: "pages",        target: "comp_page"     },
+  { source: "pages",        target: "ui_render"     },
+  { source: "pages",        target: "ai_panel"      },
+  { source: "query",        target: "pipeline"      },
+  { source: "query",        target: "csv"           },
+  { source: "pipeline",     target: "csv"           },
+  { source: "query",        target: "api"           },
+  { source: "comp_sidebar", target: "grouping"      },
+  { source: "comp_charts",  target: "chart_utils"   },
+  { source: "comp_charts",  target: "grouping"      },
+  { source: "comp_page",    target: "ui_render"     },
+  { source: "comp_page",    target: "chart_utils"   },
+  { source: "ai_panel",     target: "ai_analysis"   },
+  { source: "ai_analysis",  target: "prompt_generic"},
+  { source: "ai_analysis",  target: "prompt_budam"  },
+  { source: "ai_analysis",  target: "lmstudio"      },
+  { source: "ai_analysis",  target: "grouping"      },
+];
+
+const QUESTIONS = [
+  {
+    q: "전임교원 확보율 페이지는 어떤 파일들이 협력하나?",
+    path: ["pages", "registry", "query", "comp_sidebar", "comp_charts", "comp_page", "ai_panel"],
+    summary: "페이지는 지휘자 역할이며, 실제 연주는 공통 유틸들이 분담한다."
+  },
+  {
+    q: "히트맵·범프 차트는 어디서 만들어지나?",
+    path: ["comp_charts", "chart_utils"],
+    summary: "비교 차트 전용 유틸 한 곳에 모여 있어 일관된 시각 언어를 유지한다."
+  },
+  {
+    q: "AI 분석 버튼을 누르면 무슨 일이 일어나나?",
+    path: ["ai_panel", "ai_analysis", "prompt_generic", "lmstudio"],
+    summary: "패널은 버튼·결과만 담당, 실제 호출 흐름은 분석→프롬프트→통신 순으로 분리되어 있다."
+  },
+  {
+    q: "비교 대상의 그룹 평균선은 어디서 계산되나?",
+    path: ["comp_sidebar", "grouping", "comp_charts"],
+    summary: "사용자 선택 → 평균 계산 → 차트 결합. 책임이 명확히 나뉘어 있다."
+  },
+];
+
+const READING_ORDER = [
+  { name: "app.py",                          why: "전체 구조의 입구. 홈에서 어떤 페이지가 있는지부터 본다." },
+  { name: "registry/metadata.py",            why: "각 페이지가 어떤 지표를 다루는지 카탈로그처럼 정리되어 있다." },
+  { name: "pages/2_전임교원_확보율.py",          why: "공통 유틸을 가장 잘 활용하는 모범 페이지. 한 사례를 통째로 본다." },
+  { name: "utils/query.py",                  why: "데이터가 어디서 어떻게 오는지를 안다." },
+  { name: "utils/comparison_sidebar.py",     why: "비교 그룹·프리셋이 어떻게 만들어지는지 본다." },
+  { name: "utils/comparison_charts.py",      why: "라인·히트맵·범프 차트의 모든 시각화가 모인 핵심." },
+  { name: "utils/ai_panel.py",               why: "AI 분석 UI의 입구. 어떤 정보가 모이는지 확인." },
+  { name: "utils/ai_analysis.py",            why: "AI에 보내는 payload 구성과 응답 정규화 로직." },
+  { name: "utils/ai_prompts/generic.py",     why: "AI에게 어떻게 질문하는지 — 프롬프트 엔지니어링의 핵심." },
+];
+
+/* ──────────────────────────────────────────────────────────────
+   FILTER CHIPS
+   ────────────────────────────────────────────────────────────── */
+const filterRow = document.getElementById("filter-row");
+const activeCats = new Set(Object.keys(CATEGORIES));
+
+Object.entries(CATEGORIES).forEach(([key, c]) => {
+  const chip = document.createElement("div");
+  chip.className = "filter-chip";
+  chip.dataset.cat = key;
+  chip.innerHTML = `<span class="swatch" style="background:${c.color}"></span>${c.label}`;
+  chip.addEventListener("click", () => {
+    if (activeCats.has(key)) { activeCats.delete(key); chip.classList.add("off"); }
+    else { activeCats.add(key); chip.classList.remove("off"); }
+    applyCategoryFilter();
+  });
+  filterRow.appendChild(chip);
+});
+
+/* ──────────────────────────────────────────────────────────────
+   GRAPH: D3 force layout
+   ────────────────────────────────────────────────────────────── */
+const svg = d3.select("#graph-svg");
+const canvasEl = document.querySelector(".graph-canvas");
+let width = canvasEl.clientWidth;
+let height = canvasEl.clientHeight;
+
+svg.attr("viewBox", [0, 0, width, height]);
+
+// zoom container
+const root = svg.append("g").attr("class", "root");
+
+const zoom = d3.zoom()
+  .scaleExtent([0.4, 3])
+  .on("zoom", (event) => root.attr("transform", event.transform));
+svg.call(zoom);
+
+// arrow marker
+svg.append("defs").append("marker")
+  .attr("id", "arrow")
+  .attr("viewBox", "0 -5 10 10")
+  .attr("refX", 18)
+  .attr("refY", 0)
+  .attr("markerWidth", 6)
+  .attr("markerHeight", 6)
+  .attr("orient", "auto")
+  .append("path")
+  .attr("d", "M0,-5L10,0L0,5")
+  .attr("fill", "#6b5d50")
+  .attr("opacity", 0.5);
+
+// build link & node selections
+const linkGroup = root.append("g").attr("class", "links");
+const nodeGroup = root.append("g").attr("class", "nodes");
+
+// node sizes by category
+const NODE_RADIUS = {
+  entry: 26, page: 28, registry: 20, data: 18, ui: 18, ai: 18, external: 16
+};
+
+const simulation = d3.forceSimulation(NODES)
+  .force("link", d3.forceLink(LINKS).id(d => d.id).distance(d => {
+    // longer links between distant clusters
+    if (d.source.cat === d.target.cat) return 70;
+    return 110;
+  }).strength(0.7))
+  .force("charge", d3.forceManyBody().strength(-520))
+  .force("center", d3.forceCenter(width / 2, height / 2))
+  .force("collide", d3.forceCollide().radius(d => NODE_RADIUS[d.cat] + 14))
+  .force("x", d3.forceX(width / 2).strength(0.04))
+  .force("y", d3.forceY(height / 2).strength(0.04));
+
+const link = linkGroup.selectAll("line")
+  .data(LINKS)
+  .join("line")
+  .attr("class", "link")
+  .attr("stroke-width", 1.2)
+  .attr("marker-end", "url(#arrow)");
+
+const node = nodeGroup.selectAll("g.node")
+  .data(NODES)
+  .join("g")
+  .attr("class", "node")
+  .call(drag(simulation))
+  .on("click", (event, d) => {
+    event.stopPropagation();
+    selectNode(d);
+  })
+  .on("mouseover", (event, d) => hoverNode(d, true))
+  .on("mouseout", (event, d) => hoverNode(d, false));
+
+node.append("circle")
+  .attr("r", d => NODE_RADIUS[d.cat])
+  .attr("fill", d => CATEGORIES[d.cat].color)
+  .attr("stroke", "#1c1612")
+  .attr("stroke-width", 1.5);
+
+node.append("text")
+  .attr("text-anchor", "middle")
+  .attr("dy", d => NODE_RADIUS[d.cat] + 14)
+  .text(d => d.name)
+  .each(function(d) {
+    // background for text legibility
+    const bbox = this.getBBox();
+    d3.select(this.parentNode).insert("rect", "text")
+      .attr("class", "label-bg")
+      .attr("x", bbox.x - 4)
+      .attr("y", bbox.y - 1)
+      .attr("width", bbox.width + 8)
+      .attr("height", bbox.height + 2)
+      .attr("fill", "#f1e8d6")
+      .attr("opacity", 0.85)
+      .attr("rx", 1);
+  });
+
+// click on canvas to deselect
+svg.on("click", () => clearSelection());
+
+simulation.on("tick", () => {
+  link
+    .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+    .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+  node.attr("transform", d => `translate(${d.x},${d.y})`);
+});
+
+function drag(sim) {
+  return d3.drag()
+    .on("start", (event, d) => {
+      if (!event.active) sim.alphaTarget(0.3).restart();
+      d.fx = d.x; d.fy = d.y;
+    })
+    .on("drag", (event, d) => { d.fx = event.x; d.fy = event.y; })
+    .on("end", (event, d) => {
+      if (!event.active) sim.alphaTarget(0);
+      d.fx = null; d.fy = null;
+    });
+}
+
+/* ──────────────────────────────────────────────────────────────
+   INTERACTIONS
+   ────────────────────────────────────────────────────────────── */
+let selectedId = null;
+let activeQuestionIdx = null;
+
+function neighborsOf(id) {
+  const ins = LINKS.filter(l => (l.target.id || l.target) === id).map(l => l.source.id || l.source);
+  const outs = LINKS.filter(l => (l.source.id || l.source) === id).map(l => l.target.id || l.target);
+  return { ins, outs };
+}
+
+function selectNode(d) {
+  selectedId = d.id;
+  clearQuestionActive();
+  applyHighlight(d.id);
+  renderDetail(d);
+}
+
+function hoverNode(d, isOver) {
+  if (selectedId || activeQuestionIdx !== null) return;
+  if (isOver) applyHighlight(d.id);
+  else applyHighlight(null);
+}
+
+function applyHighlight(id) {
+  if (!id) {
+    node.classed("dimmed", false).classed("highlighted", false);
+    link.classed("dimmed", false).classed("highlighted", false).classed("path-active", false);
+    return;
+  }
+  const { ins, outs } = neighborsOf(id);
+  const related = new Set([id, ...ins, ...outs]);
+  node.classed("dimmed", n => !related.has(n.id))
+      .classed("highlighted", n => n.id === id);
+  link.classed("dimmed", l => {
+        const s = l.source.id || l.source;
+        const t = l.target.id || l.target;
+        return !(s === id || t === id);
+      })
+      .classed("highlighted", l => {
+        const s = l.source.id || l.source;
+        const t = l.target.id || l.target;
+        return s === id || t === id;
+      })
+      .classed("path-active", false);
+}
+
+function clearSelection() {
+  selectedId = null;
+  if (activeQuestionIdx === null) {
+    applyHighlight(null);
+    renderDetailEmpty();
+  }
+}
+
+function applyCategoryFilter() {
+  node.style("display", d => activeCats.has(d.cat) ? null : "none");
+  link.style("display", d => {
+    const s = typeof d.source === "object" ? d.source : NODES.find(n => n.id === d.source);
+    const t = typeof d.target === "object" ? d.target : NODES.find(n => n.id === d.target);
+    return (activeCats.has(s.cat) && activeCats.has(t.cat)) ? null : "none";
+  });
+}
+
+/* ──────────────────────────────────────────────────────────────
+   DETAIL PANEL
+   ────────────────────────────────────────────────────────────── */
+const detailPanel = document.getElementById("detail-panel");
+
+function renderDetailEmpty() {
+  detailPanel.innerHTML = `
+    <div class="detail-empty" id="detail-empty">
+      <span class="pulse"></span>
+      노드를 클릭하면<br>이곳에 상세 정보가 펼쳐집니다.
+    </div>`;
+}
+
+function renderDetail(d) {
+  const { ins, outs } = neighborsOf(d.id);
+  const cat = CATEGORIES[d.cat];
+
+  const inList = ins.map(id => {
+    const n = NODES.find(x => x.id === id);
+    return `<div class="detail-conn-item" data-jump="${n.id}">${n.name}<span class="arrow">→</span><span style="color:${cat.color}">${d.name}</span></div>`;
+  }).join("") || `<div class="detail-conn-item" style="color:var(--ink-3); cursor:default; font-style:italic;">없음</div>`;
+
+  const outList = outs.map(id => {
+    const n = NODES.find(x => x.id === id);
+    return `<div class="detail-conn-item" data-jump="${n.id}"><span style="color:${cat.color}">${d.name}</span><span class="arrow">→</span>${n.name}</div>`;
+  }).join("") || `<div class="detail-conn-item" style="color:var(--ink-3); cursor:default; font-style:italic;">없음</div>`;
+
+  detailPanel.innerHTML = `
+    <span class="detail-cat" style="background:${cat.color}">${cat.label} · ${cat.desc}</span>
+    <div class="detail-name">${d.name}</div>
+    <div class="detail-path">${d.path}</div>
+
+    <div class="detail-block">
+      <div class="detail-label">사람으로 비유하면</div>
+      <div class="detail-analogy">${d.analogy}</div>
+    </div>
+
+    <div class="detail-block">
+      <div class="detail-label">하는 일</div>
+      <div class="detail-text">${d.role}</div>
+    </div>
+
+    <div class="detail-block">
+      <div class="detail-label">이 모듈을 호출하는 곳 (in)</div>
+      <div class="detail-connections">${inList}</div>
+    </div>
+
+    <div class="detail-block">
+      <div class="detail-label">이 모듈이 호출하는 곳 (out)</div>
+      <div class="detail-connections">${outList}</div>
+    </div>
+  `;
+
+  // wire jump links
+  detailPanel.querySelectorAll("[data-jump]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.getAttribute("data-jump");
+      const target = NODES.find(n => n.id === id);
+      if (target) selectNode(target);
+    });
+  });
+}
+
+renderDetailEmpty();
+
+/* ──────────────────────────────────────────────────────────────
+   QUESTIONS
+   ────────────────────────────────────────────────────────────── */
+const questionsGrid = document.getElementById("questions-grid");
+QUESTIONS.forEach((q, idx) => {
+  const card = document.createElement("div");
+  card.className = "q-card";
+  card.dataset.idx = idx;
+
+  const pathHtml = q.path.map(id => {
+    const n = NODES.find(x => x.id === id);
+    return `<span class="step">${n.name}</span>`;
+  }).join('<span class="arrow">→</span>');
+
+  card.innerHTML = `
+    <div class="q-num">QUESTION · ${String(idx + 1).padStart(2, "0")}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="q-path">${pathHtml}</div>
+    <div class="q-action">그래프에서 경로 보기</div>
+  `;
+  card.addEventListener("click", () => activateQuestion(idx, card));
+  questionsGrid.appendChild(card);
+});
+
+function clearQuestionActive() {
+  document.querySelectorAll(".q-card").forEach(c => c.classList.remove("active"));
+  activeQuestionIdx = null;
+}
+
+function activateQuestion(idx, card) {
+  if (activeQuestionIdx === idx) {
+    clearQuestionActive();
+    applyHighlight(null);
+    return;
+  }
+  clearQuestionActive();
+  card.classList.add("active");
+  activeQuestionIdx = idx;
+  selectedId = null;
+
+  const q = QUESTIONS[idx];
+  const pathSet = new Set(q.path);
+
+  // build set of edges that lie along the path (consecutive pairs OR any edge between path nodes)
+  const pathEdges = new Set();
+  for (let i = 0; i < q.path.length - 1; i++) {
+    pathEdges.add(`${q.path[i]}::${q.path[i+1]}`);
+    pathEdges.add(`${q.path[i+1]}::${q.path[i]}`);
+  }
+  // also include all edges where both endpoints are in pathSet
+  LINKS.forEach(l => {
+    const s = l.source.id || l.source;
+    const t = l.target.id || l.target;
+    if (pathSet.has(s) && pathSet.has(t)) {
+      pathEdges.add(`${s}::${t}`);
+    }
+  });
+
+  node.classed("dimmed", n => !pathSet.has(n.id))
+      .classed("highlighted", n => pathSet.has(n.id));
+  link.classed("dimmed", l => {
+        const s = l.source.id || l.source;
+        const t = l.target.id || l.target;
+        return !pathEdges.has(`${s}::${t}`);
+      })
+      .classed("highlighted", false)
+      .classed("path-active", l => {
+        const s = l.source.id || l.source;
+        const t = l.target.id || l.target;
+        return pathEdges.has(`${s}::${t}`);
+      });
+
+  // scroll graph into view if mobile
+  if (window.innerWidth < 1100) {
+    document.getElementById("sec-graph").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // also render summary in detail panel
+  detailPanel.innerHTML = `
+    <span class="detail-cat" style="background:var(--accent)">QUESTION · ${String(idx + 1).padStart(2, "0")}</span>
+    <div class="detail-name" style="font-size:22px">${q.q}</div>
+    <div class="detail-block">
+      <div class="detail-label">탐색 경로</div>
+      <div class="detail-text" style="font-family:var(--font-mono); font-size:12px; line-height:2;">
+        ${q.path.map((id, i) => {
+          const n = NODES.find(x => x.id === id);
+          return `<div><span style="color:var(--accent)">${String(i+1).padStart(2,'0')}</span> · <span data-jump="${n.id}" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted;">${n.name}</span></div>`;
+        }).join("")}
+      </div>
+    </div>
+    <div class="detail-block">
+      <div class="detail-label">의미</div>
+      <div class="detail-text" style="font-family:var(--font-display); font-style:italic; font-size:16px;">${q.summary}</div>
+    </div>
+  `;
+  detailPanel.querySelectorAll("[data-jump]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.getAttribute("data-jump");
+      const target = NODES.find(n => n.id === id);
+      if (target) {
+        clearQuestionActive();
+        selectNode(target);
+      }
+    });
+  });
+}
+
+/* ──────────────────────────────────────────────────────────────
+   ANALOGY GALLERY
+   ────────────────────────────────────────────────────────────── */
+const analogyGrid = document.getElementById("analogy-grid");
+NODES.forEach(d => {
+  const card = document.createElement("div");
+  card.className = "analogy-card";
+  const cat = CATEGORIES[d.cat];
+  // initials for icon
+  const initial = d.name.replace(/[^A-Za-z가-힣]/g, "").charAt(0).toUpperCase() || "·";
+  card.innerHTML = `
+    <div class="analogy-icon" style="background:${cat.color}">${initial}</div>
+    <div class="analogy-name">${d.analogy}</div>
+    <div class="analogy-file">${d.path}</div>
+    <div class="analogy-role">${d.role}</div>
+  `;
+  card.addEventListener("click", () => {
+    document.getElementById("sec-graph").scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(() => selectNode(d), 400);
+  });
+  analogyGrid.appendChild(card);
+});
+
+/* ──────────────────────────────────────────────────────────────
+   READING ORDER
+   ────────────────────────────────────────────────────────────── */
+const tlTrack = document.getElementById("timeline-track");
+READING_ORDER.forEach(item => {
+  const el = document.createElement("div");
+  el.className = "timeline-item";
+  el.innerHTML = `<h4>${item.name}</h4><p>${item.why}</p>`;
+  tlTrack.appendChild(el);
+});
+
+/* ──────────────────────────────────────────────────────────────
+   RESIZE
+   ────────────────────────────────────────────────────────────── */
+window.addEventListener("resize", () => {
+  width = canvasEl.clientWidth;
+  height = canvasEl.clientHeight;
+  svg.attr("viewBox", [0, 0, width, height]);
+  simulation.force("center", d3.forceCenter(width / 2, height / 2));
+  simulation.alpha(0.3).restart();
+});
+</script>
+
+</body>
+</html>
