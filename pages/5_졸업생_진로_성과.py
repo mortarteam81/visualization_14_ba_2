@@ -11,6 +11,7 @@ from ui import (
     render_school_sidebar,
     render_single_metric_page,
 )
+from utils.ai_panel import render_metric_ai_analysis_panel
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
 from utils.theme import apply_app_theme
@@ -104,6 +105,18 @@ def main() -> None:
             "업데이트": DATA_UPDATED,
         },
         kpi_threshold_suffix=f"{SERIES.threshold:.1f}% 이상",
+    )
+
+    st.divider()
+    render_metric_ai_analysis_panel(
+        page_key=PAGE.id,
+        df=df,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        latest_year=latest_year,
+        metrics=[build_metric()],
+        selected_schools=selected_schools,
+        group_definitions={},
     )
 
     st.markdown("---")

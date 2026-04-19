@@ -20,6 +20,7 @@ from utils.chart_utils import (
     emphasize_selected_traces,
     style_traces_by_name_contains,
 )
+from utils.ai_panel import render_metric_ai_analysis_panel
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
 from utils.theme import apply_app_theme
@@ -169,6 +170,18 @@ def main() -> None:
             "분교 포함": "사이드바에서 본교만 보거나 분교를 함께 포함할 수 있습니다.",
             "데이터 기준": DATA_UPDATED,
         },
+    )
+
+    st.divider()
+    render_metric_ai_analysis_panel(
+        page_key=PAGE.id,
+        df=df,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        latest_year=latest_year,
+        metrics=[build_metric("paper_jaeji"), build_metric("paper_sci")],
+        selected_schools=selected_schools,
+        group_definitions={},
     )
 
     st.markdown("---")

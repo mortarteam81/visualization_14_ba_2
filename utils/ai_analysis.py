@@ -5,7 +5,7 @@ from typing import Any
 
 import pandas as pd
 
-from utils.ai_prompts import build_budam_prompts
+from utils.ai_prompts import build_budam_prompts, build_metric_prompts
 from utils.ai_providers import LMStudioClient
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 
@@ -181,6 +181,125 @@ def build_budam_analysis_payload(
     return _to_json_safe(payload)
 
 
+def build_metric_analysis_payload(
+    df: pd.DataFrame,
+    *,
+    year_col: str,
+    school_col: str,
+    value_col: str,
+    metric_label: str,
+    unit: str,
+    selected_schools: list[str],
+    group_definitions: dict[str, list[str]],
+    latest_year: int,
+    threshold: float | None = None,
+    threshold_label: str | None = None,
+) -> dict[str, Any]:
+    latest_frame = df[df[year_col] == latest_year].copy()
+    group_average_frame = build_group_average_frame(
+        df,
+        year_col=year_col,
+        school_col=school_col,
+        value_col=value_col,
+        groups=group_definitions,
+    )
+    latest_group_average = group_average_frame[group_average_frame[year_col] == latest_year].copy()
+
+    selected_school_rows: list[dict[str, Any]] = []
+    for school in selected_schools:
+        school_frame = df[df[school_col] == school].copy()
+        if school_frame.empty:
+            continue
+        latest_school_frame = school_frame[school_frame[year_col] == latest_year]
+        if latest_school_frame.empty:
+            continue
+
+        latest_value = float(latest_school_frame.iloc[0][value_col])
+        recent_points = _recent_points(school_frame, year_col=year_col, value_col=value_col)
+        school_payload: dict[str, Any] = {
+            "school": school,
+            "latest_value": round(latest_value, 2),
+            "recent_points": recent_points,
+            "trend": _trend_label(recent_points),
+        }
+        if threshold is not None:
+            school_payload["threshold_gap"] = round(latest_value - threshold, 2)
+            school_payload["meets_threshold"] = latest_value >= threshold
+        selected_school_rows.append(school_payload)
+
+    group_rows: list[dict[str, Any]] = []
+    for group_name, schools in group_definitions.items():
+        active_schools = [school for school in schools if school]
+        if not group_name or not active_schools:
+            continue
+
+        group_frame = df[df[school_col].isin(active_schools)].copy()
+        if group_frame.empty:
+            continue
+
+        average_label = f"{group_name} {AVERAGE_LINE_SUFFIX}"
+        average_frame = group_average_frame[group_average_frame[school_col] == average_label].copy()
+        latest_average_frame = latest_group_average[latest_group_average[school_col] == average_label]
+        latest_average = float(latest_average_frame.iloc[0][value_col]) if not latest_average_frame.empty else None
+
+        member_latest = latest_frame[latest_frame[school_col].isin(active_schools)].copy()
+        member_latest_sorted = member_latest.sort_values(value_col, ascending=False)
+
+        comparisons: list[dict[str, Any]] = []
+        for school_row in selected_school_rows:
+            if latest_average is None:
+                continue
+            comparisons.append(
+                {
+                    "school": school_row["school"],
+                    "gap_vs_group_average": round(float(school_row["latest_value"]) - latest_average, 2),
+                }
+            )
+
+        recent_average_points = _recent_points(average_frame, year_col=year_col, value_col=value_col)
+        group_payload: dict[str, Any] = {
+            "group_name": group_name,
+            "school_count": len(active_schools),
+            "schools": active_schools,
+            "latest_average": round(latest_average, 2) if latest_average is not None else None,
+            "recent_average_points": recent_average_points,
+            "average_trend": _trend_label(recent_average_points),
+            "highest_school_latest": (
+                {
+                    "school": str(member_latest_sorted.iloc[0][school_col]),
+                    "value": round(float(member_latest_sorted.iloc[0][value_col]), 2),
+                }
+                if not member_latest_sorted.empty
+                else None
+            ),
+            "lowest_school_latest": (
+                {
+                    "school": str(member_latest_sorted.iloc[-1][school_col]),
+                    "value": round(float(member_latest_sorted.iloc[-1][value_col]), 2),
+                }
+                if not member_latest_sorted.empty
+                else None
+            ),
+            "comparisons_to_selected": comparisons,
+        }
+        if latest_average is not None and threshold is not None:
+            group_payload["threshold_gap"] = round(latest_average - threshold, 2)
+        group_rows.append(group_payload)
+
+    payload = {
+        "metric": metric_label,
+        "latest_year": latest_year,
+        "unit": unit,
+        "threshold": threshold,
+        "threshold_label": threshold_label or "",
+        "selected_school_count": len(selected_school_rows),
+        "active_group_count": len(group_rows),
+        "selected_schools": selected_school_rows,
+        "groups": group_rows,
+    }
+    return _to_json_safe(payload)
+
+
 def _extract_json_object(text: str) -> dict[str, Any]:
     stripped = text.strip()
     if stripped.startswith("```"):
@@ -227,6 +346,22 @@ def analyze_budam_with_lmstudio(
 ) -> dict[str, Any]:
     lm_client = client or LMStudioClient()
     system_prompt, user_prompt = build_budam_prompts(payload, tone=tone, focus=focus)
+    response_text = lm_client.chat_completion(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+    )
+    return normalize_analysis_result(response_text)
+
+
+def analyze_metric_with_lmstudio(
+    payload: dict[str, Any],
+    *,
+    tone: str,
+    focus: str,
+    client: LMStudioClient | None = None,
+) -> dict[str, Any]:
+    lm_client = client or LMStudioClient()
+    system_prompt, user_prompt = build_metric_prompts(payload, tone=tone, focus=focus)
     response_text = lm_client.chat_completion(
         system_prompt=system_prompt,
         user_prompt=user_prompt,

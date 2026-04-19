@@ -4,6 +4,7 @@ import streamlit as st
 
 from registry import get_metric, get_series
 from ui import MetricSpec, SidebarConfig, SidebarMeta, ThresholdSpec, render_school_sidebar, render_single_metric_page
+from utils.ai_panel import render_metric_ai_analysis_panel
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
 from utils.theme import apply_app_theme
@@ -11,6 +12,8 @@ from utils.theme import apply_app_theme
 
 PAGE = get_metric("donation")
 SERIES = get_series("donation_ratio")
+YEAR_COL = "기준년도"
+SCHOOL_COL = "학교명"
 
 
 def build_metric() -> MetricSpec:
@@ -32,8 +35,8 @@ def main() -> None:
     st.caption(APP_SUBTITLE)
 
     df = get_dataset(PAGE.dataset_key)
-    schools = sorted(df["학교명"].unique())
-    years = sorted(df["기준년도"].unique())
+    schools = sorted(df[SCHOOL_COL].dropna().unique())
+    years = sorted(df[YEAR_COL].dropna().unique())
     latest_year = max(years)
 
     sidebar_values = render_school_sidebar(
@@ -46,38 +49,51 @@ def main() -> None:
             meta_lines=(
                 SidebarMeta(text=f"기준일: {DATA_UPDATED}"),
                 SidebarMeta(text=f"전체 학교 수: {len(schools)}개"),
-                SidebarMeta(text=f"수록 기간: {min(years)} ~ {latest_year}년"),
+                SidebarMeta(text=f"분석 기간: {min(years)} ~ {latest_year}"),
             ),
         ),
     )
 
     selected_schools = sidebar_values["selected_schools"]
     if not selected_schools:
-        st.info("사이드바에서 학교를 선택하세요.")
+        st.info("사이드바에서 학교를 선택해 주세요.")
         st.stop()
 
-    filtered_df = df[df["학교명"].isin(selected_schools)].copy()
+    filtered_df = df[df[SCHOOL_COL].isin(selected_schools)].copy()
     if filtered_df.empty:
-        st.error("선택된 학교에 데이터가 없습니다.")
+        st.error("선택한 학교 데이터가 없습니다.")
         st.stop()
 
     render_single_metric_page(
         df=filtered_df,
         chart_df=df,
         metric=build_metric(),
-        year_col="기준년도",
-        school_col="학교명",
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
         latest_year=latest_year,
         chart_title=f"선택 학교 ({len(selected_schools)}개) {PAGE.title} 추이",
         selected_schools=selected_schools,
         definition_rows={
-            "출처": "대학알리미 공시자료 결산 현황 (서울 소재 사립대학교)",
-            "산식": "기부금수입 ÷ 운영수입 × 100 (%)",
+            "출처": "대학알리미 공시자료 계산 결과 (서울 소재 사립대학)",
+            "공식": "기부금수입 ÷ 운영수입 × 100 (%)",
             "4주기 인증 기준": PAGE.threshold_note,
             "데이터 기준일": DATA_UPDATED,
         },
         kpi_threshold_suffix=f"{SERIES.threshold:.1f}% 이상",
     )
+
+    st.divider()
+    render_metric_ai_analysis_panel(
+        page_key=PAGE.id,
+        df=df,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        latest_year=latest_year,
+        metrics=[build_metric()],
+        selected_schools=selected_schools,
+        group_definitions={},
+    )
+
     st.markdown("---")
     st.caption(f"데이터 출처: 대학알리미 | 기준일: {DATA_UPDATED}")
 

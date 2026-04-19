@@ -23,6 +23,7 @@ from utils.chart_utils import (
     create_multi_metric_line_chart,
     create_trend_line_chart,
 )
+from utils.ai_panel import render_metric_ai_analysis_panel
 from utils.config import APP_SUBTITLE, DATA_SOURCE, DATA_UPDATED
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 from utils.query import get_dataset
@@ -879,6 +880,18 @@ def main() -> None:
     )
 
     render_dual_metric_comparison(filtered_df)
+
+    st.divider()
+    render_metric_ai_analysis_panel(
+        page_key=PAGE.id,
+        df=df,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        latest_year=latest_year,
+        metrics=[build_metric(JEONGWON), build_metric(JAEHAK)],
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+    )
 
     st.markdown("---")
     st.caption(f"데이터 출처: 대학알리미 | 업데이트: {DATA_UPDATED}")
