@@ -58,7 +58,12 @@ def _check_columns(df: pd.DataFrame, required: Iterable[str]) -> None:
 def _load_csv(filename: str, encoding: str) -> pd.DataFrame:
     path = DATA_DIR / filename
     _check_file(path)
-    return pd.read_csv(path, encoding=encoding)
+    try:
+        return pd.read_csv(path, encoding=encoding)
+    except UnicodeDecodeError:
+        if encoding.lower() == "utf-8-sig":
+            raise
+        return pd.read_csv(path, encoding="utf-8-sig")
 
 
 def _normalize_school_frame(

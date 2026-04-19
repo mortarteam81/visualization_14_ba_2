@@ -1,10 +1,19 @@
 from __future__ import annotations
 
+import pandas as pd
 import streamlit as st
 
 from registry import get_metric, get_series
 from ui import MetricSpec, SidebarConfig, SidebarMeta, ThresholdSpec, render_school_sidebar, render_single_metric_page
 from utils.ai_panel import render_metric_ai_analysis_panel
+from utils.comparison_charts import (
+    build_chart_frame,
+    build_chart_styler,
+    render_bump_chart,
+    render_comparison_heatmap,
+    render_focus_range_chart,
+)
+from utils.comparison_sidebar import build_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
 from utils.theme import apply_app_theme
@@ -12,8 +21,38 @@ from utils.theme import apply_app_theme
 
 PAGE = get_metric("tuition")
 SERIES = get_series("tuition_ratio")
+
 YEAR_COL = "기준년도"
 SCHOOL_COL = "학교명"
+
+CUSTOM_PRESET = "직접 구성"
+DEFAULT_SLOT_PRESETS = {
+    1: "서울 소재 여대",
+    2: "주요 경쟁 대학",
+    3: CUSTOM_PRESET,
+}
+GROUP_PRESETS = {
+    "서울 소재 여대": [
+        "덕성여자대학교",
+        "동덕여자대학교",
+        "서울여자대학교",
+        "성신여자대학교",
+        "숙명여자대학교",
+        "이화여자대학교",
+    ],
+    "주요 경쟁 대학": [
+        "건국대학교",
+        "경희대학교",
+        "고려대학교",
+        "국민대학교",
+        "동국대학교",
+        "서강대학교",
+        "성균관대학교",
+        "중앙대학교",
+        "한양대학교",
+    ],
+    CUSTOM_PRESET: [],
+}
 
 
 def build_metric() -> MetricSpec:
@@ -23,14 +62,36 @@ def build_metric() -> MetricSpec:
         value_col=SERIES.column,
         y_axis_label=f"{SERIES.label} ({SERIES.unit})",
         precision=SERIES.decimals,
-        threshold=ThresholdSpec(value=SERIES.threshold or 0.0, label=SERIES.threshold_label or "Threshold"),
+        threshold=ThresholdSpec(
+            value=SERIES.threshold or 0.0,
+            label=SERIES.threshold_label or "Threshold",
+            color="#F59E0B",
+            dash="dot",
+        ),
         higher_is_better=False,
-        chart_title=f"{PAGE.title} 연도별 추이",
+        chart_title=f"{PAGE.title} 비교 추이",
     )
 
 
+def _focus_range(series: pd.Series, metric: MetricSpec) -> tuple[float, float] | None:
+    if series.empty:
+        return None
+    data_min = float(series.min())
+    data_max = float(series.max())
+    threshold = metric.threshold.value if metric.threshold else 0.0
+    lower = max(0.0, min(data_min, threshold - 15))
+    upper = max(data_max, threshold + 15)
+    if upper <= lower:
+        return None
+    return lower, upper
+
+
 def main() -> None:
-    st.set_page_config(page_title=f"{PAGE.title} | 교육여건 지표", page_icon=PAGE.icon, layout="wide")
+    st.set_page_config(
+        page_title=f"{PAGE.title} | 대학알리미 시각화 대시보드",
+        page_icon=PAGE.icon,
+        layout="wide",
+    )
     apply_app_theme()
     st.title(f"{PAGE.icon} {PAGE.title}")
     st.caption(APP_SUBTITLE)
@@ -44,43 +105,112 @@ def main() -> None:
         schools=schools,
         default_schools=[PAGE.default_school] if PAGE.default_school in schools else schools[:1],
         config=SidebarConfig(
-            header="필터",
-            school_label="학교 선택",
-            school_help=f"전체 {len(schools)}개 학교 중 선택",
+            header="학교 선택",
+            school_label="비교 학교",
+            school_help=f"총 {len(schools)}개 학교 가운데 비교할 학교를 선택합니다.",
             meta_lines=(
-                SidebarMeta(text=f"기준일: {DATA_UPDATED}"),
-                SidebarMeta(text=f"전체 학교 수: {len(schools)}개"),
-                SidebarMeta(text=f"분석 기간: {min(years)} ~ {latest_year}"),
+                SidebarMeta(text=f"업데이트: {DATA_UPDATED}"),
+                SidebarMeta(text=f"대상 학교 수: {len(schools)}개"),
+                SidebarMeta(text=f"기준년도 범위: {min(years)} ~ {latest_year}"),
+                SidebarMeta(text="단위: %"),
             ),
         ),
     )
-
     selected_schools = sidebar_values["selected_schools"]
+    group_definitions = build_group_definitions(
+        schools,
+        key_prefix=PAGE.id,
+        title="비교 대상 그룹",
+        caption="선택 학교와 함께 비교할 그룹 평균선을 만들 수 있습니다.",
+        group_presets=GROUP_PRESETS,
+        default_slot_presets=DEFAULT_SLOT_PRESETS,
+        custom_preset_label=CUSTOM_PRESET,
+        group_name_help="차트에 표시할 그룹 이름입니다.",
+        group_schools_help="이 그룹에 포함할 학교를 선택합니다.",
+        default_group_name_template="비교 그룹 {slot}",
+    )
+
     if not selected_schools:
-        st.info("사이드바에서 학교를 선택해 주세요.")
+        st.info("비교할 학교를 하나 이상 선택해 주세요.")
         st.stop()
 
     filtered_df = df[df[SCHOOL_COL].isin(selected_schools)].copy()
     if filtered_df.empty:
-        st.error("선택한 학교 데이터가 없습니다.")
+        st.error("선택한 학교에 해당하는 데이터가 없습니다.")
         st.stop()
+
+    metric = build_metric()
+    chart_df = build_chart_frame(
+        df,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        value_col=metric.value_col,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+    )
+    chart_styler = build_chart_styler(selected_schools, group_definitions)
+    active_groups = [name for name, school_list in group_definitions.items() if name and school_list]
+
+    if active_groups:
+        st.info("현재 차트에는 선택 학교와 함께 다음 비교 그룹 평균선이 표시됩니다: " + ", ".join(active_groups))
+    else:
+        st.caption("활성화된 비교 그룹이 없어 현재는 선택 학교 추이만 표시됩니다.")
 
     render_single_metric_page(
         df=filtered_df,
-        chart_df=df,
-        metric=build_metric(),
+        chart_df=chart_df,
+        metric=metric,
         year_col=YEAR_COL,
         school_col=SCHOOL_COL,
         latest_year=latest_year,
-        chart_title=f"선택 학교 ({len(selected_schools)}개) {PAGE.title} 추이",
+        chart_title=f"{PAGE.title} 비교 추이",
         selected_schools=selected_schools,
         definition_rows={
-            "출처": "대학알리미 공시자료 계산 결과 (서울 소재 사립대학)",
-            "공식": "등록금수입 ÷ 운영수입 × 100 (%)",
+            "지표명": "운영수입 대비 등록금수입의 비율을 보여주는 재정 지표입니다.",
+            "산식 개요": "등록금수입을 운영수입으로 나눈 뒤 100을 곱해 산출합니다.",
+            "해석 방향": "등록금 의존도가 낮을수록 재정 구조가 다변화된 것으로 해석할 수 있습니다.",
             "4주기 인증 기준": PAGE.threshold_note,
-            "데이터 기준일": DATA_UPDATED,
+            "비교 대상 그룹": "선택 학교와 비교 그룹 평균선을 함께 표시해 상대적 위치를 볼 수 있습니다.",
+            "업데이트": DATA_UPDATED,
         },
         kpi_threshold_suffix=f"{SERIES.threshold:.1f}% 이하",
+        chart_styler=chart_styler,
+    )
+
+    render_focus_range_chart(
+        chart_df,
+        metric=metric,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        chart_title=f"{metric.label} 기준선 인근 확대 비교",
+        chart_styler=chart_styler,
+        title="기준선 인근 확대 보기",
+        caption="등록금 비율이 기준선 주변에 있는 학교들끼리 차이를 더 쉽게 볼 수 있도록 확대했습니다.",
+        range_resolver=_focus_range,
+    )
+
+    render_comparison_heatmap(
+        chart_df,
+        metric=metric,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+        title="학교별 등록금 비율 히트맵",
+        caption="낮을수록 유리한 지표 특성을 반영해 낮은 값은 녹색, 높은 값은 적색 계열로 표현했습니다.",
+        hover_value_label="등록금 비율(%)",
+    )
+
+    render_bump_chart(
+        chart_df,
+        metric=metric,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+        title="학교별 순위 변화 범프 차트",
+        caption="등록금 비율은 낮을수록 좋은 지표이므로 낮은 값일수록 상위 순위로 계산합니다.",
+        toggle_key=f"{PAGE.id}_bump_selected_only",
     )
 
     st.divider()
@@ -90,13 +220,13 @@ def main() -> None:
         year_col=YEAR_COL,
         school_col=SCHOOL_COL,
         latest_year=latest_year,
-        metrics=[build_metric()],
+        metrics=[metric],
         selected_schools=selected_schools,
-        group_definitions={},
+        group_definitions=group_definitions,
     )
 
     st.markdown("---")
-    st.caption(f"데이터 출처: 대학알리미 | 기준일: {DATA_UPDATED}")
+    st.caption(f"데이터 출처: 대학알리미 | 업데이트: {DATA_UPDATED}")
 
 
 main()
