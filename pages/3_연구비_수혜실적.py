@@ -7,13 +7,10 @@ from registry import get_metric, get_series
 from ui import (
     MetricSpec,
     SidebarConfig,
-    SidebarMeta,
     ThresholdSpec,
-    build_dual_metric_kpis,
     build_pivot_table,
     build_yearly_stats,
     render_definition_table,
-    render_kpis,
     render_pivot_table,
     render_school_sidebar,
     render_stats_table,
@@ -21,8 +18,6 @@ from ui import (
 from utils.ai_panel import render_metric_ai_analysis_panel
 from utils.chart_utils import (
     add_threshold_hline,
-    add_threshold_hlines,
-    create_multi_metric_line_chart,
     create_trend_line_chart,
 )
 from utils.comparison_charts import (
@@ -32,7 +27,8 @@ from utils.comparison_charts import (
     render_comparison_heatmap,
     render_focus_range_chart,
 )
-from utils.comparison_sidebar import build_group_definitions
+from utils.comparison_page import render_dual_metric_sections, render_single_school_metric_comparison
+from utils.comparison_sidebar import build_default_group_preset_config, build_group_definitions, build_standard_sidebar_meta
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
 from utils.theme import apply_app_theme
@@ -47,34 +43,7 @@ SCHOOL_COL = "학교명"
 CAMPUS_COL = "본분교명"
 MAIN_CAMPUS = "본교"
 
-CUSTOM_PRESET = "직접 구성"
-DEFAULT_SLOT_PRESETS = {
-    1: "서울 소재 여대",
-    2: "주요 경쟁 대학",
-    3: CUSTOM_PRESET,
-}
-GROUP_PRESETS = {
-    "서울 소재 여대": [
-        "덕성여자대학교",
-        "동덕여자대학교",
-        "서울여자대학교",
-        "성신여자대학교",
-        "숙명여자대학교",
-        "이화여자대학교",
-    ],
-    "주요 경쟁 대학": [
-        "건국대학교",
-        "경희대학교",
-        "고려대학교",
-        "국민대학교",
-        "광운대학교",
-        "서강대학교",
-        "성균관대학교",
-        "중앙대학교",
-        "한양대학교",
-    ],
-    CUSTOM_PRESET: [],
-}
+DEFAULT_SLOT_PRESETS, GROUP_PRESETS, CUSTOM_PRESET = build_default_group_preset_config()
 
 
 def build_metric(series) -> MetricSpec:
@@ -214,26 +183,6 @@ def render_metric_section(
     )
 
 
-def render_single_school_metric_comparison(filtered_df: pd.DataFrame, metrics: list[MetricSpec]) -> None:
-    if len(filtered_df[SCHOOL_COL].unique()) != 1:
-        return
-
-    st.subheader("교내 연구비 / 교외 연구비 비교")
-    comparison_fig = create_multi_metric_line_chart(
-        filtered_df,
-        x=YEAR_COL,
-        metrics=[(metric.label, metric.value_col) for metric in metrics],
-        title="교내 연구비 vs 교외 연구비",
-        y_label="연구비(천원)",
-        color_map={
-            metrics[0].label: "#6EA8FF",
-            metrics[1].label: "#FF9A4D",
-        },
-    )
-    add_threshold_hlines(comparison_fig, [metric.threshold for metric in metrics if metric.threshold is not None])
-    st.plotly_chart(comparison_fig, width="stretch")
-
-
 def main() -> None:
     st.set_page_config(
         page_title=f"{PAGE.title} | 대학알리미 시각화 대시보드",
@@ -265,11 +214,12 @@ def main() -> None:
             header="학교 선택",
             school_label="비교 학교",
             school_help=f"총 {len(schools)}개 학교 중에서 비교할 학교를 선택합니다.",
-            meta_lines=(
-                SidebarMeta(text=f"업데이트: {DATA_UPDATED}"),
-                SidebarMeta(text=f"대상 학교 수: {len(schools)}개"),
-                SidebarMeta(text=f"기준년도 범위: {min(years)} ~ {latest_year}"),
-                SidebarMeta(text="단위: 천원"),
+            meta_lines=build_standard_sidebar_meta(
+                data_updated=DATA_UPDATED,
+                school_count=len(schools),
+                year_min=min(years),
+                year_max=latest_year,
+                unit="천원",
             ),
         ),
     )
@@ -298,17 +248,20 @@ def main() -> None:
 
     metrics = [build_metric(RESEARCH_IN), build_metric(RESEARCH_OUT)]
 
-    render_kpis(
-        build_dual_metric_kpis(
-            filtered_df,
-            metrics=metrics,
-            latest_year=latest_year,
-            school_col=SCHOOL_COL,
-            year_col=YEAR_COL,
+    render_dual_metric_sections(
+        filtered_df=filtered_df,
+        metrics=metrics,
+        latest_year=latest_year,
+        school_col=SCHOOL_COL,
+        year_col=YEAR_COL,
+        render_metric_section=lambda metric: render_metric_section(
+            base_df=df,
+            filtered_df=filtered_df,
+            metric=metric,
+            selected_schools=selected_schools,
+            group_definitions=group_definitions,
         ),
-        columns=min(6, max(1, len(metrics) * 3)),
     )
-    st.divider()
 
     active_groups = [name for name, school_list in group_definitions.items() if name and school_list]
     if active_groups:
@@ -319,18 +272,19 @@ def main() -> None:
     else:
         st.caption("활성화된 그룹이 없어 현재는 선택 학교 추이만 표시됩니다.")
 
-    tabs = st.tabs([metric.label for metric in metrics])
-    for tab, metric in zip(tabs, metrics):
-        with tab:
-            render_metric_section(
-                base_df=df,
-                filtered_df=filtered_df,
-                metric=metric,
-                selected_schools=selected_schools,
-                group_definitions=group_definitions,
-            )
-
-    render_single_school_metric_comparison(filtered_df, metrics)
+    render_single_school_metric_comparison(
+        filtered_df,
+        metrics=metrics,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        section_title="교내 연구비 / 교외 연구비 비교",
+        chart_title="교내 연구비 vs 교외 연구비",
+        y_label="연구비(천원)",
+        color_map={
+            metrics[0].label: "#6EA8FF",
+            metrics[1].label: "#FF9A4D",
+        },
+    )
 
     st.divider()
     render_metric_ai_analysis_panel(

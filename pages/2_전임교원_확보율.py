@@ -7,17 +7,11 @@ from registry import get_metric, get_series
 from ui import (
     MetricSpec,
     SidebarConfig,
-    SidebarMeta,
     ThresholdSpec,
-    build_pivot_table,
-    build_yearly_stats,
-    render_pivot_table,
     render_school_sidebar,
     render_single_metric_page,
-    render_stats_table,
 )
 from utils.ai_panel import render_metric_ai_analysis_panel
-from utils.chart_utils import add_threshold_hlines, create_multi_metric_line_chart
 from utils.comparison_charts import (
     build_chart_frame,
     build_chart_styler,
@@ -25,7 +19,8 @@ from utils.comparison_charts import (
     render_comparison_heatmap,
     render_focus_range_chart,
 )
-from utils.comparison_sidebar import build_group_definitions
+from utils.comparison_page import render_single_school_metric_comparison
+from utils.comparison_sidebar import build_default_group_preset_config, build_group_definitions, build_standard_sidebar_meta
 from utils.config import APP_SUBTITLE, DATA_SOURCE, DATA_UPDATED
 from utils.query import get_dataset
 from utils.theme import apply_app_theme
@@ -40,34 +35,7 @@ SCHOOL_COL = "학교명"
 BRANCH_COL = "본분교명"
 MAIN_BRANCH = "본교"
 
-CUSTOM_PRESET = "직접 구성"
-DEFAULT_SLOT_PRESETS = {
-    1: "서울 소재 여대",
-    2: "주요 경쟁 대학",
-    3: CUSTOM_PRESET,
-}
-GROUP_PRESETS = {
-    "서울 소재 여대": [
-        "덕성여자대학교",
-        "동덕여자대학교",
-        "서울여자대학교",
-        "성신여자대학교",
-        "숙명여자대학교",
-        "이화여자대학교",
-    ],
-    "주요 경쟁 대학": [
-        "건국대학교",
-        "경희대학교",
-        "고려대학교",
-        "국민대학교",
-        "광운대학교",
-        "서강대학교",
-        "성균관대학교",
-        "중앙대학교",
-        "한양대학교",
-    ],
-    CUSTOM_PRESET: [],
-}
+DEFAULT_SLOT_PRESETS, GROUP_PRESETS, CUSTOM_PRESET = build_default_group_preset_config()
 
 
 def build_metric(series) -> MetricSpec:
@@ -105,48 +73,6 @@ def _focus_range(series: pd.Series, metric: MetricSpec) -> tuple[float, float] |
     if upper <= lower:
         return None
     return lower, upper
-
-
-def render_dual_metric_comparison(filtered_df: pd.DataFrame) -> None:
-    if len(filtered_df[SCHOOL_COL].unique()) != 1:
-        return
-
-    comparison_metrics = [build_metric(JEONGWON), build_metric(JAEHAK)]
-    st.subheader("기준별 비교")
-    comparison_fig = create_multi_metric_line_chart(
-        filtered_df,
-        x=YEAR_COL,
-        metrics=[(metric.label, metric.value_col) for metric in comparison_metrics],
-        title="학생정원 기준 vs 재학생 기준",
-        y_label="전임교원 확보율 (%)",
-        color_map={
-            JEONGWON.label: "#6EA8FF",
-            JAEHAK.label: "#FF9A4D",
-        },
-    )
-    thresholds = [metric.threshold for metric in comparison_metrics if metric.threshold is not None]
-    if thresholds:
-        add_threshold_hlines(comparison_fig, thresholds)
-    st.plotly_chart(comparison_fig, width="stretch")
-
-    with st.expander("기준별 연도 통계", expanded=False):
-        for metric in comparison_metrics:
-            render_stats_table(
-                build_yearly_stats(filtered_df, year_col=YEAR_COL, metric=metric),
-                title=metric.label,
-            )
-
-    for metric in comparison_metrics:
-        render_pivot_table(
-            build_pivot_table(
-                filtered_df,
-                year_col=YEAR_COL,
-                school_col=SCHOOL_COL,
-                value_col=metric.value_col,
-                precision=metric.precision,
-            ),
-            label=f"연도별 학교 비교: {metric.label}",
-        )
 
 
 def main() -> None:
@@ -187,11 +113,13 @@ def main() -> None:
             header="학교 선택",
             school_label="비교 학교",
             school_help=f"총 {len(schools)}개 학교 중에서 비교할 학교를 선택합니다.",
-            meta_lines=(
-                SidebarMeta(text=f"데이터 소스: {'data.go.kr API' if DATA_SOURCE == 'api' else '로컬 CSV'}"),
-                SidebarMeta(text=f"업데이트: {DATA_UPDATED}"),
-                SidebarMeta(text=f"대상 학교 수: {len(schools)}개"),
-                SidebarMeta(text=f"기준년도 범위: {min(years)} ~ {latest_year}"),
+            meta_lines=build_standard_sidebar_meta(
+                data_updated=DATA_UPDATED,
+                school_count=len(schools),
+                year_min=min(years),
+                year_max=latest_year,
+                unit="%",
+                data_source=DATA_SOURCE,
             ),
         ),
     )
@@ -297,7 +225,21 @@ def main() -> None:
         toggle_key=f"{PAGE.id}_bump_selected_only",
     )
 
-    render_dual_metric_comparison(filtered_df)
+    render_single_school_metric_comparison(
+        filtered_df,
+        metrics=[build_metric(JEONGWON), build_metric(JAEHAK)],
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        section_title="기준별 비교",
+        chart_title="학생정원 기준 vs 재학생 기준",
+        y_label="전임교원 확보율 (%)",
+        color_map={
+            build_metric(JEONGWON).label: "#6EA8FF",
+            build_metric(JAEHAK).label: "#FF9A4D",
+        },
+        stats_expander_title="기준별 연도 통계",
+        pivot_label_prefix="연도별 학교 비교",
+    )
 
     st.divider()
     render_metric_ai_analysis_panel(

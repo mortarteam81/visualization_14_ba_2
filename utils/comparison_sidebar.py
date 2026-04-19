@@ -3,6 +3,77 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 
 import streamlit as st
+from ui import SidebarMeta
+
+
+DEFAULT_CUSTOM_PRESET_LABEL = "직접 구성"
+DEFAULT_GROUP_SLOT_PRESETS = {
+    1: "서울 소재 여대",
+    2: "주요 경쟁 대학",
+    3: DEFAULT_CUSTOM_PRESET_LABEL,
+}
+DEFAULT_GROUP_PRESETS = {
+    "서울 소재 여대": [
+        "덕성여자대학교",
+        "동덕여자대학교",
+        "서울여자대학교",
+        "성신여자대학교",
+        "숙명여자대학교",
+        "이화여자대학교",
+    ],
+    "주요 경쟁 대학": [
+        "건국대학교",
+        "경희대학교",
+        "고려대학교",
+        "국민대학교",
+        "광운대학교",
+        "서강대학교",
+        "성균관대학교",
+        "중앙대학교",
+        "한양대학교",
+    ],
+    DEFAULT_CUSTOM_PRESET_LABEL: [],
+}
+
+
+def build_default_group_preset_config(
+    custom_preset_label: str = DEFAULT_CUSTOM_PRESET_LABEL,
+) -> tuple[dict[int, str], dict[str, list[str]], str]:
+    slot_presets = {
+        1: "서울 소재 여대",
+        2: "주요 경쟁 대학",
+        3: custom_preset_label,
+    }
+    group_presets = {
+        "서울 소재 여대": list(DEFAULT_GROUP_PRESETS["서울 소재 여대"]),
+        "주요 경쟁 대학": list(DEFAULT_GROUP_PRESETS["주요 경쟁 대학"]),
+        custom_preset_label: [],
+    }
+    return slot_presets, group_presets, custom_preset_label
+
+
+def build_standard_sidebar_meta(
+    *,
+    data_updated: str,
+    school_count: int,
+    year_min: int | str,
+    year_max: int | str,
+    unit: str,
+    data_source: str | None = None,
+) -> tuple[SidebarMeta, ...]:
+    meta_lines: list[SidebarMeta] = []
+    if data_source:
+        source_label = "data.go.kr API" if data_source == "api" else "로컬 CSV"
+        meta_lines.append(SidebarMeta(text=f"데이터 소스: {source_label}"))
+    meta_lines.extend(
+        [
+            SidebarMeta(text=f"업데이트: {data_updated}"),
+            SidebarMeta(text=f"대상 학교 수: {school_count}개"),
+            SidebarMeta(text=f"기준년도 범위: {year_min} ~ {year_max}"),
+            SidebarMeta(text=f"단위: {unit}"),
+        ]
+    )
+    return tuple(meta_lines)
 
 
 def _normalize_group_school_selection(value: object, schools: Sequence[str]) -> list[str]:
