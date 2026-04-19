@@ -38,6 +38,26 @@ class TestChartSmoke:
         assert figure.data
         assert figure.layout.title.text == "Smoke"
 
+    def test_create_trend_line_chart_accepts_custom_hovermode(self) -> None:
+        frame = pd.DataFrame(
+            {
+                "year": [2023, 2024],
+                "value": [1.0, 2.0],
+                "school": ["Alpha", "Alpha"],
+            }
+        )
+
+        figure = create_trend_line_chart(
+            frame,
+            x="year",
+            y="value",
+            color="school",
+            title="Hover",
+            hovermode="closest",
+        )
+
+        assert figure.layout.hovermode == "closest"
+
     def test_add_threshold_hline_appends_shape(self) -> None:
         frame = pd.DataFrame(
             {

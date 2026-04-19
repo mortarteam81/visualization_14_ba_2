@@ -23,6 +23,7 @@ def create_trend_line_chart(
     x_label: str = "",
     y_label: str = "",
     height: int = CHART_HEIGHT,
+    hovermode: str = "x unified",
 ) -> go.Figure:
     """
     연도별 추이 라인 차트 생성.
@@ -49,7 +50,7 @@ def create_trend_line_chart(
         template=CHART_TEMPLATE,
     )
     fig.update_layout(
-        hovermode="x unified",
+        hovermode=hovermode,
         legend=dict(
             orientation="h",
             yanchor="bottom",
