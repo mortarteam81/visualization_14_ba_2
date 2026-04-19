@@ -6,6 +6,7 @@ from registry import get_metric, get_series
 from ui import MetricSpec, ThresholdSpec, render_optional_page
 from utils.config import APP_SUBTITLE, DATA_SOURCE, DATA_UPDATED
 from utils.query import get_dataset
+from utils.theme import apply_app_theme
 
 
 PAGE = get_metric("gyowon")
@@ -30,6 +31,7 @@ def build_metric(label: str, value_col: str, *, threshold: float | None = None) 
 
 def main() -> None:
     st.set_page_config(page_title=f"{PAGE.title} | 교육여건 지표", page_icon=PAGE.icon, layout="wide")
+    apply_app_theme()
     st.title(f"{PAGE.icon} {PAGE.title}")
     st.caption(APP_SUBTITLE)
 

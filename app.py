@@ -4,12 +4,14 @@ import streamlit as st
 
 from registry import APP_METADATA, list_metrics
 from utils.config import APP_ICON, APP_SUBTITLE, APP_TITLE, DATA_UPDATED
+from utils.theme import apply_app_theme
 
 st.set_page_config(
     page_title=APP_TITLE,
     page_icon=APP_ICON,
     layout="wide",
 )
+apply_app_theme()
 
 st.title(f"{APP_ICON} {APP_TITLE}")
 st.caption(APP_SUBTITLE)

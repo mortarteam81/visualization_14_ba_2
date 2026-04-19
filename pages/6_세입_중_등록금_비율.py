@@ -6,6 +6,7 @@ from registry import get_metric, get_series
 from ui import MetricSpec, SidebarConfig, SidebarMeta, ThresholdSpec, render_school_sidebar, render_single_metric_page
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
+from utils.theme import apply_app_theme
 
 
 PAGE = get_metric("tuition")
@@ -27,6 +28,7 @@ def build_metric() -> MetricSpec:
 
 def main() -> None:
     st.set_page_config(page_title=f"{PAGE.title} | 교육여건 지표", page_icon=PAGE.icon, layout="wide")
+    apply_app_theme()
     st.title(f"{PAGE.icon} {PAGE.title}")
     st.caption(APP_SUBTITLE)
 

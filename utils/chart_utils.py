@@ -51,14 +51,40 @@ def create_trend_line_chart(
     )
     fig.update_layout(
         hovermode=hovermode,
+        title_font=dict(size=24, color="#F8FBFF"),
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="center",
-            x=0.5,
+            yanchor="top",
+            y=-0.18,
+            xanchor="left",
+            x=0,
+            bgcolor="rgba(15, 23, 42, 0.72)",
+            bordercolor="rgba(148, 163, 184, 0.16)",
+            borderwidth=1,
+            font=dict(size=11, color="#E7EEF8"),
+            title_font=dict(size=12, color="#F6C453"),
         ),
         height=height,
+        paper_bgcolor="rgba(15, 23, 42, 0.0)",
+        plot_bgcolor="rgba(15, 23, 42, 0.82)",
+        font=dict(color="#E5EDF7"),
+        margin=dict(l=40, r=40, t=56, b=132),
+    )
+    fig.update_xaxes(
+        title_font=dict(size=15, color="#F8FBFF"),
+        tickfont=dict(size=12, color="#DDE6F3"),
+        showgrid=True,
+        gridcolor="rgba(148, 163, 184, 0.10)",
+        zeroline=False,
+        linecolor="rgba(148, 163, 184, 0.18)",
+    )
+    fig.update_yaxes(
+        title_font=dict(size=15, color="#F8FBFF"),
+        tickfont=dict(size=12, color="#DDE6F3"),
+        showgrid=True,
+        gridcolor="rgba(148, 163, 184, 0.10)",
+        zeroline=False,
+        linecolor="rgba(148, 163, 184, 0.18)",
     )
     return fig
 
@@ -151,14 +177,40 @@ def create_multi_metric_line_chart(
     )
     fig.update_layout(
         hovermode="x unified",
+        title_font=dict(size=24, color="#F8FBFF"),
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="center",
-            x=0.5,
+            yanchor="top",
+            y=-0.18,
+            xanchor="left",
+            x=0,
+            bgcolor="rgba(15, 23, 42, 0.72)",
+            bordercolor="rgba(148, 163, 184, 0.16)",
+            borderwidth=1,
+            font=dict(size=11, color="#E7EEF8"),
+            title_font=dict(size=12, color="#F6C453"),
         ),
         height=height,
+        paper_bgcolor="rgba(15, 23, 42, 0.0)",
+        plot_bgcolor="rgba(15, 23, 42, 0.82)",
+        font=dict(color="#E5EDF7"),
+        margin=dict(l=40, r=40, t=56, b=132),
+    )
+    fig.update_xaxes(
+        title_font=dict(size=15, color="#F8FBFF"),
+        tickfont=dict(size=12, color="#DDE6F3"),
+        showgrid=True,
+        gridcolor="rgba(148, 163, 184, 0.10)",
+        zeroline=False,
+        linecolor="rgba(148, 163, 184, 0.18)",
+    )
+    fig.update_yaxes(
+        title_font=dict(size=15, color="#F8FBFF"),
+        tickfont=dict(size=12, color="#DDE6F3"),
+        showgrid=True,
+        gridcolor="rgba(148, 163, 184, 0.10)",
+        zeroline=False,
+        linecolor="rgba(148, 163, 184, 0.18)",
     )
     return fig
 

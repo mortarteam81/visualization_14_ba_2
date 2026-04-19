@@ -20,6 +20,7 @@ from utils.chart_utils import add_threshold_hline, create_trend_line_chart
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 from utils.query import get_dataset
+from utils.theme import apply_app_theme
 
 
 PAGE = get_metric("budam")
@@ -62,6 +63,23 @@ AI_RESULT_KEY = "budam_ai_analysis_result"
 AI_ERROR_KEY = "budam_ai_analysis_error"
 
 
+def _resolve_column_name(df: pd.DataFrame, preferred: str, aliases: list[str]) -> str:
+    for candidate in [preferred, *aliases]:
+        if candidate in df.columns:
+            return candidate
+
+    normalized_map = {
+        str(column).replace(" ", "").replace("_", ""): column
+        for column in df.columns
+    }
+    for candidate in [preferred, *aliases]:
+        normalized = candidate.replace(" ", "").replace("_", "")
+        if normalized in normalized_map:
+            return normalized_map[normalized]
+
+    raise KeyError(f"'{preferred}' column was not found in dataset columns: {list(df.columns)}")
+
+
 def build_metric() -> MetricSpec:
     return MetricSpec(
         key=SERIES.id,
@@ -72,7 +90,7 @@ def build_metric() -> MetricSpec:
         threshold=ThresholdSpec(
             value=SERIES.threshold or 0.0,
             label=SERIES.threshold_label or "Threshold",
-            color="#B45309",
+            color="#F59E0B",
             dash="dot",
         ),
         chart_title=f"{PAGE.title} 비교 추이",
@@ -194,7 +212,7 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
     selected_school_set = set(selected_schools)
     grouped_school_names = sorted(grouped_schools - selected_school_set)
 
-    selected_palette = ["#0F4C81", "#C44E52", "#2C7C5B", "#7A4FA3", "#C17C10", "#1F6F8B"]
+    selected_palette = ["#4F8CFF", "#F97316", "#22C55E", "#A855F7", "#F43F5E", "#06B6D4"]
     selected_colors = {
         school_name: selected_palette[index % len(selected_palette)]
         for index, school_name in enumerate(selected_schools)
@@ -204,7 +222,7 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
         school_name: grouped_palette[index % len(grouped_palette)]
         for index, school_name in enumerate(grouped_school_names)
     }
-    average_palette = ["#111827", "#7C3AED", "#D97706"]
+    average_palette = ["#F6C453", "#C084FC", "#FB923C"]
     average_colors = {
         line_name: average_palette[index % len(average_palette)]
         for index, line_name in enumerate(sorted(average_line_names))
@@ -226,7 +244,7 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
             mode="lines+markers+text",
             text=labels,
             textposition=label_positions.get(text, "middle right"),
-            textfont={"size": 11},
+            textfont={"size": 12, "color": "#F8FBFF"},
             cliponaxis=False,
         )
 
@@ -235,20 +253,20 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
             trace_name = getattr(trace, "name", "") or ""
 
             if trace_name in average_line_names:
-                color = average_colors.get(trace_name, "#111827")
+                color = average_colors.get(trace_name, "#F6C453")
                 trace.update(
                     opacity=1.0,
-                    line={"width": 3, "dash": "dash", "color": color},
+                    line={"width": 3.2, "dash": "dash", "color": color},
                     marker={"size": 7, "color": color},
                 )
                 _apply_last_point_label(trace, trace_name)
                 continue
 
             if trace_name in selected_school_set:
-                color = selected_colors.get(trace_name, "#0F4C81")
+                color = selected_colors.get(trace_name, "#4F8CFF")
                 trace.update(
                     opacity=1.0,
-                    line={"width": 3.4, "color": color},
+                    line={"width": 3.8, "color": color},
                     marker={"size": 8, "color": color},
                 )
                 _apply_last_point_label(trace, trace_name)
@@ -257,30 +275,319 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
             if trace_name in grouped_schools:
                 color = grouped_colors.get(trace_name, "#94A3B8")
                 trace.update(
-                    opacity=0.58,
-                    line={"width": 2, "color": color},
+                    opacity=0.5,
+                    line={"width": 2.1, "color": color},
                     marker={"size": 5, "color": color},
                 )
-                _apply_last_point_label(trace, trace_name)
 
         fig.update_layout(
             title={"x": 0.02, "xanchor": "left"},
-            plot_bgcolor="#FAFAF8",
-            paper_bgcolor="#FFFFFF",
+            plot_bgcolor="rgba(15, 23, 42, 0.82)",
+            paper_bgcolor="rgba(15, 23, 42, 0.0)",
             hovermode="closest",
-            margin={"r": 180},
+            margin={"r": 180, "b": 132, "t": 56},
             legend={
                 "orientation": "h",
-                "yanchor": "bottom",
-                "y": 1.02,
+                "yanchor": "top",
+                "y": -0.18,
                 "xanchor": "left",
                 "x": 0,
+                "font": {"size": 11, "color": "#F8FBFF"},
+                "title_font": {"size": 12, "color": "#F6C453"},
             },
+            title_font={"size": 24, "color": "#F8FBFF"},
+            font={"color": "#E5EDF7"},
         )
-        fig.update_xaxes(showspikes=True, spikemode="across", spikesnap="cursor")
-        fig.update_yaxes(showspikes=True, spikemode="across", spikesnap="cursor")
+        fig.update_xaxes(
+            showspikes=True,
+            spikemode="across",
+            spikesnap="cursor",
+            title_font={"size": 15, "color": "#F8FBFF"},
+            tickfont={"size": 12, "color": "#DDE6F3"},
+            gridcolor="rgba(148, 163, 184, 0.10)",
+            zeroline=False,
+        )
+        fig.update_yaxes(
+            showspikes=True,
+            spikemode="across",
+            spikesnap="cursor",
+            title_font={"size": 15, "color": "#F8FBFF"},
+            tickfont={"size": 12, "color": "#DDE6F3"},
+            gridcolor="rgba(148, 163, 184, 0.10)",
+            zeroline=False,
+        )
 
     return _style
+
+
+def _ordered_heatmap_rows(
+    chart_df: pd.DataFrame,
+    *,
+    selected_schools: list[str],
+    group_definitions: dict[str, list[str]],
+) -> list[str]:
+    average_line_names = [
+        f"{group_name} {AVERAGE_LINE_SUFFIX}"
+        for group_name, schools_in_group in group_definitions.items()
+        if group_name and schools_in_group
+    ]
+    grouped_school_names = sorted(
+        {
+            school
+            for schools_in_group in group_definitions.values()
+            for school in schools_in_group
+        }
+        - set(selected_schools)
+    )
+    visible_rows = set(chart_df[SCHOOL_COL].unique())
+    return [
+        *[school for school in selected_schools if school in visible_rows],
+        *[line_name for line_name in average_line_names if line_name in visible_rows],
+        *[school for school in grouped_school_names if school in visible_rows],
+    ]
+
+
+def render_comparison_heatmap(
+    chart_df: pd.DataFrame,
+    *,
+    selected_schools: list[str],
+    group_definitions: dict[str, list[str]],
+) -> None:
+    st.subheader("학교별 부담율 히트맵")
+    st.caption("연도별 부담율 강도를 색으로 보여줘서, 어느 학교가 높은지 낮은지 빠르게 비교할 수 있습니다.")
+
+    row_order = _ordered_heatmap_rows(
+        chart_df,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+    )
+    if not row_order:
+        return
+
+    heatmap_frame = (
+        chart_df.pivot_table(
+            index=SCHOOL_COL,
+            columns=YEAR_COL,
+            values=VALUE_COL,
+            aggfunc="mean",
+        )
+        .reindex(row_order)
+        .dropna(how="all")
+    )
+    if heatmap_frame.empty:
+        return
+
+    years = list(heatmap_frame.columns)
+    schools = list(heatmap_frame.index)
+    height = max(420, 42 * len(schools) + 120)
+    max_value = float(chart_df[VALUE_COL].max()) if not chart_df.empty else 100.0
+    threshold_value = SERIES.threshold or 10.0
+    threshold_ratio = min(1.0, threshold_value / max(max_value, threshold_value))
+    colorscale = [
+        [0.0, "#0F172A"],
+        [max(0.08, threshold_ratio * 0.45), "#1D4ED8"],
+        [threshold_ratio, "#F59E0B"],
+        [1.0, "#EF4444"],
+    ]
+
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=heatmap_frame.values,
+            x=years,
+            y=schools,
+            colorscale=colorscale,
+            zmin=0,
+            zmax=max(max_value, threshold_value),
+            colorbar=dict(
+                title=dict(text="부담율 (%)", font=dict(color="#F8FBFF")),
+                tickfont=dict(color="#E7EEF8"),
+                bgcolor="rgba(15, 23, 42, 0.78)",
+                outlinecolor="rgba(148, 163, 184, 0.18)",
+            ),
+            hovertemplate="학교명=%{y}<br>기준연도=%{x}<br>부담율(%)=%{z:.1f}<extra></extra>",
+            xgap=3,
+            ygap=3,
+        )
+    )
+    fig.update_layout(
+        title={"text": f"{PAGE.title} 히트맵 비교", "x": 0.02, "xanchor": "left"},
+        title_font={"size": 24, "color": "#F8FBFF"},
+        height=height,
+        margin={"l": 40, "r": 40, "t": 56, "b": 40},
+        paper_bgcolor="rgba(15, 23, 42, 0.0)",
+        plot_bgcolor="rgba(15, 23, 42, 0.82)",
+        font={"color": "#E5EDF7"},
+    )
+    fig.update_xaxes(
+        title="기준연도",
+        title_font={"size": 15, "color": "#F8FBFF"},
+        tickfont={"size": 12, "color": "#DDE6F3"},
+        side="top",
+        showgrid=False,
+    )
+    fig.update_yaxes(
+        title="학교명",
+        title_font={"size": 15, "color": "#F8FBFF"},
+        tickfont={"size": 12, "color": "#E7EEF8"},
+        autorange="reversed",
+    )
+    st.plotly_chart(fig, width="stretch")
+
+
+def render_bump_chart(
+    chart_df: pd.DataFrame,
+    *,
+    selected_schools: list[str],
+    group_definitions: dict[str, list[str]],
+) -> None:
+    st.subheader("학교별 순위 변화 범프 차트")
+    st.caption("연도별 부담율 순위 변화를 보여줘서, 선택 학교와 그룹 평균이 상위권인지 하위권인지 흐름으로 확인할 수 있습니다.")
+
+    average_line_names = {
+        f"{group_name} {AVERAGE_LINE_SUFFIX}"
+        for group_name, schools_in_group in group_definitions.items()
+        if group_name and schools_in_group
+    }
+    show_selected_only = st.toggle(
+        "선택 학교만 보기",
+        value=False,
+        key="budam_bump_selected_only",
+        help="켜면 선택 학교와 그룹 평균선만 남기고, 나머지 그룹 학교는 숨깁니다.",
+    )
+
+    if show_selected_only:
+        row_order = [
+            *selected_schools,
+            *[line_name for line_name in average_line_names if line_name in chart_df[SCHOOL_COL].unique()],
+        ]
+    else:
+        row_order = _ordered_heatmap_rows(
+            chart_df,
+            selected_schools=selected_schools,
+            group_definitions=group_definitions,
+        )
+    if not row_order:
+        return
+
+    ranking_frame = chart_df[[YEAR_COL, SCHOOL_COL, VALUE_COL]].copy()
+    ranking_frame["rank"] = (
+        ranking_frame.groupby(YEAR_COL)[VALUE_COL]
+        .rank(method="dense", ascending=False)
+        .astype(int)
+    )
+    ranking_frame = ranking_frame[ranking_frame[SCHOOL_COL].isin(row_order)].copy()
+    if ranking_frame.empty:
+        return
+
+    selected_palette = ["#4F8CFF", "#F97316", "#22C55E", "#A855F7", "#F43F5E", "#06B6D4"]
+    selected_colors = {
+        school_name: selected_palette[index % len(selected_palette)]
+        for index, school_name in enumerate(selected_schools)
+    }
+    average_palette = ["#F6C453", "#C084FC", "#FB923C"]
+    average_colors = {
+        line_name: average_palette[index % len(average_palette)]
+        for index, line_name in enumerate(sorted(average_line_names))
+    }
+
+    fig = go.Figure()
+    label_positions = {}
+    label_cycle = ("middle right", "top right", "bottom right")
+    for index, name in enumerate(row_order):
+        label_positions[name] = label_cycle[index % len(label_cycle)]
+
+    for school_name in row_order:
+        school_frame = ranking_frame[ranking_frame[SCHOOL_COL] == school_name].sort_values(YEAR_COL)
+        if school_frame.empty:
+            continue
+
+        is_selected = school_name in selected_schools
+        is_average = school_name in average_line_names
+        color = "#64748B"
+        width = 2.0
+        dash = "solid"
+        opacity = 0.45
+        marker_size = 7
+
+        if is_average:
+            color = average_colors.get(school_name, "#F6C453")
+            width = 3.2
+            dash = "dash"
+            opacity = 1.0
+            marker_size = 8
+        elif is_selected:
+            color = selected_colors.get(school_name, "#4F8CFF")
+            width = 3.8
+            opacity = 1.0
+            marker_size = 8
+
+        labels = [""] * len(school_frame)
+        if is_average or is_selected:
+            labels[-1] = school_name
+
+        hover_name = school_name
+        fig.add_trace(
+            go.Scatter(
+                x=school_frame[YEAR_COL],
+                y=school_frame["rank"],
+                mode="lines+markers+text" if labels[-1] else "lines+markers",
+                name=school_name,
+                text=labels if labels[-1] else None,
+                textposition=label_positions.get(school_name, "middle right"),
+                textfont={"size": 11, "color": "#F8FBFF"},
+                line={"color": color, "width": width, "dash": dash},
+                marker={"size": marker_size, "color": color},
+                opacity=opacity,
+                hovertemplate=(
+                    f"학교명={hover_name}<br>기준연도=%{{x}}<br>순위=%{{y}}위<extra></extra>"
+                ),
+                cliponaxis=False,
+            )
+        )
+
+    max_rank = int(ranking_frame["rank"].max())
+    fig.update_layout(
+        title={"text": f"{PAGE.title} 순위 변화", "x": 0.02, "xanchor": "left"},
+        title_font={"size": 24, "color": "#F8FBFF"},
+        height=max(440, 38 * len(row_order) + 120),
+        margin={"l": 40, "r": 180, "t": 56, "b": 132},
+        paper_bgcolor="rgba(15, 23, 42, 0.0)",
+        plot_bgcolor="rgba(15, 23, 42, 0.82)",
+        font={"color": "#E5EDF7"},
+        hovermode="closest",
+        legend={
+            "orientation": "h",
+            "yanchor": "top",
+            "y": -0.18,
+            "xanchor": "left",
+            "x": 0,
+            "bgcolor": "rgba(15, 23, 42, 0.72)",
+            "bordercolor": "rgba(148, 163, 184, 0.16)",
+            "borderwidth": 1,
+            "font": {"size": 11, "color": "#E7EEF8"},
+            "title": {"text": "학교명", "font": {"size": 12, "color": "#F6C453"}},
+        },
+    )
+    fig.update_xaxes(
+        title="기준연도",
+        title_font={"size": 15, "color": "#F8FBFF"},
+        tickfont={"size": 12, "color": "#DDE6F3"},
+        showgrid=True,
+        gridcolor="rgba(148, 163, 184, 0.10)",
+        zeroline=False,
+    )
+    fig.update_yaxes(
+        title="순위",
+        title_font={"size": 15, "color": "#F8FBFF"},
+        tickfont={"size": 12, "color": "#DDE6F3"},
+        autorange="reversed",
+        dtick=1,
+        range=[max_rank + 0.5, 0.5],
+        showgrid=True,
+        gridcolor="rgba(148, 163, 184, 0.10)",
+        zeroline=False,
+    )
+    st.plotly_chart(fig, width="stretch")
 
 
 def render_low_range_chart(
@@ -310,7 +617,7 @@ def render_low_range_chart(
             fig,
             threshold=metric.threshold.value,
             label=metric.threshold.label,
-            color=metric.threshold.color or "#B45309",
+            color=metric.threshold.color or "#F59E0B",
             dash=metric.threshold.dash,
         )
     chart_styler(fig)
@@ -400,11 +707,17 @@ def render_ai_analysis_panel(
 
 
 def main() -> None:
+    global YEAR_COL, SCHOOL_COL, VALUE_COL
+
     st.set_page_config(page_title=f"{PAGE.title} | 교육 여건 지표", page_icon=PAGE.icon, layout="wide")
+    apply_app_theme()
     st.title(f"{PAGE.icon} {PAGE.title}")
     st.caption(APP_SUBTITLE)
 
     df = get_dataset(PAGE.dataset_key)
+    YEAR_COL = _resolve_column_name(df, "기준년도", ["기준연도"])
+    SCHOOL_COL = _resolve_column_name(df, "학교명", [])
+    VALUE_COL = _resolve_column_name(df, SERIES.column, ["부담율", "부담률"])
     schools = sorted(df[SCHOOL_COL].unique())
     years = sorted(df[YEAR_COL].unique())
     latest_year = max(years)
@@ -459,7 +772,7 @@ def main() -> None:
             "출처": "대학알리미 공시자료 (서울 소재 사립대학)",
             "산식": "법정부담금 부담액 ÷ 법정부담금 기준액 × 100 (%)",
             "4주기 인증 기준": PAGE.threshold_note,
-            "그래프 읽기": "선택 학교는 진하게, 그룹 평균은 점선으로, 그룹 학교는 색을 유지한 보조선으로 표시합니다.",
+            "그래프 읽기": "선택 학교는 진하게, 그룹 평균은 점선으로, 그룹 학교는 보조선으로 표시합니다.",
             "저구간 확대 보기": f"추가 차트에서 0 ~ {LOW_RANGE_MAX:.0f}% 범위를 확대해 낮은 부담율 구간 비교를 돕습니다.",
             "데이터 기준일": DATA_UPDATED,
         },
@@ -472,6 +785,18 @@ def main() -> None:
         metric=metric,
         chart_title=f"{PAGE.title} 저구간 확대 비교",
         chart_styler=chart_styler,
+    )
+
+    render_comparison_heatmap(
+        chart_df,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+    )
+
+    render_bump_chart(
+        chart_df,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
     )
 
     st.divider()

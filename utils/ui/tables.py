@@ -52,7 +52,8 @@ def render_stats_table(
     *,
     title: str = "Yearly stats",
 ) -> None:
-    st.subheader(title)
+    if title:
+        st.subheader(title)
     st.dataframe(df, width="stretch")
 
 

@@ -93,21 +93,20 @@ def render_single_metric_page(
     )
     st.divider()
 
-    chart_col, stats_col = st.columns([2, 1])
-    with chart_col:
-        st.subheader(metric.chart_title or metric.label)
-        _render_single_chart(
-            chart_df if chart_df is not None else df,
-            year_col=year_col,
-            school_col=school_col,
-            metric=metric,
-            title=chart_title,
-            chart_styler=chart_styler,
-        )
-    with stats_col:
+    st.subheader(metric.chart_title or metric.label)
+    _render_single_chart(
+        chart_df if chart_df is not None else df,
+        year_col=year_col,
+        school_col=school_col,
+        metric=metric,
+        title=chart_title,
+        chart_styler=chart_styler,
+    )
+
+    with st.expander(stats_title, expanded=False):
         render_stats_table(
             build_yearly_stats(df, year_col=year_col, metric=metric),
-            title=stats_title,
+            title="",
         )
 
     render_pivot_table(
@@ -154,20 +153,19 @@ def render_dual_metric_page(
     tabs = st.tabs([metric.label for metric in metrics])
     for tab, metric in zip(tabs, metrics):
         with tab:
-            chart_col, stats_col = st.columns([2, 1])
-            with chart_col:
-                st.subheader(metric.chart_title or metric.label)
-                _render_single_chart(
-                    df,
-                    year_col=year_col,
-                    school_col=school_col,
-                    metric=metric,
-                    title=metric.chart_title or metric.label,
-                )
-            with stats_col:
+            st.subheader(metric.chart_title or metric.label)
+            _render_single_chart(
+                df,
+                year_col=year_col,
+                school_col=school_col,
+                metric=metric,
+                title=metric.chart_title or metric.label,
+            )
+
+            with st.expander("Yearly stats", expanded=False):
                 render_stats_table(
                     build_yearly_stats(df, year_col=year_col, metric=metric),
-                    title="Yearly stats",
+                    title="",
                 )
 
             render_pivot_table(
