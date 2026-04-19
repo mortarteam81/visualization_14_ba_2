@@ -263,6 +263,76 @@ def _add_end_label_annotation(
     )
 
 
+def _resolve_trace_color(trace: go.Scatter) -> str:
+    line = getattr(trace, "line", None)
+    if line is not None:
+        line_color = getattr(line, "color", None)
+        if line_color:
+            return str(line_color)
+
+    marker = getattr(trace, "marker", None)
+    if marker is not None:
+        marker_color = getattr(marker, "color", None)
+        if isinstance(marker_color, str) and marker_color:
+            return marker_color
+
+    return "#F8FBFF"
+
+
+def _is_trace_hidden(trace: go.Scatter) -> bool:
+    visible = getattr(trace, "visible", True)
+    return visible is False or visible == "legendonly"
+
+
+def _build_label_offsets(traces: Sequence[go.Scatter], selected_set: set[str]) -> dict[str, int]:
+    visible_selected: list[tuple[str, float]] = []
+
+    for trace in traces:
+        trace_name = getattr(trace, "name", "") or ""
+        if trace_name not in selected_set or _is_trace_hidden(trace):
+            continue
+
+        raw_y = getattr(trace, "y", None)
+        y_values = list(raw_y) if raw_y is not None else []
+        if not y_values:
+            continue
+
+        try:
+            last_y = float(y_values[-1])
+        except (TypeError, ValueError):
+            continue
+
+        visible_selected.append((trace_name, last_y))
+
+    visible_selected.sort(key=lambda item: item[1])
+    stagger_pattern = (0, -14, 14, -28, 28, -40, 40)
+
+    offset_map: dict[str, int] = {}
+    for index, (trace_name, _) in enumerate(visible_selected):
+        offset_map[trace_name] = stagger_pattern[index % len(stagger_pattern)]
+    return offset_map
+
+
+def _coerce_plotly_mapping(value: object) -> dict[str, object]:
+    """Safely normalize Plotly graph objects and dict-like values to plain dicts."""
+
+    if value is None:
+        return {}
+    if isinstance(value, dict):
+        return dict(value)
+
+    to_plotly_json = getattr(value, "to_plotly_json", None)
+    if callable(to_plotly_json):
+        normalized = to_plotly_json()
+        if isinstance(normalized, dict):
+            return normalized
+
+    try:
+        return dict(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return {}
+
+
 def emphasize_selected_traces(
     fig: go.Figure,
     selected_names: Sequence[str],
@@ -278,25 +348,19 @@ def emphasize_selected_traces(
     if not selected_set:
         return fig
 
-    label_offsets = (-14, 0, 14, -24, 24)
-    offset_map = {
-        name: label_offsets[index % len(label_offsets)]
-        for index, name in enumerate(selected_names)
-        if name
-    }
+    offset_map = _build_label_offsets(fig.data, selected_set)
 
     for trace in fig.data:
         trace_name = getattr(trace, "name", "") or ""
         raw_x = getattr(trace, "x", None)
         x_values = list(raw_x) if raw_x is not None else []
         point_count = len(x_values)
+        is_hidden = _is_trace_hidden(trace)
+        trace_color = _resolve_trace_color(trace)
 
         if trace_name in selected_set:
-            current_line = dict(getattr(trace, "line", {}) or {})
-            current_marker = dict(getattr(trace, "marker", {}) or {})
-            labels = [""] * point_count
-            if point_count:
-                labels[-1] = trace_name
+            current_line = _coerce_plotly_mapping(getattr(trace, "line", None))
+            current_marker = _coerce_plotly_mapping(getattr(trace, "marker", None))
 
             trace.update(
                 opacity=1.0,
@@ -305,16 +369,21 @@ def emphasize_selected_traces(
                 mode="lines+markers",
                 cliponaxis=False,
             )
-            _add_end_label_annotation(
-                fig,
-                trace=trace,
-                label=trace_name,
-                font_size=label_font_size,
-                yshift=offset_map.get(trace_name, 0),
-            )
+            if not is_hidden and point_count:
+                _add_end_label_annotation(
+                    fig,
+                    trace=trace,
+                    label=trace_name,
+                    font_size=label_font_size,
+                    font_color=trace_color,
+                    yshift=offset_map.get(trace_name, 0),
+                )
         else:
-            trace.update(opacity=min(getattr(trace, "opacity", 1.0), dim_opacity))
+            if not is_hidden:
+                current_opacity = getattr(trace, "opacity", None)
+                normalized_opacity = 1.0 if current_opacity is None else float(current_opacity)
+                trace.update(opacity=min(normalized_opacity, dim_opacity))
 
-    current_margin = dict(getattr(fig.layout, "margin", {}) or {})
+    current_margin = _coerce_plotly_mapping(getattr(fig.layout, "margin", None))
     fig.update_layout(margin={**current_margin, "r": max(int(current_margin.get("r", 40)), 220)})
     return fig

@@ -28,6 +28,19 @@ from .tables import (
 )
 
 
+def _apply_selected_school_styling(
+    fig: go.Figure,
+    *,
+    selected_schools: Sequence[str] | None = None,
+) -> None:
+    """Apply shared selected-school emphasis when a page uses the standard renderer path."""
+
+    if not selected_schools:
+        return
+
+    emphasize_selected_traces(fig, list(selected_schools))
+
+
 def _render_single_chart(
     df: pd.DataFrame,
     *,
@@ -59,7 +72,7 @@ def _render_single_chart(
     if chart_styler is not None:
         chart_styler(fig)
     else:
-        emphasize_selected_traces(fig, list(selected_schools or []))
+        _apply_selected_school_styling(fig, selected_schools=selected_schools)
     st.plotly_chart(fig, width="stretch")
 
 

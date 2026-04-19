@@ -64,6 +64,7 @@ def main() -> None:
 
     render_single_metric_page(
         df=filtered_df,
+        chart_df=df,
         metric=build_metric(),
         year_col="기준년도",
         school_col="학교명",
