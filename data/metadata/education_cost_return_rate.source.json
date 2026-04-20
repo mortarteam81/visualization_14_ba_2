@@ -1,0 +1,31 @@
+{
+  "dataset_id": "education_cost_return_rate",
+  "dataset_name_ko": "교육비 환원율",
+  "dataset_name_en": "Education Cost Return Rate",
+  "schema_version": "v2",
+  "source_name": "대학재정알리미",
+  "source_org": "한국사학진흥재단",
+  "source_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/view/1",
+  "source_section": "통계현황 > 테마이슈통계",
+  "download_method": "웹사이트에서 연도별 엑셀 파일 수동 다운로드",
+  "original_file_format": "xlsx",
+  "collected_years": [2020, 2021, 2022, 2023, 2024, 2025],
+  "downloaded_at": "2026-04-21",
+  "processed_output_files": [
+    "data/processed/education_cost_return_rate/education_cost_return_rate_2020_2025_v2_schema_utf8.csv"
+  ],
+  "processing_summary": [
+    "병합셀 헤더 논리 해제",
+    "상위 헤더와 하위 헤더 결합",
+    "연도별 파일 통합",
+    "v2 표준 스키마로 컬럼 정규화",
+    "UTF-8 CSV 저장"
+  ],
+  "recommended_primary_metric": "education_cost_return_rate_recalculated_pct",
+  "key_formula": "(tuition_account_total + industry_account_total) / tuition_revenue * 100",
+  "notes": [
+    "원본 데이터는 대학재정알리미 테마이슈통계에서 다운로드함",
+    "연도별 원본 헤더 구조 차이를 공통 v2 스키마로 정규화함",
+    "원본 교육비환원율 값과 재계산값을 함께 보존함"
+  ]
+}
