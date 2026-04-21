@@ -91,6 +91,14 @@ DORMITORY_PAGE_TITLE = _DORMITORY.title
 DORMITORY_PAGE_ICON = _DORMITORY.icon
 DORMITORY_COL = get_series("dormitory_accommodation_rate").column
 
+_LECTURER_PAY = get_metric("lecturer_pay")
+LECTURER_PAY_CSV = _LECTURER_PAY.csv_file
+LECTURER_PAY_CSV_ENCODING = _LECTURER_PAY.csv_encoding
+LECTURER_PAY_DEFAULT_SCHOOL = _LECTURER_PAY.default_school
+LECTURER_PAY_PAGE_TITLE = _LECTURER_PAY.title
+LECTURER_PAY_PAGE_ICON = _LECTURER_PAY.icon
+LECTURER_PAY_COL = get_series("lecturer_hourly_pay").column
+
 CHART_HEIGHT = 620
 CHART_THRESHOLD_COLOR = "#F59E0B"
 CHART_TEMPLATE = "plotly_dark"

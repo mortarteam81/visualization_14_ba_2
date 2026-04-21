@@ -1,0 +1,18 @@
+{
+  "dataset_id": "lecturer_pay",
+  "dataset_name_ko": "강사 강의료",
+  "dataset_name_en": "Lecturer Pay",
+  "schema_version": "v2.1",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://www.academyinfo.go.kr/index.do#none",
+  "source_section": "공시데이터 다운로드 > 공시항목 > 14-차. 강사 강의료",
+  "download_method": "2023년, 2024년, 2025년 자료 다운로드 후 통합하고 CSV(UTF-8)로 변환",
+  "processed_output_files": [
+    "data/processed/lecturer_pay/lecturer_pay_2023_2025_v2_1_utf8.csv"
+  ],
+  "notes": [
+    "사용자 제공 통합 CSV를 기준으로 v2.1 영문 표준 스키마로 변환함",
+    "한글 컬럼명을 전부 영문 snake_case 컬럼으로 정규화함"
+  ]
+}

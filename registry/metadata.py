@@ -309,6 +309,31 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
             ),
         ),
     ),
+    "lecturer_pay": MetricSpec(
+        id="lecturer_pay",
+        title="강사 강의료",
+        icon="💸",
+        summary="강사의 시간당 지급기준 단가를 학교별로 비교하는 지표",
+        description="강사 강의료의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="pages/10_강사_강의료.py",
+        dataset_key="lecturer_pay",
+        csv_file="processed/lecturer_pay/lecturer_pay_2023_2025_v2_1_utf8.csv",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=10,
+        threshold_note="연도별 기준값: 2023년 50,600원 / 2024년 51,800원 / 2025년 53,100원",
+        series=(
+            SeriesSpec(
+                id="lecturer_hourly_pay",
+                label="강사 강의료",
+                column="강사강의료",
+                unit="원",
+                threshold=53_100.0,
+                threshold_label="연도별 기준값",
+                decimals=0,
+            ),
+        ),
+    ),
 }
 
 

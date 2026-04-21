@@ -24,6 +24,9 @@ from utils.config import (
     GYOWON_CSV_ENCODING,
     JIROSUNG_CSV,
     JIROSUNG_CSV_ENCODING,
+    LECTURER_PAY_COL,
+    LECTURER_PAY_CSV,
+    LECTURER_PAY_CSV_ENCODING,
     PAPER_COL_JAEJI,
     PAPER_COL_SCI,
     PAPER_CSV,
@@ -423,6 +426,94 @@ def prepare_dormitory_frame(df: pd.DataFrame) -> pd.DataFrame:
     return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
 
 
+LECTURER_PAY_THRESHOLDS = {
+    2023: 50_600.0,
+    2024: 51_800.0,
+    2025: 53_100.0,
+}
+
+
+def prepare_lecturer_pay_frame(df: pd.DataFrame) -> pd.DataFrame:
+    frame = df.copy()
+    required = {
+        "reference_year",
+        "university_name",
+        "school_type",
+        "founding_type",
+        "region_name",
+        "school_status",
+        "lecturer_category",
+        "payment_category",
+        "paid_lecturer_count",
+        "시간당 지급기준 단가(원)",
+        "총 강의시간 수",
+        "지급인원비율(%)",
+    }
+    _check_columns(frame, required)
+
+    frame = frame[
+        (frame["region_name"].astype(str).str.strip() == "서울")
+        & (frame["founding_type"].astype(str).str.strip() == "사립")
+        & (frame["school_type"].astype(str).str.strip() == "대학교")
+        & (frame["school_status"].astype(str).str.strip() == "기존")
+        & (frame["lecturer_category"].astype(str).str.strip() == "강사")
+        & (~frame["university_name"].astype(str).str.contains("_", regex=False))
+    ].copy()
+
+    rename_map = {
+        "reference_year": "기준년도",
+        "university_name": "학교명",
+        "school_type": "학교종류",
+        "founding_type": "설립구분",
+        "region_name": "지역",
+        "school_status": "학교상태",
+        "lecturer_category": "강사구분",
+        "payment_category": "지급구분",
+        "paid_lecturer_count": "지급인원수",
+        "시간당 지급기준 단가(원)": "시간당지급기준단가",
+        "총 강의시간 수": "총강의시간수",
+        "지급인원비율(%)": "지급인원비율",
+    }
+    frame = frame.rename(columns=rename_map)
+
+    numeric_columns = ["기준년도", "지급인원수", "시간당지급기준단가", "총강의시간수", "지급인원비율"]
+    for column in numeric_columns:
+        frame[column] = pd.to_numeric(
+            frame[column].astype(str).str.replace(",", "", regex=False),
+            errors="coerce",
+        )
+
+    frame = frame.dropna(subset=["기준년도", "학교명", "시간당지급기준단가", "총강의시간수"])
+    frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = frame[frame["총강의시간수"] > 0].copy()
+    frame["강의료가중합"] = frame["시간당지급기준단가"] * frame["총강의시간수"]
+
+    grouped = (
+        frame.groupby(["기준년도", "학교명"], as_index=False)
+        .agg(
+            총강의시간수=("총강의시간수", "sum"),
+            지급인원수=("지급인원수", "sum"),
+            강의료가중합=("강의료가중합", "sum"),
+            지급단가구간수=("시간당지급기준단가", "count"),
+        )
+    )
+    grouped[LECTURER_PAY_COL] = (grouped["강의료가중합"] / grouped["총강의시간수"]).round(0)
+    grouped["연도별기준값"] = grouped["기준년도"].map(LECTURER_PAY_THRESHOLDS)
+    grouped["기준충족"] = grouped[LECTURER_PAY_COL] >= grouped["연도별기준값"]
+
+    keep_columns = [
+        "기준년도",
+        "학교명",
+        "지급인원수",
+        "총강의시간수",
+        "지급단가구간수",
+        "연도별기준값",
+        "기준충족",
+        LECTURER_PAY_COL,
+    ]
+    return grouped[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
+
+
 def load_budam_frame() -> pd.DataFrame:
     return prepare_budam_frame(_load_csv(BUDAM_CSV, BUDAM_CSV_ENCODING))
 
@@ -465,3 +556,7 @@ def load_education_return_frame() -> pd.DataFrame:
 
 def load_dormitory_frame() -> pd.DataFrame:
     return prepare_dormitory_frame(_load_csv(DORMITORY_CSV, DORMITORY_CSV_ENCODING))
+
+
+def load_lecturer_pay_frame() -> pd.DataFrame:
+    return prepare_lecturer_pay_frame(_load_csv(LECTURER_PAY_CSV, LECTURER_PAY_CSV_ENCODING))

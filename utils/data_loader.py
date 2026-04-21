@@ -12,6 +12,7 @@ from utils.data_pipeline import (
     load_gyeolsan_frame,
     load_gyowon_csv_frame,
     load_jirosung_frame,
+    load_lecturer_pay_frame,
     load_paper_frame,
     load_research_frame,
 )
@@ -55,3 +56,8 @@ def load_education_return_data() -> pd.DataFrame:
 @st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
 def load_dormitory_data() -> pd.DataFrame:
     return load_dormitory_frame()
+
+
+@st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
+def load_lecturer_pay_data() -> pd.DataFrame:
+    return load_lecturer_pay_frame()

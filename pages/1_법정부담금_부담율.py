@@ -17,6 +17,7 @@ from ui import (
 from utils.ai_analysis import analyze_budam_with_lmstudio, build_budam_analysis_payload
 from utils.ai_providers import LMStudioError
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
+from utils.comparison_charts import apply_right_label_xaxis_padding
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 from utils.query import get_dataset
@@ -247,31 +248,23 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
         )
     }
 
-    def _apply_last_point_label(fig: go.Figure, trace: go.Scatter, text: str) -> None:
+    def _apply_last_point_label(trace: go.Scatter, text: str, color: str) -> None:
         raw_x = getattr(trace, "x", None)
-        raw_y = getattr(trace, "y", None)
-        x_values = list(raw_x) if raw_x is not None else []
-        y_values = list(raw_y) if raw_y is not None else []
-        if not x_values or not y_values:
+        if raw_x is None:
             return
 
-        trace.update(mode="lines+markers", cliponaxis=False)
-        fig.add_annotation(
-            x=1.02,
-            y=y_values[-1],
-            xref="paper",
-            yref="y",
-            text=text,
-            yshift={"middle right": 0, "top right": -14, "bottom right": 14}.get(
-                label_positions.get(text, "middle right"),
-                0,
-            ),
-            showarrow=False,
-            xanchor="left",
-            align="left",
-            font={"size": 12, "color": "#F8FBFF"},
-            bgcolor="rgba(15, 23, 42, 0.0)",
-            borderpad=0,
+        point_count = len(list(raw_x))
+        if point_count == 0:
+            return
+
+        labels = [""] * point_count
+        labels[-1] = text
+        trace.update(
+            mode="lines+markers+text",
+            text=labels,
+            textposition=label_positions.get(text, "middle right"),
+            textfont={"size": 12, "color": color},
+            cliponaxis=False,
         )
 
     def _apply_last_point_trace_label(trace: go.Scatter, text: str) -> None:
@@ -305,7 +298,7 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
                     line={"width": 3.2, "dash": "dash", "color": color},
                     marker={"size": 7, "color": color},
                 )
-                _apply_last_point_label(fig, trace, trace_name)
+                _apply_last_point_label(trace, trace_name, color)
                 continue
 
             if trace_name in selected_school_set:
@@ -315,7 +308,7 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
                     line={"width": 3.8, "color": color},
                     marker={"size": 8, "color": color},
                 )
-                _apply_last_point_label(fig, trace, trace_name)
+                _apply_last_point_label(trace, trace_name, color)
                 continue
 
             if trace_name in grouped_schools:
@@ -355,6 +348,7 @@ def build_chart_styler(selected_schools: list[str], group_definitions: dict[str,
             gridcolor="rgba(148, 163, 184, 0.10)",
             zeroline=False,
         )
+        apply_right_label_xaxis_padding(fig)
         fig.update_yaxes(
             showspikes=True,
             spikemode="across",
@@ -652,6 +646,7 @@ def render_bump_chart(
         gridcolor="rgba(148, 163, 184, 0.10)",
         zeroline=False,
     )
+    apply_right_label_xaxis_padding(fig)
     fig.update_yaxes(
         title="순위",
         title_font={"size": 15, "color": "#F8FBFF"},

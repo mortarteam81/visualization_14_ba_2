@@ -31,6 +31,59 @@ DEFAULT_GROUPED_PALETTE = [
 ]
 DEFAULT_AVERAGE_PALETTE = ["#FFD166", "#D8B4FE", "#FDBA74"]
 DEFAULT_LABEL_POSITIONS = ("middle right", "top right", "bottom right")
+RIGHT_LABEL_X_PADDING_RATIO = 0.16
+RIGHT_LABEL_X_PADDING_MIN = 0.35
+RIGHT_LABEL_X_PADDING_PER_CHAR_RATIO = 0.035
+RIGHT_LABEL_X_PADDING_MAX_RATIO = 0.5
+
+
+def apply_right_label_xaxis_padding(
+    fig: go.Figure,
+    *,
+    pad_ratio: float = RIGHT_LABEL_X_PADDING_RATIO,
+    min_pad: float = RIGHT_LABEL_X_PADDING_MIN,
+) -> None:
+    """Leave room for trace-bound labels at the final x-value."""
+    x_values: list[float] = []
+    max_label_length = 0
+    for trace in fig.data:
+        if getattr(trace, "visible", None) is False:
+            continue
+
+        raw_x = getattr(trace, "x", None)
+        if raw_x is None:
+            continue
+
+        for value in raw_x:
+            try:
+                numeric_value = float(value)
+            except (TypeError, ValueError):
+                continue
+            if pd.isna(numeric_value):
+                continue
+            x_values.append(numeric_value)
+
+        raw_text = getattr(trace, "text", None)
+        if isinstance(raw_text, str):
+            max_label_length = max(max_label_length, len(raw_text))
+        elif raw_text is not None:
+            for label in reversed(list(raw_text)):
+                if label:
+                    max_label_length = max(max_label_length, len(str(label)))
+                    break
+
+    if not x_values:
+        return
+
+    x_min = min(x_values)
+    x_max = max(x_values)
+    span = x_max - x_min
+    label_pad = span * RIGHT_LABEL_X_PADDING_PER_CHAR_RATIO * max_label_length
+    right_pad = max(span * pad_ratio, label_pad, min_pad)
+    if span > 0:
+        right_pad = min(right_pad, max(span * RIGHT_LABEL_X_PADDING_MAX_RATIO, min_pad))
+    left_pad = max(span * 0.03, min_pad * 0.2)
+    fig.update_xaxes(range=[x_min - left_pad, x_max + right_pad])
 
 
 def build_chart_frame(
@@ -74,6 +127,8 @@ def build_chart_styler(
     grouped_palette: Sequence[str] = DEFAULT_GROUPED_PALETTE,
     average_palette: Sequence[str] = DEFAULT_AVERAGE_PALETTE,
     label_positions: Sequence[str] = DEFAULT_LABEL_POSITIONS,
+    show_grouped_schools: bool = False,
+    label_grouped_schools: bool = True,
 ) -> ChartStyler:
     grouped_schools = {
         school
@@ -107,31 +162,23 @@ def build_chart_styler(
         )
     }
 
-    def _apply_last_point_label(fig: go.Figure, trace: go.Scatter, text: str, color: str) -> None:
+    def _apply_last_point_label(trace: go.Scatter, text: str, color: str) -> None:
         raw_x = getattr(trace, "x", None)
-        raw_y = getattr(trace, "y", None)
-        x_values = list(raw_x) if raw_x is not None else []
-        y_values = list(raw_y) if raw_y is not None else []
-        if not x_values or not y_values:
+        if raw_x is None:
             return
 
-        trace.update(mode="lines+markers", cliponaxis=False)
-        fig.add_annotation(
-            x=1.02,
-            y=y_values[-1],
-            xref="paper",
-            yref="y",
-            text=text,
-            yshift={"middle right": 0, "top right": -14, "bottom right": 14}.get(
-                position_map.get(text, "middle right"),
-                0,
-            ),
-            showarrow=False,
-            xanchor="left",
-            align="left",
-            font={"size": 12, "color": color},
-            bgcolor="rgba(15, 23, 42, 0.0)",
-            borderpad=0,
+        point_count = len(list(raw_x))
+        if point_count == 0:
+            return
+
+        labels = [""] * point_count
+        labels[-1] = text
+        trace.update(
+            mode="lines+markers+text",
+            text=labels,
+            textposition=position_map.get(text, "middle right"),
+            textfont={"size": 12, "color": color},
+            cliponaxis=False,
         )
 
     def _apply_last_point_trace_label(trace: go.Scatter, text: str, color: str) -> None:
@@ -164,7 +211,7 @@ def build_chart_styler(
                     line={"width": 3.2, "dash": "dash", "color": color},
                     marker={"size": 7, "color": color},
                 )
-                _apply_last_point_label(fig, trace, trace_name, color)
+                _apply_last_point_label(trace, trace_name, color)
                 continue
 
             if trace_name in selected_school_set:
@@ -174,7 +221,7 @@ def build_chart_styler(
                     line={"width": 3.8, "color": color},
                     marker={"size": 8, "color": color},
                 )
-                _apply_last_point_label(fig, trace, trace_name, color)
+                _apply_last_point_label(trace, trace_name, color)
                 continue
 
             if trace_name in grouped_schools:
@@ -183,9 +230,10 @@ def build_chart_styler(
                     opacity=0.5,
                     line={"width": 2.1, "color": color},
                     marker={"size": 5, "color": color},
-                    visible="legendonly",
+                    visible=True if show_grouped_schools else "legendonly",
                 )
-                _apply_last_point_trace_label(trace, trace_name, color)
+                if label_grouped_schools:
+                    _apply_last_point_trace_label(trace, trace_name, color)
 
         fig.update_layout(
             title={"x": 0.02, "xanchor": "left"},
@@ -214,6 +262,7 @@ def build_chart_styler(
             gridcolor="rgba(148, 163, 184, 0.10)",
             zeroline=False,
         )
+        apply_right_label_xaxis_padding(fig)
         fig.update_yaxes(
             showspikes=True,
             spikemode="across",
@@ -579,6 +628,7 @@ def render_bump_chart(
         gridcolor="rgba(148, 163, 184, 0.10)",
         zeroline=False,
     )
+    apply_right_label_xaxis_padding(fig)
     fig.update_yaxes(
         title="순위",
         title_font={"size": 15, "color": "#F8FBFF"},
