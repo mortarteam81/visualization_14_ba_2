@@ -82,6 +82,15 @@ EDUCATION_RETURN_PAGE_TITLE = _EDUCATION_RETURN.title
 EDUCATION_RETURN_PAGE_ICON = _EDUCATION_RETURN.icon
 EDUCATION_RETURN_COL = get_series("education_return_rate").column
 
+_DORMITORY = get_metric("dormitory_rate")
+DORMITORY_CSV = _DORMITORY.csv_file
+DORMITORY_CSV_ENCODING = _DORMITORY.csv_encoding
+DORMITORY_THRESHOLD = get_series("dormitory_accommodation_rate").threshold
+DORMITORY_DEFAULT_SCHOOL = _DORMITORY.default_school
+DORMITORY_PAGE_TITLE = _DORMITORY.title
+DORMITORY_PAGE_ICON = _DORMITORY.icon
+DORMITORY_COL = get_series("dormitory_accommodation_rate").column
+
 CHART_HEIGHT = 620
 CHART_THRESHOLD_COLOR = "#F59E0B"
 CHART_TEMPLATE = "plotly_dark"

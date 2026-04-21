@@ -10,6 +10,9 @@ import pandas as pd
 from utils.config import (
     BUDAM_CSV,
     BUDAM_CSV_ENCODING,
+    DORMITORY_COL,
+    DORMITORY_CSV,
+    DORMITORY_CSV_ENCODING,
     EDUCATION_RETURN_COL,
     EDUCATION_RETURN_CSV,
     EDUCATION_RETURN_CSV_ENCODING,
@@ -347,6 +350,79 @@ def prepare_education_return_frame(df: pd.DataFrame) -> pd.DataFrame:
     return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
 
 
+def prepare_dormitory_frame(df: pd.DataFrame) -> pd.DataFrame:
+    frame = df.copy()
+    required = {
+        "reference_year",
+        "university_name",
+        "campus_type",
+        "school_type",
+        "founding_type_detail",
+        "region_name",
+        "enrolled_students",
+        "total_room_count",
+        "dormitory_capacity",
+        "dormitory_applicants",
+        "dormitory_competition_rate",
+        "dormitory_accommodation_rate_pct",
+    }
+    _check_columns(frame, required)
+
+    frame = frame[
+        (frame["region_name"].astype(str).str.strip() == "서울")
+        & (frame["founding_type_detail"].astype(str).str.strip() == "사립")
+        & (frame["school_type"].astype(str).str.strip() == "대학교")
+        & (frame["campus_type"].astype(str).str.strip() == "본교")
+    ].copy()
+
+    rename_map = {
+        "reference_year": "기준년도",
+        "university_name": "학교명",
+        "campus_type": "캠퍼스구분",
+        "school_type": "학교종류",
+        "founding_type_detail": "설립구분",
+        "region_name": "지역",
+        "enrolled_students": "재학생수",
+        "total_room_count": "기숙사실수",
+        "dormitory_capacity": "기숙사수용인원",
+        "dormitory_applicants": "기숙사지원자수",
+        "dormitory_competition_rate": "기숙사경쟁률",
+        "dormitory_accommodation_rate_pct": DORMITORY_COL,
+    }
+    frame = frame.rename(columns=rename_map)
+
+    numeric_columns = [
+        "기준년도",
+        "재학생수",
+        "기숙사실수",
+        "기숙사수용인원",
+        "기숙사지원자수",
+        "기숙사경쟁률",
+        DORMITORY_COL,
+    ]
+    for column in numeric_columns:
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+
+    frame = frame.dropna(subset=["기준년도", "학교명", DORMITORY_COL])
+    frame["기준년도"] = frame["기준년도"].astype(int)
+
+    keep_columns = [
+        "기준년도",
+        "학교명",
+        "캠퍼스구분",
+        "학교종류",
+        "설립구분",
+        "지역",
+        "재학생수",
+        "기숙사실수",
+        "기숙사수용인원",
+        "기숙사지원자수",
+        "기숙사경쟁률",
+        DORMITORY_COL,
+    ]
+    return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
+
+
 def load_budam_frame() -> pd.DataFrame:
     return prepare_budam_frame(_load_csv(BUDAM_CSV, BUDAM_CSV_ENCODING))
 
@@ -385,3 +461,7 @@ def load_gyeolsan_frame() -> pd.DataFrame:
 
 def load_education_return_frame() -> pd.DataFrame:
     return prepare_education_return_frame(_load_csv(EDUCATION_RETURN_CSV, EDUCATION_RETURN_CSV_ENCODING))
+
+
+def load_dormitory_frame() -> pd.DataFrame:
+    return prepare_dormitory_frame(_load_csv(DORMITORY_CSV, DORMITORY_CSV_ENCODING))

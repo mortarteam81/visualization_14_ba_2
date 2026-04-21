@@ -7,6 +7,7 @@ import streamlit as st
 
 from utils.data_pipeline import (
     load_budam_frame,
+    load_dormitory_frame,
     load_education_return_frame,
     load_gyeolsan_frame,
     load_gyowon_csv_frame,
@@ -49,3 +50,8 @@ def load_gyeolsan_data() -> pd.DataFrame:
 @st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
 def load_education_return_data() -> pd.DataFrame:
     return load_education_return_frame()
+
+
+@st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
+def load_dormitory_data() -> pd.DataFrame:
+    return load_dormitory_frame()

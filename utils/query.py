@@ -11,6 +11,7 @@ from utils.api.client import DataGoKrClient
 from utils.config import DATA_SOURCE
 from utils.data_pipeline import (
     load_budam_frame,
+    load_dormitory_frame,
     load_education_return_frame,
     load_gyeolsan_frame,
     load_gyowon_csv_frame,
@@ -45,18 +46,22 @@ def _load_api_key() -> str:
 def _get_dataset(dataset_key: str, include_branch: bool, data_source: str | None) -> pd.DataFrame:
     bonkyo_only = not include_branch
 
-    if dataset_key == "budam":
-        return load_budam_frame()
-    if dataset_key == "research":
-        return load_research_frame(bonkyo_only=bonkyo_only)
-    if dataset_key == "paper":
-        return load_paper_frame(bonkyo_only=bonkyo_only)
-    if dataset_key == "jirosung":
-        return load_jirosung_frame(bonkyo_only=bonkyo_only)
-    if dataset_key == "gyeolsan":
-        return load_gyeolsan_frame()
-    if dataset_key == "education_return":
-        return load_education_return_frame()
+    static_loaders = {
+        "budam": load_budam_frame,
+        "gyeolsan": load_gyeolsan_frame,
+        "education_return": load_education_return_frame,
+        "dormitory_rate": load_dormitory_frame,
+    }
+    branch_filtered_loaders = {
+        "research": load_research_frame,
+        "paper": load_paper_frame,
+        "jirosung": load_jirosung_frame,
+    }
+
+    if dataset_key in static_loaders:
+        return static_loaders[dataset_key]()
+    if dataset_key in branch_filtered_loaders:
+        return branch_filtered_loaders[dataset_key](bonkyo_only=bonkyo_only)
     if dataset_key == "gyowon":
         source = (data_source or DATA_SOURCE or "csv").lower()
         if source == "api":
@@ -69,7 +74,8 @@ def _get_dataset(dataset_key: str, include_branch: bool, data_source: str | None
                 bonkyo_only=bonkyo_only,
             )
         return load_gyowon_csv_frame(bonkyo_only=bonkyo_only)
-    raise ValueError(f"알 수 없는 dataset_key: {dataset_key}")
+    supported_keys = sorted([*static_loaders.keys(), *branch_filtered_loaders.keys(), "gyowon"])
+    raise ValueError(f"알 수 없는 dataset_key: {dataset_key}. 지원되는 값: {', '.join(supported_keys)}")
 
 
 def get_dataset(

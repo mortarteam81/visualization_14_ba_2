@@ -19,8 +19,8 @@ from utils.query import get_dataset
 from utils.theme import apply_app_theme
 
 
-PAGE = get_metric("education_return")
-SERIES = get_series("education_return_rate")
+PAGE = get_metric("dormitory_rate")
+SERIES = get_series("dormitory_accommodation_rate")
 
 YEAR_COL = "기준년도"
 SCHOOL_COL = "학교명"
@@ -63,7 +63,7 @@ def build_metric() -> MetricSpec:
         y_axis_label=f"{SERIES.label} ({SERIES.unit})",
         precision=SERIES.decimals,
         threshold=ThresholdSpec(
-            value=SERIES.threshold or 110.0,
+            value=SERIES.threshold or 11.0,
             label=SERIES.threshold_label or "기준값",
             color="#F59E0B",
             dash="dot",
@@ -78,9 +78,9 @@ def _focus_range(series: pd.Series, metric: MetricSpec) -> tuple[float, float] |
         return None
     data_min = float(series.min())
     data_max = float(series.max())
-    threshold = metric.threshold.value if metric.threshold else 110.0
-    lower = max(0.0, min(data_min, threshold - 15.0))
-    upper = max(data_max, threshold + 15.0)
+    threshold = metric.threshold.value if metric.threshold else 11.0
+    lower = max(0.0, min(data_min, threshold - 5.0))
+    upper = max(data_max, threshold + 8.0)
     if upper <= lower:
         return None
     return lower, upper
@@ -166,11 +166,11 @@ def main() -> None:
         chart_title=f"{PAGE.title} 비교 추이",
         selected_schools=selected_schools,
         definition_rows={
-            "지표명": "등록금 수입 대비 교육비 지출 수준을 보여주는 재정 지표입니다.",
-            "화면 표시값": "교육비 환원율(재계산)을 기준 지표로 사용합니다.",
-            "산식": "(등록금회계 교육비합계 + 산학협력단회계 교육비합계) ÷ 등록금수입 × 100 (%)",
-            "해석 방향": "값이 높을수록 등록금 수입이 교육 활동에 더 많이 투입된 것으로 해석할 수 있습니다.",
-            "기준값": "110% 이상",
+            "지표명": "재학생 대비 기숙사 수용 가능 수준을 보여주는 학생 지원 지표입니다.",
+            "화면 표시값": "기숙사 수용률을 기준 지표로 사용합니다.",
+            "산식": "기숙사 수용인원 ÷ 재학생수 × 100 (%)",
+            "해석 방향": "값이 높을수록 재학생이 기숙사를 이용할 수 있는 여건이 상대적으로 좋은 것으로 볼 수 있습니다.",
+            "기준값": PAGE.threshold_note,
             "비교 대상 그룹": "선택 학교와 비교 그룹 평균선을 함께 보여줘 상대적 위치를 확인할 수 있습니다.",
             "업데이트": DATA_UPDATED,
         },
@@ -183,10 +183,10 @@ def main() -> None:
         metric=metric,
         year_col=YEAR_COL,
         school_col=SCHOOL_COL,
-        chart_title=f"{metric.label} 집중 구간 비교",
+        chart_title=f"{metric.label} 기준값 인근 비교",
         chart_styler=chart_styler,
-        title="집중 구간 보기",
-        caption="학교 간 차이가 많이 나타나는 구간을 확대해 교육비 환원율의 세부 차이를 비교합니다.",
+        title="기준값 인근 보기",
+        caption="11% 기준값 주변 구간을 확대해 학교 간 차이를 더 쉽게 비교할 수 있습니다.",
         range_resolver=_focus_range,
     )
 
@@ -197,9 +197,9 @@ def main() -> None:
         school_col=SCHOOL_COL,
         selected_schools=selected_schools,
         group_definitions=group_definitions,
-        title="학교별 교육비 환원율 히트맵",
-        caption="연도별 교육비 환원율 강도를 색으로 보여줘 어느 학교가 높고 낮은지 빠르게 비교할 수 있습니다.",
-        hover_value_label="교육비 환원율(%)",
+        title="학교별 기숙사 수용률 히트맵",
+        caption="연도별 기숙사 수용률 강도를 색으로 보여줘 어느 학교가 높고 낮은지 빠르게 비교할 수 있습니다.",
+        hover_value_label="기숙사 수용률(%)",
     )
 
     render_bump_chart(
@@ -210,7 +210,7 @@ def main() -> None:
         selected_schools=selected_schools,
         group_definitions=group_definitions,
         title="학교별 순위 변화 범프 차트",
-        caption="교육비 환원율 순위 변화를 통해 선택 학교와 비교 그룹 평균의 상대적 흐름을 볼 수 있습니다.",
+        caption="기숙사 수용률 순위 변화를 통해 선택 학교와 비교 그룹 평균의 상대적 흐름을 볼 수 있습니다.",
         toggle_key=f"{PAGE.id}_bump_selected_only",
     )
 
@@ -227,7 +227,7 @@ def main() -> None:
     )
 
     st.markdown("---")
-    st.caption(f"데이터 출처: 교육비 환원율 가공 CSV | 업데이트: {DATA_UPDATED}")
+    st.caption(f"데이터 출처: 기숙사 수용 현황 가공 CSV | 업데이트: {DATA_UPDATED}")
 
 
 main()
