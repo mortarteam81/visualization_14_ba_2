@@ -1,0 +1,101 @@
+export const educationCostReturnRateColumns = [
+  "survey_year",
+  "university_name",
+  "school_level",
+  "school_type",
+  "region",
+  "row_no",
+  "tuition_salary",
+  "tuition_admin",
+  "tuition_research_student",
+  "tuition_books",
+  "tuition_equipment",
+  "tuition_scholarship",
+  "tuition_admissions",
+  "tuition_account_total",
+  "industry_project_cost",
+  "industry_support_project_cost",
+  "industry_indirect_project_cost",
+  "industry_general_admin",
+  "industry_equipment",
+  "industry_account_total",
+  "tuition_revenue",
+  "education_cost_return_rate_original_pct",
+  "education_cost_return_rate_recalculated_pct",
+  "source_file_name",
+] as const;
+
+export type EducationCostReturnRateColumn =
+  (typeof educationCostReturnRateColumns)[number];
+
+export const educationCostReturnRateColumnLabels: Record<
+  EducationCostReturnRateColumn,
+  string
+> = {
+  survey_year: "조사연도",
+  university_name: "학교명",
+  school_level: "학급",
+  school_type: "학종",
+  region: "지역",
+  row_no: "원본 행번호",
+  tuition_salary: "교비회계 교육비 - 보수",
+  tuition_admin: "교비회계 교육비 - 관리운영비",
+  tuition_research_student: "교비회계 교육비 - 연구학생경비",
+  tuition_books: "교비회계 교육비 - 도서구입비",
+  tuition_equipment: "교비회계 교육비 - 기계기구 매입/취득비",
+  tuition_scholarship: "교비회계 교육비 - 장학금",
+  tuition_admissions: "교비회계 교육비 - 입시관리비",
+  tuition_account_total: "교비회계 교육비 합계",
+  industry_project_cost: "산학협력단회계 교육비 - 산학협력비",
+  industry_support_project_cost: "산학협력단회계 교육비 - 지원금사업비",
+  industry_indirect_project_cost: "산학협력단회계 교육비 - 간접비사업비",
+  industry_general_admin: "산학협력단회계 교육비 - 일반관리비",
+  industry_equipment: "산학협력단회계 교육비 - 기계기구 취득/매입비",
+  industry_account_total: "산학협력단회계 교육비 합계",
+  tuition_revenue: "등록금수입",
+  education_cost_return_rate_original_pct: "교육비환원율(원본)",
+  education_cost_return_rate_recalculated_pct: "교육비환원율(재계산)",
+  source_file_name: "원본 파일명",
+};
+
+export const numericColumns: EducationCostReturnRateColumn[] = [
+  "survey_year",
+  "row_no",
+  "tuition_salary",
+  "tuition_admin",
+  "tuition_research_student",
+  "tuition_books",
+  "tuition_equipment",
+  "tuition_scholarship",
+  "tuition_admissions",
+  "tuition_account_total",
+  "industry_project_cost",
+  "industry_support_project_cost",
+  "industry_indirect_project_cost",
+  "industry_general_admin",
+  "industry_equipment",
+  "industry_account_total",
+  "tuition_revenue",
+  "education_cost_return_rate_original_pct",
+  "education_cost_return_rate_recalculated_pct",
+];
+
+export const dimensionColumns: EducationCostReturnRateColumn[] = [
+  "survey_year",
+  "university_name",
+  "school_level",
+  "school_type",
+  "region",
+  "source_file_name",
+];
+
+export const defaultVisibleColumns: EducationCostReturnRateColumn[] = [
+  "survey_year",
+  "university_name",
+  "school_type",
+  "region",
+  "tuition_account_total",
+  "industry_account_total",
+  "tuition_revenue",
+  "education_cost_return_rate_recalculated_pct",
+];
