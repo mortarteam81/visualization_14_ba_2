@@ -1,0 +1,19 @@
+{
+  "dataset_id": "dormitory_accommodation_status",
+  "dataset_name_ko": "기숙사 수용 현황",
+  "dataset_name_en": "Dormitory Accommodation Status",
+  "schema_version": "v2",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://www.academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 14-마-1. 기숙사 수용 현황_대학",
+  "download_method": "웹사이트에서 xlsx 파일 다운로드 후 csv로 변환",
+  "original_file_name": "14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+  "processed_output_files": [
+    "data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv"
+  ],
+  "notes": [
+    "사용자 제공 CSV를 기준으로 v2 표준 영문 스키마로 변환함",
+    "원본 한글 컬럼명을 전부 영문 snake_case로 정규화함"
+  ]
+}
