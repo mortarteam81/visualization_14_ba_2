@@ -259,6 +259,29 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
             ),
         ),
     ),
+    "education_return": MetricSpec(
+        id="education_return",
+        title="교육비 환원율",
+        icon="🎓",
+        summary="등록금 수입 대비 실제 교육비 집행 수준을 보여주는 지표",
+        description="교육비 환원율의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="pages/8_교육비_환원율.py",
+        dataset_key="education_return",
+        csv_file="processed/education_cost_return_rate/education_cost_return_rate_2020_2025_v2_schema_utf8.csv",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=8,
+        threshold_note="주 표시값: 교육비 환원율(재계산)",
+        series=(
+            SeriesSpec(
+                id="education_return_rate",
+                label="교육비 환원율",
+                column="교육비환원율",
+                unit="%",
+                decimals=1,
+            ),
+        ),
+    ),
 }
 
 

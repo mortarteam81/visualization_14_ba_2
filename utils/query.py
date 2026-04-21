@@ -11,6 +11,7 @@ from utils.api.client import DataGoKrClient
 from utils.config import DATA_SOURCE
 from utils.data_pipeline import (
     load_budam_frame,
+    load_education_return_frame,
     load_gyeolsan_frame,
     load_gyowon_csv_frame,
     load_jirosung_frame,
@@ -54,6 +55,8 @@ def _get_dataset(dataset_key: str, include_branch: bool, data_source: str | None
         return load_jirosung_frame(bonkyo_only=bonkyo_only)
     if dataset_key == "gyeolsan":
         return load_gyeolsan_frame()
+    if dataset_key == "education_return":
+        return load_education_return_frame()
     if dataset_key == "gyowon":
         source = (data_source or DATA_SOURCE or "csv").lower()
         if source == "api":

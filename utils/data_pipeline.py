@@ -10,6 +10,9 @@ import pandas as pd
 from utils.config import (
     BUDAM_CSV,
     BUDAM_CSV_ENCODING,
+    EDUCATION_RETURN_COL,
+    EDUCATION_RETURN_CSV,
+    EDUCATION_RETURN_CSV_ENCODING,
     GYEOLSAN_CSV,
     GYEOLSAN_CSV_ENCODING,
     GYOWON_COL_JAEHAK,
@@ -283,6 +286,67 @@ def prepare_gyeolsan_frame(df: pd.DataFrame) -> pd.DataFrame:
     return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
 
 
+def prepare_education_return_frame(df: pd.DataFrame) -> pd.DataFrame:
+    frame = df.copy()
+    required = {
+        "survey_year",
+        "university_name",
+        "school_type",
+        "region",
+        "tuition_account_total",
+        "industry_account_total",
+        "tuition_revenue",
+        "education_cost_return_rate_recalculated_pct",
+    }
+    _check_columns(frame, required)
+
+    frame = frame[
+        (frame["region"].astype(str).str.strip() == "서울")
+        & (frame["school_type"].astype(str).str.strip() == "일반")
+    ].copy()
+
+    rename_map = {
+        "survey_year": "기준년도",
+        "university_name": "학교명",
+        "school_type": "학교종류",
+        "region": "지역",
+        "tuition_account_total": "등록금회계_교육비합계",
+        "industry_account_total": "산학협력단회계_교육비합계",
+        "tuition_revenue": "등록금수입",
+        "education_cost_return_rate_recalculated_pct": EDUCATION_RETURN_COL,
+        "education_cost_return_rate_original_pct": "교육비환원율(원본)",
+    }
+    frame = frame.rename(columns=rename_map)
+
+    numeric_columns = [
+        "기준년도",
+        "등록금회계_교육비합계",
+        "산학협력단회계_교육비합계",
+        "등록금수입",
+        EDUCATION_RETURN_COL,
+        "교육비환원율(원본)",
+    ]
+    for column in numeric_columns:
+        if column in frame.columns:
+            frame[column] = pd.to_numeric(frame[column], errors="coerce")
+
+    frame = frame.dropna(subset=["기준년도", "학교명", EDUCATION_RETURN_COL])
+    frame["기준년도"] = frame["기준년도"].astype(int)
+
+    keep_columns = [
+        "기준년도",
+        "학교명",
+        "학교종류",
+        "지역",
+        "등록금회계_교육비합계",
+        "산학협력단회계_교육비합계",
+        "등록금수입",
+        "교육비환원율(원본)",
+        EDUCATION_RETURN_COL,
+    ]
+    return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
+
+
 def load_budam_frame() -> pd.DataFrame:
     return prepare_budam_frame(_load_csv(BUDAM_CSV, BUDAM_CSV_ENCODING))
 
@@ -317,3 +381,7 @@ def load_jirosung_frame(*, bonkyo_only: bool = True) -> pd.DataFrame:
 
 def load_gyeolsan_frame() -> pd.DataFrame:
     return prepare_gyeolsan_frame(_load_csv(GYEOLSAN_CSV, GYEOLSAN_CSV_ENCODING))
+
+
+def load_education_return_frame() -> pd.DataFrame:
+    return prepare_education_return_frame(_load_csv(EDUCATION_RETURN_CSV, EDUCATION_RETURN_CSV_ENCODING))
