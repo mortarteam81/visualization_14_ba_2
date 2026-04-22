@@ -18,6 +18,7 @@ from utils.data_pipeline import (
     load_jirosung_frame,
     load_lecturer_pay_frame,
     load_library_material_purchase_frame,
+    load_library_staff_frame,
     load_paper_frame,
     load_research_frame,
     prepare_gyowon_frame,
@@ -55,6 +56,7 @@ def _get_dataset(dataset_key: str, include_branch: bool, data_source: str | None
         "dormitory_rate": load_dormitory_frame,
         "lecturer_pay": load_lecturer_pay_frame,
         "library_material_purchase_per_student": load_library_material_purchase_frame,
+        "library_staff_per_1000_students": load_library_staff_frame,
     }
     branch_filtered_loaders = {
         "research": load_research_frame,

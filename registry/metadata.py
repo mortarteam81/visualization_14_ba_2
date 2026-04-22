@@ -359,6 +359,31 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
             ),
         ),
     ),
+    "library_staff": MetricSpec(
+        id="library_staff",
+        title="재학생 1,000명당 도서관 직원수",
+        icon="👥",
+        summary="재학생 1,000명당 도서관 직원 수를 보여주는 지표",
+        description="재학생 1,000명당 도서관 직원수의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="pages/12_재학생_1000명당_도서관_직원수.py",
+        dataset_key="library_staff_per_1000_students",
+        csv_file="processed/library_staff_per_1000_students/library_staff_per_1000_students_2008_2025_v6_utf8.csv",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=12,
+        threshold_note="기준값: 1.0명 이상",
+        series=(
+            SeriesSpec(
+                id="library_staff_per_1000_students",
+                label="재학생 1,000명당 도서관 직원수",
+                column="재학생1000명당도서관직원수",
+                unit="명",
+                threshold=1.0,
+                threshold_label="기준값",
+                decimals=2,
+            ),
+        ),
+    ),
 }
 
 

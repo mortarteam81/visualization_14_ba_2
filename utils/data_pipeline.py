@@ -30,6 +30,9 @@ from utils.config import (
     LIBRARY_MATERIAL_PURCHASE_COL,
     LIBRARY_MATERIAL_PURCHASE_CSV,
     LIBRARY_MATERIAL_PURCHASE_CSV_ENCODING,
+    LIBRARY_STAFF_COL,
+    LIBRARY_STAFF_CSV,
+    LIBRARY_STAFF_CSV_ENCODING,
     PAPER_COL_JAEJI,
     PAPER_COL_SCI,
     PAPER_CSV,
@@ -583,6 +586,92 @@ def prepare_library_material_purchase_frame(df: pd.DataFrame) -> pd.DataFrame:
     return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
 
 
+def prepare_library_staff_frame(df: pd.DataFrame) -> pd.DataFrame:
+    frame = df.copy()
+    required = {
+        "reference_year",
+        "university_name",
+        "school_type",
+        "founding_type",
+        "region_name",
+        "size_group",
+        "regular_staff_certified",
+        "regular_staff_not_certified",
+        "non_regular_staff_certified",
+        "non_regular_staff_not_certified",
+        "total_staff_certified",
+        "total_staff_not_certified",
+        "enrolled_students",
+        "library_staff_per_1000_students_recalculated",
+    }
+    _check_columns(frame, required)
+
+    frame = frame[
+        (frame["region_name"].astype(str).str.strip() == "서울")
+        & (frame["founding_type"].astype(str).str.strip() == "사립")
+        & (frame["school_type"].astype(str).str.strip() == "대학")
+        & (~frame["university_name"].astype(str).str.contains("_", regex=False))
+    ].copy()
+
+    rename_map = {
+        "reference_year": "기준년도",
+        "university_name": "학교명",
+        "school_type": "학교종류",
+        "founding_type": "설립구분",
+        "region_name": "지역",
+        "size_group": "규모그룹",
+        "regular_staff_certified": "정규직사서",
+        "regular_staff_not_certified": "정규직비사서",
+        "non_regular_staff_certified": "비정규직사서",
+        "non_regular_staff_not_certified": "비정규직비사서",
+        "total_staff_certified": "사서직원합계",
+        "total_staff_not_certified": "비사서직원합계",
+        "enrolled_students": "재학생수",
+        "library_staff_per_1000_students_recalculated": LIBRARY_STAFF_COL,
+    }
+    frame = frame.rename(columns=rename_map)
+
+    numeric_columns = [
+        "기준년도",
+        "정규직사서",
+        "정규직비사서",
+        "비정규직사서",
+        "비정규직비사서",
+        "사서직원합계",
+        "비사서직원합계",
+        "재학생수",
+        LIBRARY_STAFF_COL,
+    ]
+    for column in numeric_columns:
+        frame[column] = pd.to_numeric(
+            frame[column].astype(str).str.replace(",", "", regex=False),
+            errors="coerce",
+        )
+
+    frame = frame.dropna(subset=["기준년도", "학교명", LIBRARY_STAFF_COL])
+    frame["기준년도"] = frame["기준년도"].astype(int)
+    frame["기준충족"] = frame[LIBRARY_STAFF_COL] >= 1.0
+
+    keep_columns = [
+        "기준년도",
+        "학교명",
+        "학교종류",
+        "설립구분",
+        "지역",
+        "규모그룹",
+        "정규직사서",
+        "정규직비사서",
+        "비정규직사서",
+        "비정규직비사서",
+        "사서직원합계",
+        "비사서직원합계",
+        "재학생수",
+        "기준충족",
+        LIBRARY_STAFF_COL,
+    ]
+    return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
+
+
 def load_budam_frame() -> pd.DataFrame:
     return prepare_budam_frame(_load_csv(BUDAM_CSV, BUDAM_CSV_ENCODING))
 
@@ -635,3 +724,7 @@ def load_library_material_purchase_frame() -> pd.DataFrame:
     return prepare_library_material_purchase_frame(
         _load_csv(LIBRARY_MATERIAL_PURCHASE_CSV, LIBRARY_MATERIAL_PURCHASE_CSV_ENCODING)
     )
+
+
+def load_library_staff_frame() -> pd.DataFrame:
+    return prepare_library_staff_frame(_load_csv(LIBRARY_STAFF_CSV, LIBRARY_STAFF_CSV_ENCODING))
