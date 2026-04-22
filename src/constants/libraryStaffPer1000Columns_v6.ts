@@ -17,7 +17,7 @@ export const libraryStaffPer1000Columns = [
   "student_count_basis",
   "schema_group",
   "library_staff_per_1000_students_recalculated",
-  "library_staff_per_1000_students_recalculated_2025_weighted"
+  "source_file_name"
 ] as const;
 
 export type LibraryStaffPer1000Column = (typeof libraryStaffPer1000Columns)[number];
@@ -39,7 +39,6 @@ export const libraryStaffPer1000ColumnLabels: Record<LibraryStaffPer1000Column, 
   "enrolled_students": "재학생수",
   "library_staff_per_1000_students_original": "재학생 1,000명당 직원수(원자료)",
   "library_staff_per_1000_students_recalculated": "재학생 1,000명당 직원수(재계산)",
-  "library_staff_per_1000_students_recalculated_2025_weighted": "재학생 1,000명당 직원수(2025 가중치 재계산)",
   "student_count_basis": "재학생수 기준",
   "schema_group": "구조 구간",
   "source_file_name": "원본 파일명"
@@ -48,8 +47,7 @@ export const libraryStaffPer1000ColumnLabels: Record<LibraryStaffPer1000Column, 
 export const numericColumns: LibraryStaffPer1000Column[] = [
   "reference_year","row_no","regular_staff_certified","regular_staff_not_certified","non_regular_staff_certified",
   "non_regular_staff_not_certified","total_staff_certified","total_staff_not_certified","enrolled_students",
-  "library_staff_per_1000_students_original","library_staff_per_1000_students_recalculated",
-  "library_staff_per_1000_students_recalculated_2025_weighted"
+  "library_staff_per_1000_students_original","library_staff_per_1000_students_recalculated"
 ];
 
 export const dimensionColumns: LibraryStaffPer1000Column[] = [

@@ -15,7 +15,6 @@ export interface LibraryStaffPer1000Row {
   enrolled_students: number | null;
   library_staff_per_1000_students_original: number | null;
   library_staff_per_1000_students_recalculated: number | null;
-  library_staff_per_1000_students_recalculated_2025_weighted: number | null;
   student_count_basis: string | null;
   schema_group: string | null;
   source_file_name: string | null;
@@ -54,16 +53,16 @@ export const normalizeLibraryStaffPer1000Row = (
     enrolled_students: parseNumberOrNull(raw.enrolled_students),
     library_staff_per_1000_students_original: parseNumberOrNull(raw.library_staff_per_1000_students_original),
     library_staff_per_1000_students_recalculated: parseNumberOrNull(raw.library_staff_per_1000_students_recalculated),
-    library_staff_per_1000_students_recalculated_2025_weighted: parseNumberOrNull(raw.library_staff_per_1000_students_recalculated_2025_weighted),
     student_count_basis: parseStringOrNull(raw.student_count_basis),
     schema_group: parseStringOrNull(raw.schema_group),
     source_file_name: parseStringOrNull(raw.source_file_name),
   };
 };
 
-export const calculateLibraryStaffPer1000Students2025Weighted = (
+export const calculateLibraryStaffPer1000Students = (
   row: Pick<
     LibraryStaffPer1000Row,
+    | "reference_year"
     | "regular_staff_certified"
     | "regular_staff_not_certified"
     | "non_regular_staff_certified"
@@ -71,6 +70,7 @@ export const calculateLibraryStaffPer1000Students2025Weighted = (
     | "enrolled_students"
   >
 ): number | null => {
+  const year = row.reference_year ?? 0;
   const regularCertified = row.regular_staff_certified ?? 0;
   const regularNotCertified = row.regular_staff_not_certified ?? 0;
   const nonRegularCertified = row.non_regular_staff_certified ?? 0;
@@ -79,8 +79,11 @@ export const calculateLibraryStaffPer1000Students2025Weighted = (
 
   if (students <= 0) return null;
 
+  const nonRegularCertifiedWeight = year <= 2024 ? 0.8 : 1.0;
+
   const weightedStaff =
-    (regularCertified + nonRegularCertified) * 1.0 +
+    regularCertified * 1.0 +
+    nonRegularCertified * nonRegularCertifiedWeight +
     regularNotCertified * 0.8 +
     nonRegularNotCertified * 0.5;
 
