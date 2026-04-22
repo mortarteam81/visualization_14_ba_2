@@ -1,0 +1,21 @@
+{
+  "dataset_id": "library_material_purchase_per_student",
+  "dataset_name_ko": "재학생 1인당 자료구입비(결산)",
+  "dataset_name_en": "Library Material Purchase Expense Per Student",
+  "schema_version": "v2",
+  "source_name": "학술정보통계시스템",
+  "source_org": "RINFO",
+  "source_url": "https://www.rinfo.kr/",
+  "source_section": "통계조회 > 통계검색",
+  "download_method": "2008년~2025년 자료 다운로드 후 xls 업로드",
+  "original_file_name": "기본통계_예산및결산_20260422104615.xls",
+  "processed_output_files": [
+    "data/processed/library_material_purchase_per_student/library_material_purchase_per_student_2008_2025_v2_utf8.csv"
+  ],
+  "processing_summary": [
+    "병합셀 구조를 논리적으로 해석",
+    "연도별 열 구조를 행 구조로 변환",
+    "2008~2025 연도 블록을 long format으로 정규화",
+    "시스템용 UTF-8 CSV로 변환"
+  ]
+}
