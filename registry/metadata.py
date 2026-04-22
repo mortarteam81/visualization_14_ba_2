@@ -334,6 +334,31 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
             ),
         ),
     ),
+    "library_material_purchase": MetricSpec(
+        id="library_material_purchase",
+        title="재학생 1인당 연간 자료구입비(결산)",
+        icon="📖",
+        summary="재학생 1인당 연간 자료구입비 결산 규모를 보여주는 지표",
+        description="재학생 1인당 연간 자료구입비(결산)의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="pages/11_재학생_1인당_연간_자료구입비_결산.py",
+        dataset_key="library_material_purchase_per_student",
+        csv_file="processed/library_material_purchase_per_student/library_material_purchase_per_student_2008_2025_v2_utf8.csv",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=11,
+        threshold_note="기준값: 54,000원 이상",
+        series=(
+            SeriesSpec(
+                id="library_material_purchase_per_student",
+                label="재학생 1인당 연간 자료구입비(결산)",
+                column="재학생1인당연간자료구입비(결산)",
+                unit="원",
+                threshold=54_000.0,
+                threshold_label="기준값",
+                decimals=0,
+            ),
+        ),
+    ),
 }
 
 

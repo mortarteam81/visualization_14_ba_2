@@ -317,6 +317,13 @@ def _default_focus_range_resolver(series: pd.Series, metric: MetricSpec) -> tupl
     return lower, upper
 
 
+def _unit_from_metric(metric: MetricSpec) -> str:
+    label = metric.y_axis_label
+    if "(" in label and label.endswith(")"):
+        return label.rsplit("(", 1)[1].removesuffix(")").strip()
+    return "%"
+
+
 def render_focus_range_chart(
     chart_df: pd.DataFrame,
     *,
@@ -408,6 +415,7 @@ def render_comparison_heatmap(
     threshold_value = metric.threshold.value if metric.threshold is not None else max_value * 0.7
     threshold_ratio = (threshold_value - min_value) / max(max_value - min_value, 1.0)
     threshold_ratio = min(1.0, max(0.0, threshold_ratio))
+    unit = _unit_from_metric(metric)
 
     if metric.higher_is_better:
         colorscale = [
@@ -433,7 +441,7 @@ def render_comparison_heatmap(
             zmin=min_value,
             zmax=max(max_value, threshold_value),
             colorbar=dict(
-                title=dict(text=f"{metric.label} (%)", font=dict(color="#F8FBFF")),
+                title=dict(text=f"{metric.label} ({unit})", font=dict(color="#F8FBFF")),
                 tickfont=dict(color="#E7EEF8"),
                 bgcolor="rgba(15, 23, 42, 0.78)",
                 outlinecolor="rgba(148, 163, 184, 0.18)",

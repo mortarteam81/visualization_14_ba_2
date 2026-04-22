@@ -27,6 +27,9 @@ from utils.config import (
     LECTURER_PAY_COL,
     LECTURER_PAY_CSV,
     LECTURER_PAY_CSV_ENCODING,
+    LIBRARY_MATERIAL_PURCHASE_COL,
+    LIBRARY_MATERIAL_PURCHASE_CSV,
+    LIBRARY_MATERIAL_PURCHASE_CSV_ENCODING,
     PAPER_COL_JAEJI,
     PAPER_COL_SCI,
     PAPER_CSV,
@@ -514,6 +517,72 @@ def prepare_lecturer_pay_frame(df: pd.DataFrame) -> pd.DataFrame:
     return grouped[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
 
 
+def prepare_library_material_purchase_frame(df: pd.DataFrame) -> pd.DataFrame:
+    frame = df.copy()
+    required = {
+        "reference_year",
+        "university_name",
+        "school_type",
+        "founding_type",
+        "region_name",
+        "size_group",
+        "total_material_purchase_expense",
+        "enrolled_students_current_year",
+        "material_purchase_expense_per_student",
+    }
+    _check_columns(frame, required)
+
+    frame = frame[
+        (frame["region_name"].astype(str).str.strip() == "서울")
+        & (frame["founding_type"].astype(str).str.strip() == "사립")
+        & (frame["school_type"].astype(str).str.strip() == "대학")
+        & (~frame["university_name"].astype(str).str.contains("_", regex=False))
+    ].copy()
+
+    rename_map = {
+        "reference_year": "기준년도",
+        "university_name": "학교명",
+        "school_type": "학교종류",
+        "founding_type": "설립구분",
+        "region_name": "지역",
+        "size_group": "규모그룹",
+        "total_material_purchase_expense": "자료구입비계",
+        "enrolled_students_current_year": "재학생수",
+        "material_purchase_expense_per_student": LIBRARY_MATERIAL_PURCHASE_COL,
+    }
+    frame = frame.rename(columns=rename_map)
+
+    numeric_columns = [
+        "기준년도",
+        "자료구입비계",
+        "재학생수",
+        LIBRARY_MATERIAL_PURCHASE_COL,
+    ]
+    for column in numeric_columns:
+        frame[column] = pd.to_numeric(
+            frame[column].astype(str).str.replace(",", "", regex=False),
+            errors="coerce",
+        )
+
+    frame = frame.dropna(subset=["기준년도", "학교명", LIBRARY_MATERIAL_PURCHASE_COL])
+    frame["기준년도"] = frame["기준년도"].astype(int)
+    frame["기준충족"] = frame[LIBRARY_MATERIAL_PURCHASE_COL] >= 54_000.0
+
+    keep_columns = [
+        "기준년도",
+        "학교명",
+        "학교종류",
+        "설립구분",
+        "지역",
+        "규모그룹",
+        "자료구입비계",
+        "재학생수",
+        "기준충족",
+        LIBRARY_MATERIAL_PURCHASE_COL,
+    ]
+    return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
+
+
 def load_budam_frame() -> pd.DataFrame:
     return prepare_budam_frame(_load_csv(BUDAM_CSV, BUDAM_CSV_ENCODING))
 
@@ -560,3 +629,9 @@ def load_dormitory_frame() -> pd.DataFrame:
 
 def load_lecturer_pay_frame() -> pd.DataFrame:
     return prepare_lecturer_pay_frame(_load_csv(LECTURER_PAY_CSV, LECTURER_PAY_CSV_ENCODING))
+
+
+def load_library_material_purchase_frame() -> pd.DataFrame:
+    return prepare_library_material_purchase_frame(
+        _load_csv(LIBRARY_MATERIAL_PURCHASE_CSV, LIBRARY_MATERIAL_PURCHASE_CSV_ENCODING)
+    )
