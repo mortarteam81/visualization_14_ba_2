@@ -37,6 +37,7 @@ class MetricSpec:
     nav_order: int
     threshold_note: str
     supports_branch_toggle: bool = False
+    implemented: bool = True
     home_visible: bool = True
     series: tuple[SeriesSpec, ...] = ()
 
@@ -65,7 +66,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="법정부담금_부담율.csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=1,
+        nav_order=4,
         threshold_note="4주기 인증 기준: 10% 이상",
         series=(
             SeriesSpec(
@@ -90,7 +91,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="전임교원_확보율.csv",
         csv_encoding="cp949",
         default_school="성신여자대학교",
-        nav_order=2,
+        nav_order=9,
         threshold_note="4주기 인증 기준: 61% 이상 (학생정원 기준)",
         supports_branch_toggle=True,
         series=(
@@ -123,7 +124,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="연구비_수혜실적.csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=3,
+        nav_order=12,
         threshold_note="4주기 인증 기준: 교내 1,000천원 / 교외 10,000천원 이상",
         supports_branch_toggle=True,
         series=(
@@ -158,7 +159,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="전임교원 논문실적.csv",
         csv_encoding="cp949",
         default_school="성신여자대학교",
-        nav_order=4,
+        nav_order=13,
         threshold_note="4주기 인증 기준: 국내 0.35편 / SCI급 0.05편 이상",
         supports_branch_toggle=True,
         series=(
@@ -193,7 +194,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="졸업생_취업률.csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=5,
+        nav_order=8,
         threshold_note="4주기 인증 기준: 55% 이상",
         supports_branch_toggle=True,
         series=(
@@ -219,7 +220,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="결산(22,23,24).csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=6,
+        nav_order=1,
         threshold_note="4주기 인증 기준: 72% 이하",
         series=(
             SeriesSpec(
@@ -245,7 +246,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="결산(22,23,24).csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=7,
+        nav_order=2,
         threshold_note="4주기 인증 기준: 0.4% 이상",
         series=(
             SeriesSpec(
@@ -270,7 +271,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="processed/education_cost_return_rate/education_cost_return_rate_2020_2025_v2_schema_utf8.csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=8,
+        nav_order=6,
         threshold_note="주 표시값: 교육비 환원율(재계산)",
         series=(
             SeriesSpec(
@@ -295,7 +296,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=9,
+        nav_order=19,
         threshold_note="기준값: 11% 이상",
         series=(
             SeriesSpec(
@@ -320,7 +321,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="processed/lecturer_pay/lecturer_pay_2023_2025_v2_1_utf8.csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=10,
+        nav_order=11,
         threshold_note="연도별 기준값: 2023년 50,600원 / 2024년 51,800원 / 2025년 53,100원",
         series=(
             SeriesSpec(
@@ -345,7 +346,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="processed/library_material_purchase_per_student/library_material_purchase_per_student_2008_2025_v2_utf8.csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=11,
+        nav_order=20,
         threshold_note="기준값: 54,000원 이상",
         series=(
             SeriesSpec(
@@ -370,7 +371,7 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_file="processed/library_staff_per_1000_students/library_staff_per_1000_students_2008_2025_v6_utf8.csv",
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
-        nav_order=12,
+        nav_order=21,
         threshold_note="기준값: 1.0명 이상",
         series=(
             SeriesSpec(
@@ -383,6 +384,141 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
                 decimals=2,
             ),
         ),
+    ),
+    "corp_transfer_ratio": MetricSpec(
+        id="corp_transfer_ratio",
+        title="세입 중 법인전입금 비율",
+        icon="🏢",
+        summary="운영수입 대비 법인전입금수입 비율",
+        description="운영수입 대비 법인전입금수입 비중을 연도별로 확인합니다.",
+        page_path="",
+        dataset_key="corp_transfer_ratio",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=3,
+        threshold_note="",
+        implemented=False,
+    ),
+    "corp_finance_ratio": MetricSpec(
+        id="corp_finance_ratio",
+        title="법인(일반회계) 재정규모 대비 법인전입금 비율",
+        icon="🏦",
+        summary="법인 일반회계 재정규모 대비 법인전입금 비율",
+        description="법인 재정규모 대비 법인전입금 비중을 연도별로 확인합니다.",
+        page_path="",
+        dataset_key="corp_finance_ratio",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=5,
+        threshold_note="",
+        implemented=False,
+    ),
+    "student_recruitment": MetricSpec(
+        id="student_recruitment",
+        title="학생 충원 성과",
+        icon="🎒",
+        summary="신입생 및 재학생 충원율 성과",
+        description="학생 충원 성과의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="",
+        dataset_key="student_recruitment",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=7,
+        threshold_note="",
+        implemented=False,
+    ),
+    "adjunct_faculty": MetricSpec(
+        id="adjunct_faculty",
+        title="겸임교원 확보율",
+        icon="👨‍🏫",
+        summary="법정 기준 대비 겸임교원 확보 비율",
+        description="겸임교원 확보율의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="",
+        dataset_key="adjunct_faculty",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=10,
+        threshold_note="",
+        implemented=False,
+    ),
+    "staff_per_student": MetricSpec(
+        id="staff_per_student",
+        title="직원 1인당 학생수",
+        icon="🧑‍💼",
+        summary="직원 1인당 담당 학생 수",
+        description="직원 1인당 학생수의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="",
+        dataset_key="staff_per_student",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=14,
+        threshold_note="",
+        implemented=False,
+    ),
+    "scholarship_ratio": MetricSpec(
+        id="scholarship_ratio",
+        title="장학금 비율",
+        icon="🎖️",
+        summary="등록금 수입 대비 장학금 지급 비율",
+        description="장학금 비율의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="",
+        dataset_key="scholarship_ratio",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=15,
+        threshold_note="",
+        implemented=False,
+    ),
+    "classroom_area": MetricSpec(
+        id="classroom_area",
+        title="재학생 1인당 강의실 면적",
+        icon="🏫",
+        summary="재학생 1인당 강의실 면적 규모",
+        description="재학생 1인당 강의실 면적의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="",
+        dataset_key="classroom_area",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=16,
+        threshold_note="",
+        implemented=False,
+    ),
+    "lab_area": MetricSpec(
+        id="lab_area",
+        title="재학생 1인당 실험실습실 면적",
+        icon="🔬",
+        summary="재학생 1인당 실험실습실 면적 규모",
+        description="재학생 1인당 실험실습실 면적의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="",
+        dataset_key="lab_area",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=17,
+        threshold_note="",
+        implemented=False,
+    ),
+    "lab_equipment": MetricSpec(
+        id="lab_equipment",
+        title="재학생 1인당 실험실습 기자재 구입비",
+        icon="🧪",
+        summary="재학생 1인당 실험실습 기자재 구입비 규모",
+        description="재학생 1인당 실험실습 기자재 구입비의 연도별 추이와 학교별 비교를 제공합니다.",
+        page_path="",
+        dataset_key="lab_equipment",
+        csv_file="",
+        csv_encoding="utf-8-sig",
+        default_school="성신여자대학교",
+        nav_order=18,
+        threshold_note="",
+        implemented=False,
     ),
 }
 
