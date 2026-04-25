@@ -50,26 +50,26 @@ def load_gyeolsan_data() -> pd.DataFrame:
     return load_gyeolsan_frame()
 
 
-@st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
+@st.cache_data(show_spinner="데이터 로딩 중...")
 def load_education_return_data() -> pd.DataFrame:
     return load_education_return_frame()
 
 
-@st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
+@st.cache_data(show_spinner="데이터 로딩 중...")
 def load_dormitory_data() -> pd.DataFrame:
     return load_dormitory_frame()
 
 
-@st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
+@st.cache_data(show_spinner="데이터 로딩 중...")
 def load_lecturer_pay_data() -> pd.DataFrame:
     return load_lecturer_pay_frame()
 
 
-@st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
+@st.cache_data(show_spinner="데이터 로딩 중...")
 def load_library_material_purchase_data() -> pd.DataFrame:
     return load_library_material_purchase_frame()
 
 
-@st.cache_data(show_spinner="?곗씠??濡쒕뵫 以?..")
+@st.cache_data(show_spinner="데이터 로딩 중...")
 def load_library_staff_data() -> pd.DataFrame:
     return load_library_staff_frame()

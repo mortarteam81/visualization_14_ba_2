@@ -43,7 +43,7 @@ def build_metric(series) -> MetricSpec:
     if series.threshold is not None:
         threshold_spec = ThresholdSpec(
             value=series.threshold,
-            label=series.threshold_label or "Threshold",
+            label=series.threshold_label or "기준값",
             color="#F59E0B",
             dash="dot",
         )

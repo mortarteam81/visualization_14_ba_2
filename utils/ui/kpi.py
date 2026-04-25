@@ -20,6 +20,12 @@ def format_metric_value(value: float, metric: MetricSpec) -> str:
     return _default_formatter(value, metric.precision)
 
 
+def _valid_metric_slice(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
+    if value_col not in df.columns:
+        return pd.DataFrame()
+    return df[df[value_col].notna()]
+
+
 def build_single_metric_kpis(
     df: pd.DataFrame,
     *,
@@ -33,24 +39,31 @@ def build_single_metric_kpis(
 
     latest_df = df[df[year_col] == latest_year]
     value_col = metric.value_col
-    latest_slice = latest_df if value_col in latest_df.columns else df[df[value_col].notna()]
+    latest_slice = _valid_metric_slice(latest_df, value_col)
+    display_year = latest_year
+    if latest_slice.empty:
+        latest_slice = _valid_metric_slice(df, value_col)
+        if not latest_slice.empty and year_col in latest_slice.columns:
+            display_year = latest_slice[year_col].max()
+    if latest_slice.empty:
+        return []
 
     idx_max = latest_slice[value_col].idxmax()
     idx_min = latest_slice[value_col].idxmin()
 
     items = [
         KPIItem(
-            label=f"{latest_year} Average",
+            label=f"{display_year} 평균",
             value=format_metric_value(latest_slice[value_col].mean(), metric),
         ),
         KPIItem(
-            label=f"Highest {metric.label}",
+            label=f"{metric.label} 최고",
             value=format_metric_value(latest_slice[value_col].max(), metric),
             delta=str(latest_slice.loc[idx_max, school_col]),
             delta_color="off",
         ),
         KPIItem(
-            label=f"Lowest {metric.label}",
+            label=f"{metric.label} 최저",
             value=format_metric_value(latest_slice[value_col].min(), metric),
             delta=str(latest_slice.loc[idx_min, school_col]),
             delta_color="off",
@@ -65,7 +78,7 @@ def build_single_metric_kpis(
         )
         items.append(
             KPIItem(
-                label=threshold_suffix or "Threshold",
+                label=threshold_suffix or "기준 충족",
                 value=f"{int(comparator.sum())} / {len(latest_slice)}",
                 help=metric.threshold.label,
             )
@@ -87,32 +100,36 @@ def build_dual_metric_kpis(
     items: list[KPIItem] = []
 
     for metric in metrics:
-        idx_max = latest_df[metric.value_col].idxmax()
+        latest_slice = _valid_metric_slice(latest_df, metric.value_col)
+        if latest_slice.empty:
+            continue
+
+        idx_max = latest_slice[metric.value_col].idxmax()
         items.append(
             KPIItem(
-                label=f"{metric.label} Average",
-                value=format_metric_value(latest_df[metric.value_col].mean(), metric),
+                label=f"{metric.label} 평균",
+                value=format_metric_value(latest_slice[metric.value_col].mean(), metric),
             )
         )
         items.append(
             KPIItem(
-                label=f"{metric.label} Highest",
-                value=format_metric_value(latest_df[metric.value_col].max(), metric),
-                delta=str(latest_df.loc[idx_max, school_col]),
+                label=f"{metric.label} 최고",
+                value=format_metric_value(latest_slice[metric.value_col].max(), metric),
+                delta=str(latest_slice.loc[idx_max, school_col]),
                 delta_color="off",
             )
         )
 
         if metric.threshold is not None:
             comparator = (
-                latest_df[metric.value_col] >= metric.threshold.value
+                latest_slice[metric.value_col] >= metric.threshold.value
                 if metric.higher_is_better
-                else latest_df[metric.value_col] <= metric.threshold.value
+                else latest_slice[metric.value_col] <= metric.threshold.value
             )
             items.append(
                 KPIItem(
-                    label=f"{metric.label} Threshold",
-                    value=f"{int(comparator.sum())} / {len(latest_df)}",
+                    label=f"{metric.label} 기준 충족",
+                    value=f"{int(comparator.sum())} / {len(latest_slice)}",
                     help=metric.threshold.label,
                 )
             )

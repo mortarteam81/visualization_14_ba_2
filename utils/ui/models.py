@@ -31,10 +31,10 @@ class MetricSpec:
     higher_is_better: bool = True
     stats_labels: Mapping[str, str] = field(
         default_factory=lambda: {
-            "mean": "Average",
-            "max": "Max",
-            "min": "Min",
-            "count": "Schools",
+            "mean": "평균",
+            "max": "최댓값",
+            "min": "최솟값",
+            "count": "학교 수",
         }
     )
     chart_title: str | None = None
@@ -76,10 +76,10 @@ class SidebarMeta:
 
 @dataclass(frozen=True)
 class SidebarConfig:
-    header: str = "Filters"
-    school_label: str = "Select schools"
+    header: str = "필터"
+    school_label: str = "학교 선택"
     school_help: str | None = None
-    empty_selection_message: str = "Select at least one school from the sidebar."
+    empty_selection_message: str = "사이드바에서 학교를 하나 이상 선택하세요."
     toggles: Sequence[SidebarToggle] = field(default_factory=tuple)
     radios: Sequence[SidebarRadio] = field(default_factory=tuple)
     meta_lines: Sequence[SidebarMeta] = field(default_factory=tuple)

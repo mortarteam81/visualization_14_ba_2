@@ -50,7 +50,7 @@ def build_pivot_table(
 def render_stats_table(
     df: pd.DataFrame,
     *,
-    title: str = "Yearly stats",
+    title: str = "연도별 통계",
 ) -> None:
     if title:
         st.subheader(title)
@@ -60,18 +60,18 @@ def render_stats_table(
 def render_pivot_table(
     df: pd.DataFrame,
     *,
-    label: str = "Year by school",
+    label: str = "연도별 학교 비교",
     expanded: bool = False,
 ) -> None:
     with st.expander(label, expanded=expanded):
         st.dataframe(df, width="stretch")
 
 
-def render_definition_table(rows: Mapping[str, str], *, label: str = "Definitions") -> None:
+def render_definition_table(rows: Mapping[str, str], *, label: str = "용어 설명") -> None:
     if not rows:
         return
 
-    markdown = ["| Item | Description |", "|------|-------------|"]
+    markdown = ["| 항목 | 설명 |", "|------|------|"]
     for key, value in rows.items():
         markdown.append(f"| **{key}** | {value} |")
 

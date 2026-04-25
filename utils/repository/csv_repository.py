@@ -61,7 +61,7 @@ class CsvUniversityRepository(AbstractUniversityRepository):
         path = self._data_dir / GYOWON_CSV
         self._check_file(path)
 
-        df = pd.read_csv(path, encoding=GYOWON_CSV_ENCODING)
+        df = self._read_csv(path, encoding=GYOWON_CSV_ENCODING)
         aliases = {source: target for source, target in COLUMN_ALIASES.items() if source in df.columns}
         if aliases:
             df = df.rename(columns=aliases)
@@ -85,6 +85,16 @@ class CsvUniversityRepository(AbstractUniversityRepository):
                 f"CSV 파일을 찾을 수 없습니다: {path}\n"
                 f"data/ 디렉토리에 '{path.name}' 파일이 있는지 확인하세요."
             )
+
+    @staticmethod
+    def _read_csv(path: Path, *, encoding: str) -> pd.DataFrame:
+        """Read CSV with the registry encoding and a UTF-8 BOM fallback."""
+        try:
+            return pd.read_csv(path, encoding=encoding)
+        except UnicodeDecodeError:
+            if encoding.lower() == "utf-8-sig":
+                raise
+            return pd.read_csv(path, encoding="utf-8-sig")
 
     @staticmethod
     def _check_columns(df: pd.DataFrame, required: set) -> None:

@@ -73,7 +73,7 @@ def _render_single_chart(
         chart_styler(fig)
     else:
         _apply_selected_school_styling(fig, selected_schools=selected_schools)
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def render_single_metric_page(
@@ -86,8 +86,8 @@ def render_single_metric_page(
     latest_year: int | str,
     chart_title: str,
     selected_schools: Sequence[str] | None = None,
-    stats_title: str = "Yearly stats",
-    pivot_label: str = "Year by school",
+    stats_title: str = "연도별 통계",
+    pivot_label: str = "연도별 학교 비교",
     definition_rows: Mapping[str, str] | None = None,
     kpi_threshold_suffix: str = "",
     chart_styler: Callable[[go.Figure], None] | None = None,
@@ -149,7 +149,7 @@ def render_dual_metric_page(
     school_col: str,
     latest_year: int | str,
     selected_schools: Sequence[str] | None = None,
-    pivot_label: str = "Year by school",
+    pivot_label: str = "연도별 학교 비교",
     definition_rows: Mapping[str, str] | None = None,
 ) -> None:
     """Render a two-metric page as tabs with shared KPI logic."""
@@ -183,7 +183,7 @@ def render_dual_metric_page(
                 selected_schools=selected_schools,
             )
 
-            with st.expander("Yearly stats", expanded=False):
+            with st.expander("연도별 통계", expanded=False):
                 render_stats_table(
                     build_yearly_stats(df, year_col=year_col, metric=metric),
                     title="",
@@ -252,7 +252,7 @@ def render_optional_page(
             thresholds = [metric.threshold for metric in comparison_metrics if metric.threshold is not None]
             if thresholds:
                 add_threshold_hlines(fig, thresholds)
-            st.plotly_chart(fig, width="stretch")
+            st.plotly_chart(fig, use_container_width=True)
 
     for section in sections:
         if section.when is not None and not section.when(merged_context):

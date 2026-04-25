@@ -65,7 +65,7 @@ def build_metric() -> MetricSpec:
         precision=SERIES.decimals,
         threshold=ThresholdSpec(
             value=SERIES.threshold or 0.0,
-            label=SERIES.threshold_label or "Threshold",
+            label=SERIES.threshold_label or "기준값",
             color="#F59E0B",
             dash="dot",
         ),

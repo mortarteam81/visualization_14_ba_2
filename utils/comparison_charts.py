@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
+from typing import Optional
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -12,7 +13,7 @@ from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 
 
 ChartStyler = Callable[[go.Figure], None]
-FocusRangeResolver = Callable[[pd.Series, MetricSpec], tuple[float, float] | None]
+FocusRangeResolver = Callable[[pd.Series, MetricSpec], Optional[tuple[float, float]]]
 
 DEFAULT_SELECTED_PALETTE = ["#6EA8FF", "#FF9A4D", "#4ADE80", "#C084FC", "#FF6B9A", "#67E8F9"]
 DEFAULT_GROUPED_PALETTE = [
@@ -367,7 +368,7 @@ def render_focus_range_chart(
     if resolved_range is not None:
         fig.update_yaxes(range=list(resolved_range))
 
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def render_comparison_heatmap(
@@ -473,7 +474,7 @@ def render_comparison_heatmap(
         tickfont={"size": 12, "color": "#E7EEF8"},
         autorange="reversed",
     )
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def render_bump_chart(
@@ -648,4 +649,4 @@ def render_bump_chart(
         gridcolor="rgba(148, 163, 184, 0.10)",
         zeroline=False,
     )
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)

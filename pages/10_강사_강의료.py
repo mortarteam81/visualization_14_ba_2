@@ -184,7 +184,7 @@ def render_zoomed_pay_chart(
     fig.update_traces(
         hovertemplate=f"{SCHOOL_COL}=%{{fullData.name}}<br>{YEAR_COL}=%{{x}}<br>강사 강의료=%{{y:,.0f}}원<extra></extra>"
     )
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def main() -> None:

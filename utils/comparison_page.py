@@ -67,7 +67,7 @@ def render_single_school_metric_comparison(
     thresholds = [metric.threshold for metric in metrics if metric.threshold is not None]
     if thresholds:
         add_threshold_hlines(comparison_fig, thresholds)
-    st.plotly_chart(comparison_fig, width="stretch")
+    st.plotly_chart(comparison_fig, use_container_width=True)
 
     if stats_expander_title is not None:
         with st.expander(stats_expander_title, expanded=False):

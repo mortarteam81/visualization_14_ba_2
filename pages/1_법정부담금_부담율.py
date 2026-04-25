@@ -90,7 +90,7 @@ def build_metric() -> MetricSpec:
         precision=SERIES.decimals,
         threshold=ThresholdSpec(
             value=SERIES.threshold or 0.0,
-            label=SERIES.threshold_label or "Threshold",
+            label=SERIES.threshold_label or "기준값",
             color="#F59E0B",
             dash="dot",
         ),
@@ -473,7 +473,7 @@ def render_comparison_heatmap(
         tickfont={"size": 12, "color": "#E7EEF8"},
         autorange="reversed",
     )
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def render_bump_chart(
@@ -658,7 +658,7 @@ def render_bump_chart(
         gridcolor="rgba(148, 163, 184, 0.10)",
         zeroline=False,
     )
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def render_low_range_chart(
@@ -693,7 +693,7 @@ def render_low_range_chart(
         )
     chart_styler(fig)
     fig.update_yaxes(range=[0, LOW_RANGE_MAX])
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def _render_analysis_list(title: str, items: list[str]) -> None:
@@ -768,13 +768,13 @@ def render_ai_analysis_panel(
         st.markdown("**기준선 해석**")
         st.write(result["threshold_assessment"] or "기준선 해석이 생성되지 않았습니다.")
 
-    st.markdown("**ê²½ì˜ ì‹œì‚¬ì **")
+    st.markdown("**경영 시사점**")
     management_implications = result.get("management_implications", [])
     if management_implications:
         for item in management_implications:
             st.markdown(f"- {item}")
     else:
-        st.caption("ê²½ì˜ ì‹œì‚¬ì ì´ ìƒì„±ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.")
+        st.caption("경영 시사점이 생성되지 않았습니다.")
 
     detail_col1, detail_col2 = st.columns(2)
     with detail_col1:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import importlib
 from pathlib import Path
 
 import pandas as pd
@@ -90,3 +91,19 @@ class TestPageSmoke:
             and node.func.attr == "set_page_config"
             for node in ast.walk(module)
         ), f"{path.name} should call st.set_page_config()"
+
+    @pytest.mark.parametrize(
+        "module_name",
+        [
+            "utils.chart_utils",
+            "utils.comparison_charts",
+            "utils.comparison_page",
+            "utils.comparison_sidebar",
+            "utils.management_insights",
+            "utils.ui.kpi",
+            "utils.ui.renderers",
+            "utils.ui.tables",
+        ],
+    )
+    def test_shared_page_modules_import(self, module_name: str) -> None:
+        importlib.import_module(module_name)

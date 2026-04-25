@@ -48,7 +48,7 @@ DEFAULT_SLOT_PRESETS, GROUP_PRESETS, CUSTOM_PRESET = build_default_group_preset_
 
 def build_metric(series) -> MetricSpec:
     metric_label = series.label
-    threshold_label = series.threshold_label or "Threshold"
+    threshold_label = series.threshold_label or "기준값"
     threshold_color = "#F59E0B"
 
     if series.id == "research_in":
@@ -127,7 +127,7 @@ def render_metric_section(
             dash=metric.threshold.dash,
         )
     chart_styler(fig)
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
     render_focus_range_chart(
         chart_df,
@@ -165,7 +165,7 @@ def render_metric_section(
         toggle_key=f"{metric.key}_bump_selected_only",
     )
 
-    with st.expander("Yearly stats", expanded=False):
+    with st.expander("연도별 통계", expanded=False):
         render_stats_table(
             build_yearly_stats(filtered_df, year_col=YEAR_COL, metric=metric),
             title="",
@@ -179,7 +179,7 @@ def render_metric_section(
             value_col=metric.value_col,
             precision=metric.precision,
         ),
-        label=f"Year by school: {metric.label}",
+        label=f"연도별 학교 비교: {metric.label}",
     )
 
 

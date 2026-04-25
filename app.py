@@ -48,7 +48,7 @@ for index in range(0, len(metrics), 2):
                 border_color = "rgba(148,163,184,0.18)"
                 badge = (
                     "&nbsp;<span style='font-size:0.7em;padding:2px 8px;"
-                    "background:rgba(148,163,184,0.18);border-radius:999px;"
+                    "background:rgba(148,163,184,0.18);border-radius:8px;"
                     "color:#b7c4d8;'>준비 중</span>"
                 )
 
@@ -60,10 +60,10 @@ for index in range(0, len(metrics), 2):
                 )
 
             st.markdown(
-                f"<div style='padding:1rem 1.1rem;border-radius:18px;"
+                f"<div style='padding:1rem 1.1rem;border-radius:8px;"
                 f"border:1px solid {border_color};"
-                f"background:rgba(17,24,39,0.92);"
-                f"box-shadow:0 24px 80px rgba(0,0,0,0.35);"
+                f"background:rgba(18,24,33,0.94);"
+                f"box-shadow:0 12px 28px rgba(0,0,0,0.28);"
                 f"margin-bottom:0.5rem;'>"
                 f"<p style='margin:0;font-weight:700;color:{title_color};'>"
                 f"{metric.icon} {metric.title}{badge}</p>"

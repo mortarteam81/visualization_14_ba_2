@@ -8,11 +8,12 @@ import streamlit as st
 DARK_THEME_CSS = """
 <style>
 :root {
-    --app-bg: #0b0f14;
-    --panel-bg: rgba(17, 24, 39, 0.92);
-    --panel-bg-strong: rgba(15, 23, 42, 0.98);
-    --panel-border: rgba(148, 163, 184, 0.18);
-    --panel-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+    --app-bg: #0d1117;
+    --panel-bg: rgba(18, 24, 33, 0.94);
+    --panel-bg-strong: rgba(18, 24, 33, 0.98);
+    --panel-border: rgba(181, 190, 204, 0.18);
+    --panel-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+    --radius-panel: 8px;
     --text-primary: #f8fbff;
     --text-secondary: #dde6f3;
     --text-muted: #b7c4d8;
@@ -24,10 +25,7 @@ DARK_THEME_CSS = """
 }
 
 .stApp {
-    background:
-        radial-gradient(circle at top right, rgba(79, 140, 255, 0.12), transparent 22%),
-        radial-gradient(circle at left top, rgba(245, 158, 11, 0.10), transparent 18%),
-        linear-gradient(180deg, #0b0f14 0%, #0f172a 100%);
+    background: linear-gradient(180deg, #0d1117 0%, #111827 52%, #16130f 100%);
     color: var(--text-primary);
 }
 
@@ -58,7 +56,7 @@ DARK_THEME_CSS = """
 
 h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
 }
 
 .stApp p,
@@ -124,7 +122,7 @@ div[data-baseweb="popover"] > div {
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     box-shadow: var(--panel-shadow);
-    border-radius: 18px;
+    border-radius: var(--radius-panel);
 }
 
 [data-testid="stMetric"] {
@@ -154,7 +152,7 @@ div[data-baseweb="popover"] > div {
 }
 
 [data-testid="stTabs"] [data-baseweb="tab"] {
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     background: rgba(15, 23, 42, 0.72);
     border: 1px solid var(--panel-border);
     color: var(--text-secondary) !important;
@@ -173,7 +171,7 @@ div[data-baseweb="popover"] > div {
     background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
     color: white;
     border: 1px solid rgba(147, 197, 253, 0.25);
-    border-radius: 999px;
+    border-radius: var(--radius-panel);
     box-shadow: 0 14px 30px rgba(30, 64, 175, 0.28);
 }
 
