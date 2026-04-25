@@ -99,6 +99,8 @@ class TestPageSmoke:
             "utils.comparison_charts",
             "utils.comparison_page",
             "utils.comparison_sidebar",
+            "utils.ai_prompts.management",
+            "utils.management_ai",
             "utils.management_insights",
             "utils.ui.kpi",
             "utils.ui.renderers",

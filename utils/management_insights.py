@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Final
+from typing import Any, Callable, Final
 
 import pandas as pd
 
@@ -534,3 +534,570 @@ def pending_metric_roadmap_frame() -> pd.DataFrame:
             for metric_id, data_status, definition_status, implementation_status in rows
         ]
     )
+
+
+def _to_json_safe(value: Any) -> Any:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, dict):
+        return {str(key): _to_json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_to_json_safe(item) for item in value]
+    if hasattr(value, "item"):
+        try:
+            return _to_json_safe(value.item())
+        except Exception:
+            pass
+    return str(value)
+
+
+def _metric_keys_for_groups(
+    metrics: tuple[InsightMetricSpec, ...],
+    groups: list[str] | tuple[str, ...] | None,
+) -> list[str]:
+    selected_groups = set(groups or [metric.group for metric in metrics])
+    return [metric.key for metric in metrics if metric.group in selected_groups]
+
+
+def _metric_record_from_profile(row: pd.Series) -> dict[str, Any]:
+    return {
+        "metric_key": str(row["metric_key"]),
+        "metric_label": str(row["metric_label"]),
+        "group": str(row["group"]),
+        "value": round(float(row["value"]), int(row["decimals"])),
+        "formatted_value": format_metric_value(float(row["value"]), row),
+        "unit": str(row["unit"]),
+        "percentile": round(float(row["percentile"]), 1),
+        "school_count": int(row["school_count"]),
+        "higher_is_better": bool(row["higher_is_better"]),
+    }
+
+
+def _profile_summary(profile: pd.DataFrame, *, limit: int = 5) -> dict[str, list[dict[str, Any]]]:
+    if profile.empty:
+        return {"strengths": [], "weaknesses": []}
+
+    return {
+        "strengths": [
+            _metric_record_from_profile(row)
+            for _, row in profile.sort_values("percentile", ascending=False).head(limit).iterrows()
+        ],
+        "weaknesses": [
+            _metric_record_from_profile(row)
+            for _, row in profile.sort_values("percentile", ascending=True).head(limit).iterrows()
+        ],
+    }
+
+
+def _comparison_gap_item(
+    *,
+    metric: InsightMetricSpec,
+    focus_value: float,
+    comparison_average: float,
+    comparison_school_count: int,
+) -> dict[str, Any]:
+    raw_gap = focus_value - comparison_average
+    adjusted_gap = raw_gap if metric.higher_is_better else -raw_gap
+    return {
+        "metric_key": metric.key,
+        "metric_label": metric.label,
+        "group": metric.group,
+        "focus_value": round(focus_value, metric.decimals),
+        "comparison_average": round(comparison_average, metric.decimals),
+        "raw_gap": round(raw_gap, metric.decimals),
+        "adjusted_gap": round(adjusted_gap, metric.decimals),
+        "gap_interpretation": "기준 대학 우위" if adjusted_gap > 0 else "기준 대학 열위" if adjusted_gap < 0 else "비슷함",
+        "comparison_school_count": comparison_school_count,
+        "unit": metric.unit,
+        "higher_is_better": metric.higher_is_better,
+    }
+
+
+def _comparison_gap_summary(
+    long: pd.DataFrame,
+    metrics: tuple[InsightMetricSpec, ...],
+    *,
+    year: int,
+    focus_school: str,
+    comparison_schools: list[str],
+    groups: list[str] | tuple[str, ...] | None,
+    limit: int = 5,
+) -> dict[str, list[dict[str, Any]]]:
+    if not comparison_schools:
+        return {"favorable": [], "unfavorable": []}
+
+    selected_metric_keys = set(_metric_keys_for_groups(metrics, groups))
+    rows: list[dict[str, Any]] = []
+    for metric in metrics:
+        if metric.key not in selected_metric_keys:
+            continue
+        metric_frame = long[(long["year"] == year) & (long["metric_key"] == metric.key)].copy()
+        focus_frame = metric_frame[metric_frame["school_name"] == focus_school]
+        comparison_frame = metric_frame[metric_frame["school_name"].isin(comparison_schools)]
+        if focus_frame.empty or comparison_frame.empty:
+            continue
+
+        focus_value = float(focus_frame.iloc[0]["value"])
+        comparison_average = float(comparison_frame["value"].mean())
+        rows.append(
+            _comparison_gap_item(
+                metric=metric,
+                focus_value=focus_value,
+                comparison_average=comparison_average,
+                comparison_school_count=comparison_frame["school_name"].nunique(),
+            )
+        )
+
+    sorted_rows = sorted(rows, key=lambda item: float(item["adjusted_gap"]))
+    return {
+        "favorable": list(reversed(sorted_rows[-limit:])),
+        "unfavorable": sorted_rows[:limit],
+    }
+
+
+def summarize_rank_correlation_pairs(
+    wide: pd.DataFrame,
+    metrics: tuple[InsightMetricSpec, ...],
+    metric_keys: list[str] | tuple[str, ...],
+    *,
+    year: int,
+    min_pair_count: int = 10,
+    top_n: int = 5,
+) -> dict[str, list[dict[str, Any]]]:
+    """Return compact positive/negative rank-correlation pairs for AI context."""
+
+    correlation = build_rank_correlation(
+        wide,
+        metric_keys,
+        year=year,
+        min_pair_count=min_pair_count,
+    )
+    if correlation.empty:
+        return {"positive": [], "negative": []}
+
+    metrics_by_key = metric_map(metrics)
+    pairs: list[dict[str, Any]] = []
+    columns = list(correlation.columns)
+    for left_index, left_key in enumerate(columns):
+        for right_key in columns[left_index + 1:]:
+            value = correlation.loc[left_key, right_key]
+            if pd.isna(value):
+                continue
+            pairs.append(
+                {
+                    "left_metric_key": left_key,
+                    "left_metric_label": metrics_by_key[left_key].label,
+                    "right_metric_key": right_key,
+                    "right_metric_label": metrics_by_key[right_key].label,
+                    "rank_correlation": round(float(value), 3),
+                }
+            )
+
+    positive = sorted(
+        [item for item in pairs if float(item["rank_correlation"]) > 0],
+        key=lambda item: float(item["rank_correlation"]),
+        reverse=True,
+    )[:top_n]
+    negative = sorted(
+        [item for item in pairs if float(item["rank_correlation"]) < 0],
+        key=lambda item: float(item["rank_correlation"]),
+    )[:top_n]
+    return {"positive": positive, "negative": negative}
+
+
+def _quadrant_summary(
+    wide: pd.DataFrame,
+    metrics: tuple[InsightMetricSpec, ...],
+    *,
+    year: int,
+    focus_school: str,
+    quadrant_preset: tuple[str, str, str],
+) -> dict[str, Any]:
+    preset_label, x_key, y_key = quadrant_preset
+    metrics_by_key = metric_map(metrics)
+    if x_key not in metrics_by_key or y_key not in metrics_by_key:
+        return {}
+
+    frame = build_quadrant_frame(
+        wide,
+        year=year,
+        x_metric_key=x_key,
+        y_metric_key=y_key,
+    )
+    focus_frame = frame[frame["school_name"] == focus_school]
+    if frame.empty or focus_frame.empty:
+        return {}
+
+    focus_row = focus_frame.iloc[0]
+    x_median = float(frame[x_key].median())
+    y_median = float(frame[y_key].median())
+    x_value = float(focus_row[x_key])
+    y_value = float(focus_row[y_key])
+    return {
+        "preset": preset_label,
+        "year": year,
+        "school_count": int(frame["school_name"].nunique()),
+        "x_metric": {
+            "metric_key": x_key,
+            "metric_label": metrics_by_key[x_key].label,
+            "value": round(x_value, metrics_by_key[x_key].decimals),
+            "median": round(x_median, metrics_by_key[x_key].decimals),
+            "position_vs_median": "높음" if x_value >= x_median else "낮음",
+            "higher_is_better": metrics_by_key[x_key].higher_is_better,
+            "unit": metrics_by_key[x_key].unit,
+        },
+        "y_metric": {
+            "metric_key": y_key,
+            "metric_label": metrics_by_key[y_key].label,
+            "value": round(y_value, metrics_by_key[y_key].decimals),
+            "median": round(y_median, metrics_by_key[y_key].decimals),
+            "position_vs_median": "높음" if y_value >= y_median else "낮음",
+            "higher_is_better": metrics_by_key[y_key].higher_is_better,
+            "unit": metrics_by_key[y_key].unit,
+        },
+    }
+
+
+def _pending_metric_status_summary() -> list[dict[str, Any]]:
+    roadmap = pending_metric_roadmap_frame()
+    return [
+        {
+            "metric_id": str(row["metric_id"]),
+            "metric_label": str(row["지표"]),
+            "data_status": str(row["데이터 상태"]),
+            "definition_status": str(row["정의 상태"]),
+            "implementation_status": str(row["구현 상태"]),
+            "calculation_included": False,
+        }
+        for _, row in roadmap.iterrows()
+    ]
+
+
+def _coverage_summary(
+    long: pd.DataFrame,
+    metric_keys: list[str] | tuple[str, ...],
+    *,
+    years: list[int],
+) -> dict[str, Any]:
+    if not years:
+        return {"years": [], "warnings": []}
+
+    total_metric_count = len(metric_keys)
+    rows: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    for year in years:
+        year_frame = long[(long["year"] == year) & (long["metric_key"].isin(metric_keys))]
+        metric_count = int(year_frame["metric_key"].nunique())
+        school_count = int(year_frame["school_name"].nunique())
+        coverage_ratio = metric_count / total_metric_count if total_metric_count else 0
+        row = {
+            "year": year,
+            "metric_count": metric_count,
+            "school_count": school_count,
+            "coverage_ratio": round(coverage_ratio, 3),
+        }
+        rows.append(row)
+        if coverage_ratio < 0.8:
+            warnings.append(
+                f"{year}년은 선택 지표 {total_metric_count}개 중 {metric_count}개만 있어 범위 해석에 주의가 필요합니다."
+            )
+
+    return {"years": rows, "warnings": warnings}
+
+
+def build_single_year_management_ai_payload(
+    dataset: InsightDataset,
+    *,
+    year: int,
+    focus_school: str,
+    comparison_schools: list[str],
+    groups: list[str] | tuple[str, ...] | None,
+    quadrant_preset: tuple[str, str, str] = QUADRANT_PRESETS[0],
+    min_pair_count: int = 10,
+) -> dict[str, Any]:
+    """Build a compact, sanitized single-year AI context for management insights."""
+
+    metric_keys = _metric_keys_for_groups(dataset.metrics, groups)
+    profile = build_percentile_profile(
+        dataset.long,
+        dataset.metrics,
+        year=year,
+        school_name=focus_school,
+        groups=groups,
+    )
+    payload = {
+        "analysis_mode": "single_year",
+        "year": year,
+        "focus_school": focus_school,
+        "comparison_schools": comparison_schools,
+        "included_series_count": len(metric_keys),
+        "excluded_pending_metric_count": dataset.pending_metric_count,
+        "coverage": _coverage_summary(dataset.long, metric_keys, years=[year]),
+        "strength_weakness_profile": _profile_summary(profile),
+        "comparison_gaps": _comparison_gap_summary(
+            dataset.long,
+            dataset.metrics,
+            year=year,
+            focus_school=focus_school,
+            comparison_schools=comparison_schools,
+            groups=groups,
+        ),
+        "quadrant": _quadrant_summary(
+            dataset.wide,
+            dataset.metrics,
+            year=year,
+            focus_school=focus_school,
+            quadrant_preset=quadrant_preset,
+        ),
+        "correlation_hypotheses": summarize_rank_correlation_pairs(
+            dataset.wide,
+            dataset.metrics,
+            metric_keys,
+            year=year,
+            min_pair_count=min_pair_count,
+        ),
+        "pending_metrics": _pending_metric_status_summary(),
+        "guardrails": [
+            "이 payload는 구현 완료 지표의 요약값만 포함하며 원시 로그, 쿠키, 원시 HTML/JSON은 포함하지 않습니다.",
+            "미구현 지표는 계산값이 아니라 로드맵 상태로만 해석해야 합니다.",
+            "상관관계는 정책 가설 탐색용이며 인과관계를 의미하지 않습니다.",
+        ],
+    }
+    return _to_json_safe(payload)
+
+
+def _range_metric_changes(
+    long: pd.DataFrame,
+    metrics: tuple[InsightMetricSpec, ...],
+    *,
+    start_year: int,
+    end_year: int,
+    focus_school: str,
+    groups: list[str] | tuple[str, ...] | None,
+    limit: int = 6,
+) -> dict[str, list[dict[str, Any]]]:
+    selected_metric_keys = set(_metric_keys_for_groups(metrics, groups))
+    selected_years = sorted(
+        int(year)
+        for year in long.loc[
+            (long["year"] >= start_year) & (long["year"] <= end_year),
+            "year",
+        ].dropna().unique()
+    )
+    profiles_by_year = {
+        year: build_percentile_profile(
+            long,
+            metrics,
+            year=year,
+            school_name=focus_school,
+            groups=groups,
+        ).set_index("metric_key")
+        for year in selected_years
+    }
+
+    rows: list[dict[str, Any]] = []
+    for metric in metrics:
+        if metric.key not in selected_metric_keys:
+            continue
+        metric_frame = long[
+            (long["metric_key"] == metric.key)
+            & (long["school_name"] == focus_school)
+            & (long["year"] >= start_year)
+            & (long["year"] <= end_year)
+        ].sort_values("year")
+        if len(metric_frame) < 2:
+            continue
+
+        first = metric_frame.iloc[0]
+        last = metric_frame.iloc[-1]
+        raw_delta = float(last["value"]) - float(first["value"])
+        adjusted_delta = raw_delta if metric.higher_is_better else -raw_delta
+        first_profile = profiles_by_year.get(int(first["year"]), pd.DataFrame())
+        last_profile = profiles_by_year.get(int(last["year"]), pd.DataFrame())
+        first_percentile = (
+            float(first_profile.loc[metric.key, "percentile"])
+            if not first_profile.empty and metric.key in first_profile.index
+            else None
+        )
+        last_percentile = (
+            float(last_profile.loc[metric.key, "percentile"])
+            if not last_profile.empty and metric.key in last_profile.index
+            else None
+        )
+        percentile_delta = (
+            round(last_percentile - first_percentile, 1)
+            if first_percentile is not None and last_percentile is not None
+            else None
+        )
+        rows.append(
+            {
+                "metric_key": metric.key,
+                "metric_label": metric.label,
+                "group": metric.group,
+                "first_year": int(first["year"]),
+                "last_year": int(last["year"]),
+                "first_value": round(float(first["value"]), metric.decimals),
+                "last_value": round(float(last["value"]), metric.decimals),
+                "raw_delta": round(raw_delta, metric.decimals),
+                "adjusted_delta": round(adjusted_delta, metric.decimals),
+                "first_percentile": round(first_percentile, 1) if first_percentile is not None else None,
+                "last_percentile": round(last_percentile, 1) if last_percentile is not None else None,
+                "percentile_delta": percentile_delta,
+                "trend_interpretation": "개선" if adjusted_delta > 0 else "악화" if adjusted_delta < 0 else "보합",
+                "unit": metric.unit,
+                "higher_is_better": metric.higher_is_better,
+            }
+        )
+
+    improved = sorted(
+        [item for item in rows if float(item["adjusted_delta"]) > 0],
+        key=lambda item: (item["percentile_delta"] is not None, item["percentile_delta"] or 0, float(item["adjusted_delta"])),
+        reverse=True,
+    )[:limit]
+    declined = sorted(
+        [item for item in rows if float(item["adjusted_delta"]) < 0],
+        key=lambda item: (item["percentile_delta"] is None, item["percentile_delta"] or 0, float(item["adjusted_delta"])),
+    )[:limit]
+    return {"improved": improved, "declined": declined}
+
+
+def _range_comparison_gap_changes(
+    long: pd.DataFrame,
+    metrics: tuple[InsightMetricSpec, ...],
+    *,
+    start_year: int,
+    end_year: int,
+    focus_school: str,
+    comparison_schools: list[str],
+    groups: list[str] | tuple[str, ...] | None,
+    limit: int = 5,
+) -> dict[str, list[dict[str, Any]]]:
+    if not comparison_schools:
+        return {"improved_vs_comparison": [], "worsened_vs_comparison": []}
+
+    selected_metric_keys = set(_metric_keys_for_groups(metrics, groups))
+    rows: list[dict[str, Any]] = []
+    for metric in metrics:
+        if metric.key not in selected_metric_keys:
+            continue
+        metric_frame = long[
+            (long["metric_key"] == metric.key)
+            & (long["year"] >= start_year)
+            & (long["year"] <= end_year)
+        ].copy()
+        focus_frame = metric_frame[metric_frame["school_name"] == focus_school].sort_values("year")
+        if len(focus_frame) < 2:
+            continue
+
+        first = focus_frame.iloc[0]
+        last = focus_frame.iloc[-1]
+        comparison_first = metric_frame[
+            (metric_frame["year"] == first["year"])
+            & (metric_frame["school_name"].isin(comparison_schools))
+        ]
+        comparison_last = metric_frame[
+            (metric_frame["year"] == last["year"])
+            & (metric_frame["school_name"].isin(comparison_schools))
+        ]
+        if comparison_first.empty or comparison_last.empty:
+            continue
+
+        first_raw_gap = float(first["value"]) - float(comparison_first["value"].mean())
+        last_raw_gap = float(last["value"]) - float(comparison_last["value"].mean())
+        first_adjusted_gap = first_raw_gap if metric.higher_is_better else -first_raw_gap
+        last_adjusted_gap = last_raw_gap if metric.higher_is_better else -last_raw_gap
+        adjusted_gap_delta = last_adjusted_gap - first_adjusted_gap
+        rows.append(
+            {
+                "metric_key": metric.key,
+                "metric_label": metric.label,
+                "group": metric.group,
+                "first_year": int(first["year"]),
+                "last_year": int(last["year"]),
+                "first_adjusted_gap": round(first_adjusted_gap, metric.decimals),
+                "last_adjusted_gap": round(last_adjusted_gap, metric.decimals),
+                "adjusted_gap_delta": round(adjusted_gap_delta, metric.decimals),
+                "gap_change_interpretation": (
+                    "비교대학 대비 개선"
+                    if adjusted_gap_delta > 0
+                    else "비교대학 대비 악화"
+                    if adjusted_gap_delta < 0
+                    else "비슷함"
+                ),
+                "comparison_school_count": int(comparison_last["school_name"].nunique()),
+                "unit": metric.unit,
+                "higher_is_better": metric.higher_is_better,
+            }
+        )
+
+    sorted_rows = sorted(rows, key=lambda item: float(item["adjusted_gap_delta"]))
+    return {
+        "improved_vs_comparison": list(reversed(sorted_rows[-limit:])),
+        "worsened_vs_comparison": sorted_rows[:limit],
+    }
+
+
+def build_range_management_ai_payload(
+    dataset: InsightDataset,
+    *,
+    start_year: int,
+    end_year: int,
+    focus_school: str,
+    comparison_schools: list[str],
+    groups: list[str] | tuple[str, ...] | None,
+) -> dict[str, Any]:
+    """Build a compact, sanitized multi-year AI context for management insights."""
+
+    if start_year > end_year:
+        start_year, end_year = end_year, start_year
+
+    metric_keys = _metric_keys_for_groups(dataset.metrics, groups)
+    selected_years = [
+        year
+        for year in available_years(dataset.long)
+        if start_year <= year <= end_year
+    ]
+    actual_end_year = max(selected_years) if selected_years else end_year
+    latest_profile = build_percentile_profile(
+        dataset.long,
+        dataset.metrics,
+        year=actual_end_year,
+        school_name=focus_school,
+        groups=groups,
+    )
+    payload = {
+        "analysis_mode": "year_range",
+        "start_year": start_year,
+        "end_year": end_year,
+        "available_years_in_range": selected_years,
+        "focus_school": focus_school,
+        "comparison_schools": comparison_schools,
+        "included_series_count": len(metric_keys),
+        "excluded_pending_metric_count": dataset.pending_metric_count,
+        "coverage": _coverage_summary(dataset.long, metric_keys, years=selected_years),
+        "latest_strength_weakness_profile": _profile_summary(latest_profile),
+        "trend_changes": _range_metric_changes(
+            dataset.long,
+            dataset.metrics,
+            start_year=start_year,
+            end_year=end_year,
+            focus_school=focus_school,
+            groups=groups,
+        ),
+        "comparison_gap_changes": _range_comparison_gap_changes(
+            dataset.long,
+            dataset.metrics,
+            start_year=start_year,
+            end_year=end_year,
+            focus_school=focus_school,
+            comparison_schools=comparison_schools,
+            groups=groups,
+        ),
+        "pending_metrics": _pending_metric_status_summary(),
+        "guardrails": [
+            "이 payload는 구현 완료 지표의 요약값만 포함하며 원시 로그, 쿠키, 원시 HTML/JSON은 포함하지 않습니다.",
+            "미구현 지표는 계산값이 아니라 로드맵 상태로만 해석해야 합니다.",
+            "연도별 지표 커버리지가 다른 경우 장기 추세 해석에 주의해야 합니다.",
+        ],
+    }
+    return _to_json_safe(payload)
