@@ -3,6 +3,7 @@
 import streamlit as st
 
 from registry import APP_METADATA, list_metrics
+from utils.auth import require_authenticated_user
 from utils.config import APP_ICON, APP_SUBTITLE, APP_TITLE, DATA_UPDATED
 from utils.theme import apply_app_theme
 
@@ -11,6 +12,7 @@ st.set_page_config(
     page_icon=APP_ICON,
     layout="wide",
 )
+require_authenticated_user()
 apply_app_theme()
 
 st.title(f"{APP_ICON} {APP_TITLE}")

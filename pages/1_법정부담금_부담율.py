@@ -16,6 +16,7 @@ from ui import (
 )
 from utils.ai_analysis import analyze_budam_with_lmstudio, build_budam_analysis_payload
 from utils.ai_providers import LMStudioError
+from utils.auth import require_authenticated_user
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
 from utils.comparison_charts import apply_right_label_xaxis_padding
 from utils.comparison_sidebar import build_group_definitions as build_shared_group_definitions
@@ -769,6 +770,7 @@ def main() -> None:
     global YEAR_COL, SCHOOL_COL, VALUE_COL
 
     st.set_page_config(page_title=f"{PAGE.title} | 교육 여건 지표", page_icon=PAGE.icon, layout="wide")
+    require_authenticated_user()
     apply_app_theme()
     st.title(f"{PAGE.icon} {PAGE.title}")
     st.caption(APP_SUBTITLE)

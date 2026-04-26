@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
-import streamlit as st
 from ui import SidebarMeta
 
-from utils.comparison_profile import FileComparisonProfileStore
+import streamlit as st
+
+from utils.comparison_profile import current_comparison_profile_store
 
 
 DEFAULT_CUSTOM_PRESET_LABEL = "직접 구성"
@@ -201,7 +202,7 @@ def build_group_definitions(
 ) -> dict[str, list[str]]:
     preset_options = list(group_presets.keys())
     try:
-        profile = FileComparisonProfileStore().load(schools)
+        profile = current_comparison_profile_store().load(schools)
         default_profile_groups = tuple((group.name, list(group.schools)) for group in profile.comparison_groups)
         profile_updated_at = profile.updated_at or "default"
     except (OSError, ValueError, TypeError):

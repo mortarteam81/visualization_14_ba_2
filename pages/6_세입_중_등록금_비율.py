@@ -6,6 +6,7 @@ import streamlit as st
 from registry import get_metric, get_series
 from ui import MetricSpec, SidebarConfig, SidebarMeta, ThresholdSpec, render_school_sidebar, render_single_metric_page
 from utils.ai_panel import render_metric_ai_analysis_panel
+from utils.auth import require_authenticated_user
 from utils.comparison_charts import (
     build_chart_frame,
     build_chart_styler,
@@ -92,6 +93,7 @@ def main() -> None:
         page_icon=PAGE.icon,
         layout="wide",
     )
+    require_authenticated_user()
     apply_app_theme()
     st.title(f"{PAGE.icon} {PAGE.title}")
     st.caption(APP_SUBTITLE)

@@ -23,6 +23,7 @@ MAX_COMPARISON_SCHOOLS = 5
 MAX_COMPARISON_GROUPS = 3
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_PROFILE_PATH = ROOT_DIR / ".streamlit" / "comparison_profile.local.json"
+AUTH_EMAIL_SESSION_KEY = "authenticated_user_email"
 
 
 @dataclass(frozen=True)
@@ -243,9 +244,9 @@ def default_selected_schools(
     store: ComparisonProfileStore | None = None,
 ) -> list[str]:
     try:
-        profile = (store or FileComparisonProfileStore()).load(schools)
+        profile = (store or current_comparison_profile_store()).load(schools)
         selected = selected_schools_from_profile(profile, schools)
-    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+    except Exception:
         selected = []
 
     if selected:
@@ -264,8 +265,8 @@ def comparison_group_definitions(
     store: ComparisonProfileStore | None = None,
 ) -> dict[str, list[str]]:
     try:
-        profile = (store or FileComparisonProfileStore()).load(schools)
-    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        profile = (store or current_comparison_profile_store()).load(schools)
+    except Exception:
         return {}
 
     return {group.name: list(group.schools) for group in profile.comparison_groups}
@@ -292,3 +293,29 @@ class FileComparisonProfileStore:
             encoding="utf-8",
         )
         return normalized
+
+
+def _session_authenticated_email() -> str:
+    try:
+        import streamlit as st
+    except ModuleNotFoundError:
+        return ""
+    try:
+        return _clean_school_name(st.session_state.get(AUTH_EMAIL_SESSION_KEY)).lower()
+    except Exception:
+        return ""
+
+
+def current_comparison_profile_store(owner_email: str | None = None) -> ComparisonProfileStore:
+    """Return the active profile store, preferring the authenticated user's DB profile."""
+
+    email = _clean_school_name(owner_email).lower() if owner_email else _session_authenticated_email()
+    if not email:
+        return FileComparisonProfileStore()
+
+    from utils.profile_db import DatabaseComparisonProfileStore
+
+    return DatabaseComparisonProfileStore.for_user(
+        email,
+        fallback_store=FileComparisonProfileStore(),
+    )

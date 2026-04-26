@@ -8,7 +8,8 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from utils.ai_providers import LMStudioError
-from utils.comparison_profile import FileComparisonProfileStore, MAX_COMPARISON_SCHOOLS
+from utils.auth import require_authenticated_user
+from utils.comparison_profile import MAX_COMPARISON_SCHOOLS, current_comparison_profile_store
 from utils.config import APP_ICON, APP_TITLE
 from utils.management_ai import (
     analyze_management_insight_with_lmstudio,
@@ -45,6 +46,7 @@ st.set_page_config(
     page_icon=APP_ICON,
     layout="wide",
 )
+require_authenticated_user()
 apply_app_theme()
 
 
@@ -592,7 +594,7 @@ with st.sidebar:
     )
     year_frame = dataset.long[dataset.long["year"] == selected_year]
     school_options = sorted(year_frame["school_name"].dropna().unique())
-    comparison_profile = FileComparisonProfileStore().load(school_options)
+    comparison_profile = current_comparison_profile_store().load(school_options)
     default_school = comparison_profile.base_school if comparison_profile.base_school in school_options else school_options[0]
     focus_school_key = "management_focus_school"
     if st.session_state.get(focus_school_key) in school_options:

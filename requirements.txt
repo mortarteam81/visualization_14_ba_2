@@ -1,7 +1,10 @@
-streamlit>=1.32.0
+streamlit>=1.50.0
+Authlib>=1.3.2,<1.4
 pandas>=2.0.0
 plotly>=5.18.0
 numpy>=1.26.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
 
 # ── Streamlit/분석 런타임 보안 하한 ─────────────────────────────────────────────
 GitPython>=3.1.47

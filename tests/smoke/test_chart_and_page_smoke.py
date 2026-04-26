@@ -92,6 +92,33 @@ class TestPageSmoke:
             for node in ast.walk(module)
         ), f"{path.name} should call st.set_page_config()"
 
+    @pytest.mark.parametrize("path", _iter_streamlit_entrypoints(), ids=lambda path: path.name)
+    def test_streamlit_entrypoint_requires_authenticated_user(self, path: Path) -> None:
+        module = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+
+        assert any(
+            isinstance(node, ast.Call)
+            and (
+                (isinstance(node.func, ast.Name) and node.func.id == "require_authenticated_user")
+                or (isinstance(node.func, ast.Attribute) and node.func.attr == "require_authenticated_user")
+            )
+            for node in ast.walk(module)
+        ), f"{path.name} should require an authenticated user"
+
+    def test_comparison_settings_gates_admin_sections(self) -> None:
+        source = (PAGE_DIR / "00_비교대학_설정.py").read_text(encoding="utf-8")
+
+        assert "auth_user.is_admin" in source
+        assert "운영자 기본 비교군" in source
+        assert "사용자 관리" in source
+        assert "기존 사용자 수정" in source
+
+    def test_authenticated_user_can_logout_from_sidebar(self) -> None:
+        source = (ROOT_DIR / "utils" / "auth.py").read_text(encoding="utf-8")
+
+        assert "로그아웃" in source
+        assert "st.logout" in source
+
     @pytest.mark.parametrize(
         "module_name",
         [
@@ -100,6 +127,9 @@ class TestPageSmoke:
             "utils.comparison_page",
             "utils.comparison_profile",
             "utils.comparison_sidebar",
+            "utils.auth",
+            "utils.app_db",
+            "utils.profile_db",
             "utils.ai_prompts.management",
             "utils.management_ai",
             "utils.management_insights",
