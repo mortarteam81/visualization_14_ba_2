@@ -11,9 +11,13 @@ from utils.ai_providers import LMStudioError
 from utils.config import APP_ICON, APP_TITLE
 from utils.management_ai import (
     analyze_management_insight_with_lmstudio,
+    build_payload_context,
+    build_payload_preview,
     filter_payload_for_question,
     get_question_by_label,
+    payload_context_rows,
     questions_for_mode,
+    validate_management_analysis_result,
 )
 from utils.management_insights import (
     QUADRANT_PRESETS,
@@ -231,6 +235,10 @@ def render_management_ai_result(result: dict, context: dict | None = None) -> No
     st.markdown("#### 요약")
     st.write(result["summary"] or "요약이 생성되지 않았습니다.")
 
+    validation_warnings = validate_management_analysis_result(result)
+    if validation_warnings:
+        st.warning("\n".join(f"- {warning}" for warning in validation_warnings))
+
     col1, col2 = st.columns(2)
     with col1:
         render_management_ai_list("근거", result["evidence"])
@@ -341,6 +349,17 @@ def render_management_ai_panel(
         st.warning("\n".join(f"- {warning}" for warning in coverage_warnings))
 
     filtered_payload = filter_payload_for_question(base_payload, selected_question)
+    payload_context = build_payload_context(filtered_payload, question=selected_question)
+    st.markdown("#### 사용 근거")
+    st.dataframe(
+        pd.DataFrame(payload_context_rows(payload_context)),
+        width="stretch",
+        hide_index=True,
+    )
+    with st.expander("payload preview", expanded=False):
+        st.caption("AI에 전달되는 요약 데이터입니다. 원자료 로그, 쿠키, 원시 HTML/JSON은 포함하지 않습니다.")
+        st.json(build_payload_preview(filtered_payload))
+
     run_analysis = st.button(
         "AI 경영 분석 실행",
         type="primary",
@@ -358,15 +377,7 @@ def render_management_ai_panel(
                     tone=tone,
                 )
                 st.session_state[error_key] = ""
-                st.session_state[context_key] = {
-                    "질문": selected_question.label,
-                    "분석 기준": mode_label,
-                    "기준 대학": focus_school,
-                    "비교 대학": comparison_schools,
-                    "분석 기간": f"{start_year}-{end_year}" if mode == "year_range" else str(selected_year),
-                    "포함 지표 수": filtered_payload.get("included_series_count"),
-                    "미포함 지표 수": filtered_payload.get("excluded_pending_metric_count"),
-                }
+                st.session_state[context_key] = payload_context
         except LMStudioError as exc:
             st.session_state[result_key] = None
             st.session_state[error_key] = str(exc)
@@ -388,7 +399,7 @@ def render_management_ai_panel(
     context = st.session_state.get(context_key)
     if context:
         st.caption(
-            f"{context['분석 기준']} · {context['분석 기간']} · {context['기준 대학']} · "
+            f"{context['분석 모드']} · {context['분석 기간']} · {context['기준 대학']} · "
             f"계산 포함 {context['포함 지표 수']}개 / 미포함 {context['미포함 지표 수']}개"
         )
     render_management_ai_result(result, context=context)

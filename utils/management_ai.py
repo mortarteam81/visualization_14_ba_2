@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from typing import Any, Final, Literal
 
@@ -33,6 +34,60 @@ DEFAULT_MANAGEMENT_ANALYSIS_RESULT: Final[dict[str, Any]] = {
     "caveats": [],
     "data_used": {},
 }
+
+RAW_ARTIFACT_PATTERNS: Final[tuple[str, ...]] = (
+    "data/raw/pending_manual/logs",
+    "academyinfo_cookies.txt",
+    "academyinfo_trend_cookies.txt",
+    "cookies.txt",
+    ".html",
+    ".json",
+)
+
+CAUSAL_ASSERTION_PATTERNS: Final[tuple[str, ...]] = (
+    "때문에",
+    "원인이다",
+    "원인으로",
+    "초래",
+    "입증",
+    "증명",
+    "결정적",
+    "caused",
+    "proves",
+)
+
+UNSUPPORTED_CERTAINTY_PATTERNS: Final[tuple[str, ...]] = (
+    "반드시",
+    "확실히",
+    "명백히",
+    "틀림없이",
+    "무조건",
+)
+
+PENDING_METRIC_TERMS: Final[tuple[str, ...]] = (
+    "학생충원",
+    "학생 충원",
+    "신입생 충원율",
+    "재학생 충원율",
+    "직원1인당학생수",
+    "직원 1인당 학생수",
+    "장학금 비율",
+    "법인전입금",
+    "법인 재정규모",
+    "겸임교원",
+    "강의실 면적",
+    "실험실습실 면적",
+    "실험실습 기자재",
+    "student_recruitment",
+    "staff_per_student",
+    "scholarship_ratio",
+    "corp_transfer_ratio",
+    "corp_finance_ratio",
+    "adjunct_faculty",
+    "classroom_area",
+    "lab_area",
+    "lab_equipment",
+)
 
 
 @dataclass(frozen=True)
@@ -168,6 +223,103 @@ def filter_payload_for_question(
     }
 
 
+def _period_label(payload: dict[str, Any]) -> str:
+    if payload.get("analysis_mode") == "year_range":
+        return f"{payload.get('start_year', '')}-{payload.get('end_year', '')}"
+    return str(payload.get("year", ""))
+
+
+def build_payload_context(
+    payload: dict[str, Any],
+    *,
+    question: ManagementInsightQuestion,
+) -> dict[str, Any]:
+    """Return display-safe metadata describing the data sent to AI."""
+
+    coverage = payload.get("coverage") if isinstance(payload.get("coverage"), dict) else {}
+    warnings = coverage.get("warnings", []) if isinstance(coverage, dict) else []
+    payload_sections = [
+        key
+        for key in payload
+        if key not in CORE_PAYLOAD_SECTIONS
+    ]
+    return {
+        "질문": question.label,
+        "질문 ID": question.question_id,
+        "분석 모드": payload.get("analysis_mode", ""),
+        "기준 대학": payload.get("focus_school", ""),
+        "비교 대학": payload.get("comparison_schools", []),
+        "분석 기간": _period_label(payload),
+        "포함 지표 수": payload.get("included_series_count"),
+        "미포함 지표 수": payload.get("excluded_pending_metric_count"),
+        "커버리지 경고": warnings,
+        "사용 payload 섹션": payload_sections,
+    }
+
+
+def payload_context_rows(context: dict[str, Any]) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for key, value in context.items():
+        if isinstance(value, list):
+            display_value = ", ".join(str(item) for item in value) if value else "없음"
+        else:
+            display_value = "" if value is None else str(value)
+        rows.append({"항목": key, "내용": display_value})
+    return rows
+
+
+def _contains_raw_artifact_marker(value: str) -> bool:
+    lowered = value.lower()
+    return any(pattern.lower() in lowered for pattern in RAW_ARTIFACT_PATTERNS)
+
+
+def payload_contains_raw_artifact_reference(payload: Any) -> bool:
+    if isinstance(payload, dict):
+        return any(
+            _contains_raw_artifact_marker(str(key)) or payload_contains_raw_artifact_reference(value)
+            for key, value in payload.items()
+        )
+    if isinstance(payload, (list, tuple, set)):
+        return any(payload_contains_raw_artifact_reference(item) for item in payload)
+    if isinstance(payload, str):
+        return _contains_raw_artifact_marker(payload)
+    return False
+
+
+def _preview_value(value: Any, *, depth: int = 0, list_limit: int = 5) -> Any:
+    if depth >= 4:
+        return "..."
+    if isinstance(value, dict):
+        return {
+            str(key): _preview_value(item, depth=depth + 1, list_limit=list_limit)
+            for key, item in value.items()
+            if not _contains_raw_artifact_marker(str(key))
+        }
+    if isinstance(value, list):
+        preview_items = [
+            _preview_value(item, depth=depth + 1, list_limit=list_limit)
+            for item in value[:list_limit]
+        ]
+        if len(value) > list_limit:
+            preview_items.append(f"... 외 {len(value) - list_limit}개")
+        return preview_items
+    if isinstance(value, str):
+        if _contains_raw_artifact_marker(value):
+            return "[원자료/로그 경로 제외]"
+        return value if len(value) <= 260 else f"{value[:260]}..."
+    return value
+
+
+def build_payload_preview(payload: dict[str, Any]) -> dict[str, Any]:
+    """Return a compact, display-safe preview of the AI payload."""
+
+    return {
+        key: _preview_value(value)
+        for key, value in payload.items()
+        if not _contains_raw_artifact_marker(str(key))
+    }
+
+
 def _extract_json_object(text: str) -> dict[str, Any]:
     stripped = text.strip()
     if stripped.startswith("```"):
@@ -212,6 +364,45 @@ def normalize_management_analysis_result(text: str) -> dict[str, Any]:
     else:
         result["data_used"] = {}
     return result
+
+
+def _analysis_text(result: dict[str, Any]) -> str:
+    parts: list[str] = []
+    for key in ("summary", "evidence", "management_implications", "recommended_actions", "risks", "caveats"):
+        value = result.get(key)
+        if isinstance(value, list):
+            parts.extend(str(item) for item in value)
+        elif value:
+            parts.append(str(value))
+    return "\n".join(parts)
+
+
+def _mentions_pending_metric_with_number(text: str) -> bool:
+    for term in PENDING_METRIC_TERMS:
+        for match in re.finditer(re.escape(term), text, flags=re.IGNORECASE):
+            start = max(0, match.start() - 40)
+            end = min(len(text), match.end() + 40)
+            window = text[start:end]
+            if re.search(r"\d+(?:\.\d+)?\s*(?:%|개|명|원|천원|점|위)?", window):
+                return True
+    return False
+
+
+def validate_management_analysis_result(result: dict[str, Any]) -> list[str]:
+    """Return review warnings for risky AI management-analysis wording."""
+
+    warnings: list[str] = []
+    if not result.get("evidence"):
+        warnings.append("근거(evidence)가 비어 있어 보고서 활용 전 수치 근거를 보강해야 합니다.")
+
+    text = _analysis_text(result)
+    if any(pattern.lower() in text.lower() for pattern in CAUSAL_ASSERTION_PATTERNS):
+        warnings.append("인과관계로 오해될 수 있는 표현이 포함되어 있습니다. 상관/동반 변화 수준으로 재검토하세요.")
+    if _mentions_pending_metric_with_number(text):
+        warnings.append("미구현 지표가 수치처럼 표현되었을 가능성이 있습니다. 로드맵 상태와 계산값을 분리해 확인하세요.")
+    if any(pattern in text for pattern in UNSUPPORTED_CERTAINTY_PATTERNS):
+        warnings.append("데이터 범위를 넘어 단정적으로 읽힐 수 있는 표현이 포함되어 있습니다.")
+    return warnings
 
 
 def analyze_management_insight_with_lmstudio(
