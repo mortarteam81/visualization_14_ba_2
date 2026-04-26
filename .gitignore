@@ -18,6 +18,7 @@ build/
 
 # Streamlit
 .streamlit/secrets.toml
+.streamlit/comparison_profile.local.json
 
 # IDE
 .vscode/

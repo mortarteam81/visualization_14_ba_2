@@ -18,6 +18,7 @@ from utils.ai_analysis import analyze_budam_with_lmstudio, build_budam_analysis_
 from utils.ai_providers import LMStudioError
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
 from utils.comparison_charts import apply_right_label_xaxis_padding
+from utils.comparison_sidebar import build_group_definitions as build_shared_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 from utils.query import get_dataset
@@ -136,41 +137,20 @@ def _ensure_group_state(slot: int, schools: list[str]) -> None:
 
 
 def build_group_definitions(schools: list[str]) -> dict[str, list[str]]:
-    preset_options = list(GROUP_PRESETS.keys())
-
-    with st.sidebar:
-        st.divider()
-        st.subheader("비교 대상 그룹")
-        st.caption("프리셋으로 시작한 뒤 그룹 이름과 학교 목록을 자유롭게 조정할 수 있습니다.")
-
-        for slot in range(1, GROUP_SLOT_COUNT + 1):
-            _ensure_group_state(slot, schools)
-
-            with st.expander(f"그룹 {slot}", expanded=slot == 1):
-                st.selectbox(
-                    "프리셋",
-                    options=preset_options,
-                    key=f"budam_group_preset_{slot}",
-                    help="프리셋을 선택하면 추천 그룹 이름과 학교 목록이 채워집니다.",
-                    on_change=_apply_group_preset,
-                    args=(slot, schools),
-                )
-                st.text_input(
-                    "그룹 이름",
-                    key=f"budam_group_name_{slot}",
-                    help="그래프 평균선 이름으로 사용됩니다.",
-                )
-                st.multiselect(
-                    "그룹 학교",
-                    schools,
-                    key=f"budam_group_schools_{slot}",
-                    help="이 그룹에 포함할 학교를 직접 추가하거나 제외할 수 있습니다.",
-                )
-
-    return {
-        st.session_state[f"budam_group_name_{slot}"].strip(): st.session_state[f"budam_group_schools_{slot}"]
-        for slot in range(1, GROUP_SLOT_COUNT + 1)
-    }
+    return build_shared_group_definitions(
+        schools,
+        key_prefix="budam",
+        title="비교 대상 그룹",
+        caption="프리셋으로 시작한 뒤 그룹 이름과 학교 목록을 자유롭게 조정할 수 있습니다.",
+        group_presets=GROUP_PRESETS,
+        default_slot_presets=DEFAULT_SLOT_PRESETS,
+        custom_preset_label=CUSTOM_PRESET,
+        slot_count=GROUP_SLOT_COUNT,
+        preset_help="프리셋을 선택하면 추천 그룹 이름과 학교 목록이 채워집니다.",
+        group_name_help="그래프 평균선 이름으로 사용됩니다.",
+        group_schools_help="이 그룹에 포함할 학교를 직접 추가하거나 제외할 수 있습니다.",
+        default_group_name_template="그룹 {slot}",
+    )
 
 
 def build_chart_frame(

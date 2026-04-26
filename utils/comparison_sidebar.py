@@ -5,6 +5,8 @@ from collections.abc import Mapping, Sequence
 import streamlit as st
 from ui import SidebarMeta
 
+from utils.comparison_profile import FileComparisonProfileStore
+
 
 DEFAULT_CUSTOM_PRESET_LABEL = "직접 구성"
 DEFAULT_GROUP_SLOT_PRESETS = {
@@ -138,6 +140,7 @@ def _ensure_group_state(
     group_presets: Mapping[str, Sequence[str]],
     custom_preset_label: str,
     default_group_name_template: str,
+    default_profile_groups: Sequence[tuple[str, Sequence[str]]],
 ) -> None:
     preset_key, name_key, schools_key, widget_key = _group_state_keys(key_prefix, slot)
 
@@ -147,17 +150,35 @@ def _ensure_group_state(
         st.session_state.setdefault(widget_key, normalized)
         return
 
-    default_preset = default_slot_presets[slot]
-    st.session_state[preset_key] = default_preset
-    if default_preset == custom_preset_label:
-        st.session_state[name_key] = default_group_name_template.format(slot=slot)
-        st.session_state[schools_key] = []
-        st.session_state[widget_key] = []
-    else:
-        preset_schools = _filter_preset_schools(schools, default_preset, group_presets)
-        st.session_state[name_key] = default_preset
-        st.session_state[schools_key] = preset_schools
-        st.session_state[widget_key] = preset_schools
+    if slot <= len(default_profile_groups):
+        group_name, group_schools = default_profile_groups[slot - 1]
+        normalized = _normalize_group_school_selection(group_schools, schools)
+        st.session_state[preset_key] = custom_preset_label
+        st.session_state[name_key] = group_name or default_group_name_template.format(slot=slot)
+        st.session_state[schools_key] = normalized
+        st.session_state[widget_key] = normalized
+        return
+
+    st.session_state[preset_key] = custom_preset_label
+    st.session_state[name_key] = default_group_name_template.format(slot=slot)
+    st.session_state[schools_key] = []
+    st.session_state[widget_key] = []
+
+
+def _reset_group_state_if_profile_changed(
+    *,
+    key_prefix: str,
+    slot_count: int,
+    profile_updated_at: str,
+) -> None:
+    stamp_key = f"{key_prefix}_comparison_profile_updated_at"
+    if st.session_state.get(stamp_key) == profile_updated_at:
+        return
+
+    for slot in range(1, slot_count + 1):
+        for state_key in _group_state_keys(key_prefix, slot):
+            st.session_state.pop(state_key, None)
+    st.session_state[stamp_key] = profile_updated_at
 
 
 def build_group_definitions(
@@ -179,6 +200,18 @@ def build_group_definitions(
     default_group_name_template: str = "그룹 {slot}",
 ) -> dict[str, list[str]]:
     preset_options = list(group_presets.keys())
+    try:
+        profile = FileComparisonProfileStore().load(schools)
+        default_profile_groups = tuple((group.name, list(group.schools)) for group in profile.comparison_groups)
+        profile_updated_at = profile.updated_at or "default"
+    except (OSError, ValueError, TypeError):
+        default_profile_groups = ()
+        profile_updated_at = "unavailable"
+    _reset_group_state_if_profile_changed(
+        key_prefix=key_prefix,
+        slot_count=slot_count,
+        profile_updated_at=profile_updated_at,
+    )
 
     with st.sidebar:
         st.divider()
@@ -194,6 +227,7 @@ def build_group_definitions(
                 group_presets,
                 custom_preset_label,
                 default_group_name_template,
+                default_profile_groups,
             )
             preset_key, name_key, schools_key, widget_key = _group_state_keys(key_prefix, slot)
 
@@ -221,7 +255,6 @@ def build_group_definitions(
                 selected_group_schools = st.multiselect(
                     group_schools_label,
                     list(schools),
-                    default=st.session_state.get(widget_key, st.session_state.get(schools_key, [])),
                     key=widget_key,
                     help=group_schools_help,
                 )

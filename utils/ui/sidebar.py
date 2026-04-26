@@ -6,6 +6,8 @@ from typing import Any, Mapping, Sequence
 
 import streamlit as st
 
+from utils.comparison_profile import default_selected_schools
+
 from .models import SidebarConfig
 
 
@@ -18,7 +20,8 @@ def render_school_sidebar(
     """Render the common sidebar controls and return selected values."""
 
     sidebar_config = config or SidebarConfig()
-    default_selection = list(default_schools or schools[:1])
+    fallback_selection = list(default_schools or schools[:1])
+    default_selection = default_selected_schools(schools, fallback=fallback_selection)
     school_help = sidebar_config.school_help or f"Choose from {len(schools)} schools."
     values: dict[str, Any] = {}
 

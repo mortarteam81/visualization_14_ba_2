@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from utils.ai_providers import LMStudioError
+from utils.comparison_profile import FileComparisonProfileStore, MAX_COMPARISON_SCHOOLS
 from utils.config import APP_ICON, APP_TITLE
 from utils.management_ai import (
     analyze_management_insight_with_lmstudio,
@@ -591,17 +592,40 @@ with st.sidebar:
     )
     year_frame = dataset.long[dataset.long["year"] == selected_year]
     school_options = sorted(year_frame["school_name"].dropna().unique())
-    default_school = "성신여자대학교" if "성신여자대학교" in school_options else school_options[0]
-    focus_school = st.selectbox(
-        "기준 대학",
-        school_options,
-        index=school_options.index(default_school),
-    )
-    comparison_defaults = [school for school in ["숙명여자대학교", "덕성여자대학교"] if school in school_options]
+    comparison_profile = FileComparisonProfileStore().load(school_options)
+    default_school = comparison_profile.base_school if comparison_profile.base_school in school_options else school_options[0]
+    focus_school_key = "management_focus_school"
+    if st.session_state.get(focus_school_key) in school_options:
+        focus_school = st.selectbox("기준 대학", school_options, key=focus_school_key)
+    else:
+        st.session_state.pop(focus_school_key, None)
+        focus_school = st.selectbox(
+            "기준 대학",
+            school_options,
+            index=school_options.index(default_school),
+            key=focus_school_key,
+        )
+    comparison_options = [school for school in school_options if school != focus_school]
+    comparison_defaults = [
+        school
+        for school in comparison_profile.comparison_schools
+        if school in comparison_options
+    ][:MAX_COMPARISON_SCHOOLS]
+    comparison_schools_key = "management_comparison_schools"
+    if comparison_schools_key not in st.session_state:
+        st.session_state[comparison_schools_key] = comparison_defaults
+    else:
+        selected_comparisons = st.session_state.get(comparison_schools_key, [])
+        st.session_state[comparison_schools_key] = [
+            school
+            for school in selected_comparisons
+            if school in comparison_options
+        ][:MAX_COMPARISON_SCHOOLS]
     comparison_schools = st.multiselect(
         "비교 대학",
-        school_options,
-        default=comparison_defaults,
+        comparison_options,
+        key=comparison_schools_key,
+        max_selections=MAX_COMPARISON_SCHOOLS,
     )
     selected_groups = st.multiselect(
         "지표 영역",
