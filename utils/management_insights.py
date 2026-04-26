@@ -496,6 +496,60 @@ def build_quadrant_frame(
     return wide[wide["year"] == year][required].dropna().reset_index(drop=True)
 
 
+def build_quadrant_path_frame(
+    wide: pd.DataFrame,
+    *,
+    start_year: int,
+    end_year: int,
+    x_metric_key: str,
+    y_metric_key: str,
+    schools: list[str] | tuple[str, ...],
+) -> pd.DataFrame:
+    """Return start/end quadrant positions for selected schools."""
+
+    if start_year > end_year:
+        start_year, end_year = end_year, start_year
+
+    required = {"year", "school_name", x_metric_key, y_metric_key}
+    if not required.issubset(wide.columns) or not schools:
+        return pd.DataFrame(
+            columns=[
+                "school_name",
+                "phase",
+                "year",
+                x_metric_key,
+                y_metric_key,
+            ]
+        )
+
+    rows: list[pd.Series] = []
+    for school in schools:
+        school_frame = wide[
+            (wide["school_name"] == school)
+            & (wide["year"] >= start_year)
+            & (wide["year"] <= end_year)
+        ][["year", "school_name", x_metric_key, y_metric_key]].dropna().sort_values("year")
+        if len(school_frame) < 2:
+            continue
+        first = school_frame.iloc[0].copy()
+        first["phase"] = "시작"
+        last = school_frame.iloc[-1].copy()
+        last["phase"] = "종료"
+        rows.extend([first, last])
+
+    if not rows:
+        return pd.DataFrame(
+            columns=[
+                "school_name",
+                "phase",
+                "year",
+                x_metric_key,
+                y_metric_key,
+            ]
+        )
+    return pd.DataFrame(rows).reset_index(drop=True)
+
+
 def format_metric_value(value: float, metric: InsightMetricSpec | pd.Series) -> str:
     if isinstance(metric, pd.Series):
         decimals = int(metric["decimals"])
@@ -866,7 +920,7 @@ def build_single_year_management_ai_payload(
     return _to_json_safe(payload)
 
 
-def _range_metric_changes(
+def build_range_metric_change_frame(
     long: pd.DataFrame,
     metrics: tuple[InsightMetricSpec, ...],
     *,
@@ -874,8 +928,12 @@ def _range_metric_changes(
     end_year: int,
     focus_school: str,
     groups: list[str] | tuple[str, ...] | None,
-    limit: int = 6,
-) -> dict[str, list[dict[str, Any]]]:
+) -> pd.DataFrame:
+    """Return all focus-school metric changes in a year range."""
+
+    if start_year > end_year:
+        start_year, end_year = end_year, start_year
+
     selected_metric_keys = set(_metric_keys_for_groups(metrics, groups))
     selected_years = sorted(
         int(year)
@@ -945,10 +1003,84 @@ def _range_metric_changes(
                 "percentile_delta": percentile_delta,
                 "trend_interpretation": "개선" if adjusted_delta > 0 else "악화" if adjusted_delta < 0 else "보합",
                 "unit": metric.unit,
+                "decimals": metric.decimals,
                 "higher_is_better": metric.higher_is_better,
             }
         )
 
+    return pd.DataFrame(rows)
+
+
+def build_range_profile_classification(
+    long: pd.DataFrame,
+    metrics: tuple[InsightMetricSpec, ...],
+    *,
+    start_year: int,
+    end_year: int,
+    focus_school: str,
+    groups: list[str] | tuple[str, ...] | None,
+    strength_threshold: float = 65.0,
+    weakness_threshold: float = 35.0,
+    trend_threshold: float = 5.0,
+) -> pd.DataFrame:
+    """Classify range changes into management-friendly profile buckets."""
+
+    frame = build_range_metric_change_frame(
+        long,
+        metrics,
+        start_year=start_year,
+        end_year=end_year,
+        focus_school=focus_school,
+        groups=groups,
+    )
+    if frame.empty:
+        return frame.assign(classification=pd.Series(dtype="object"))
+
+    def classify(row: pd.Series) -> str:
+        current = row["last_percentile"]
+        delta = row["percentile_delta"]
+        if pd.isna(current):
+            return "관찰 유지"
+        if current < weakness_threshold and (pd.isna(delta) or delta <= trend_threshold):
+            return "구조적 취약"
+        if current >= strength_threshold and (pd.isna(delta) or delta >= -trend_threshold):
+            return "현재 강점"
+        if not pd.isna(delta) and delta >= trend_threshold:
+            return "개선 중"
+        if not pd.isna(delta) and delta <= -trend_threshold:
+            return "악화 중"
+        return "관찰 유지"
+
+    classified = frame.copy()
+    classified["classification"] = classified.apply(classify, axis=1)
+    return classified.sort_values(
+        ["classification", "last_percentile", "percentile_delta", "metric_label"],
+        ascending=[True, False, False, True],
+    ).reset_index(drop=True)
+
+
+def _range_metric_changes(
+    long: pd.DataFrame,
+    metrics: tuple[InsightMetricSpec, ...],
+    *,
+    start_year: int,
+    end_year: int,
+    focus_school: str,
+    groups: list[str] | tuple[str, ...] | None,
+    limit: int = 6,
+) -> dict[str, list[dict[str, Any]]]:
+    frame = build_range_metric_change_frame(
+        long,
+        metrics,
+        start_year=start_year,
+        end_year=end_year,
+        focus_school=focus_school,
+        groups=groups,
+    )
+    if frame.empty:
+        return {"improved": [], "declined": []}
+
+    rows = frame.to_dict("records")
     improved = sorted(
         [item for item in rows if float(item["adjusted_delta"]) > 0],
         key=lambda item: (item["percentile_delta"] is not None, item["percentile_delta"] or 0, float(item["adjusted_delta"])),
@@ -1035,6 +1167,66 @@ def _range_comparison_gap_changes(
         "improved_vs_comparison": list(reversed(sorted_rows[-limit:])),
         "worsened_vs_comparison": sorted_rows[:limit],
     }
+
+
+def build_comparison_gap_trend_frame(
+    long: pd.DataFrame,
+    metrics: tuple[InsightMetricSpec, ...],
+    *,
+    start_year: int,
+    end_year: int,
+    focus_school: str,
+    comparison_schools: list[str],
+    groups: list[str] | tuple[str, ...] | None,
+) -> pd.DataFrame:
+    """Return yearly focus-vs-comparison gaps by metric."""
+
+    if start_year > end_year:
+        start_year, end_year = end_year, start_year
+    if not comparison_schools:
+        return pd.DataFrame()
+
+    selected_metric_keys = set(_metric_keys_for_groups(metrics, groups))
+    rows: list[dict[str, Any]] = []
+    for metric in metrics:
+        if metric.key not in selected_metric_keys:
+            continue
+        metric_frame = long[
+            (long["metric_key"] == metric.key)
+            & (long["year"] >= start_year)
+            & (long["year"] <= end_year)
+        ].copy()
+        for year in sorted(metric_frame["year"].dropna().astype(int).unique()):
+            year_frame = metric_frame[metric_frame["year"] == year]
+            focus_frame = year_frame[year_frame["school_name"] == focus_school]
+            comparison_frame = year_frame[year_frame["school_name"].isin(comparison_schools)]
+            if focus_frame.empty or comparison_frame.empty:
+                continue
+
+            focus_value = float(focus_frame.iloc[0]["value"])
+            comparison_average = float(comparison_frame["value"].mean())
+            raw_gap = focus_value - comparison_average
+            adjusted_gap = raw_gap if metric.higher_is_better else -raw_gap
+            rows.append(
+                {
+                    "year": int(year),
+                    "metric_key": metric.key,
+                    "metric_label": metric.label,
+                    "group": metric.group,
+                    "focus_school": focus_school,
+                    "focus_value": round(focus_value, metric.decimals),
+                    "comparison_average": round(comparison_average, metric.decimals),
+                    "raw_gap": round(raw_gap, metric.decimals),
+                    "adjusted_gap": round(adjusted_gap, metric.decimals),
+                    "comparison_school_count": int(comparison_frame["school_name"].nunique()),
+                    "unit": metric.unit,
+                    "higher_is_better": metric.higher_is_better,
+                }
+            )
+
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows).sort_values(["metric_label", "year"]).reset_index(drop=True)
 
 
 def build_range_management_ai_payload(

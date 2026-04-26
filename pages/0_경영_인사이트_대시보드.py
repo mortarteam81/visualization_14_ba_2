@@ -21,11 +21,14 @@ from utils.management_ai import (
 )
 from utils.management_insights import (
     QUADRANT_PRESETS,
+    build_comparison_gap_trend_frame,
     build_range_management_ai_payload,
+    build_range_profile_classification,
     build_single_year_management_ai_payload,
     build_management_insight_dataset,
     build_percentile_profile,
     build_quadrant_frame,
+    build_quadrant_path_frame,
     build_rank_correlation,
     default_analysis_year,
     filter_metric_keys_by_groups,
@@ -122,6 +125,49 @@ def render_profile_summary(profile: pd.DataFrame) -> None:
         )
 
 
+def _format_range_value(value: float, decimals: int, unit: str) -> str:
+    return f"{value:,.{decimals}f}{unit}"
+
+
+def _range_display_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    if frame.empty:
+        return pd.DataFrame()
+    display = frame.copy()
+    display["시작"] = [
+        _format_range_value(row.first_value, int(row.decimals) if hasattr(row, "decimals") else 1, row.unit)
+        if hasattr(row, "decimals")
+        else f"{row.first_value:,.1f}{row.unit}"
+        for row in display.itertuples(index=False)
+    ]
+    display["종료"] = [
+        _format_range_value(row.last_value, int(row.decimals) if hasattr(row, "decimals") else 1, row.unit)
+        if hasattr(row, "decimals")
+        else f"{row.last_value:,.1f}{row.unit}"
+        for row in display.itertuples(index=False)
+    ]
+    display["현재 분위수"] = display["last_percentile"].round(1)
+    display["분위수 변화"] = display["percentile_delta"].round(1)
+    return display.rename(columns={"group": "영역", "metric_label": "지표"})[
+        ["영역", "지표", "시작", "종료", "현재 분위수", "분위수 변화", "trend_interpretation"]
+    ].rename(columns={"trend_interpretation": "방향"})
+
+
+def render_range_classification_tables(classified: pd.DataFrame) -> None:
+    ordered_labels = ["현재 강점", "개선 중", "악화 중", "구조적 취약"]
+    label_tabs = st.tabs(ordered_labels)
+    for label, tab in zip(ordered_labels, label_tabs):
+        with tab:
+            subset = classified[classified["classification"] == label].copy()
+            if subset.empty:
+                st.caption("해당 분류에 들어간 지표가 없습니다.")
+                continue
+            st.dataframe(
+                _range_display_frame(subset),
+                width="stretch",
+                hide_index=True,
+            )
+
+
 def render_quadrant_chart(
     frame: pd.DataFrame,
     *,
@@ -179,6 +225,123 @@ def render_quadrant_chart(
         },
         margin={"l": 48, "r": 32, "t": 36, "b": 132},
     )
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def render_quadrant_path_chart(
+    frame: pd.DataFrame,
+    *,
+    x_key: str,
+    y_key: str,
+    metrics_by_key: dict,
+    focus_school: str,
+) -> None:
+    x_metric = metrics_by_key[x_key]
+    y_metric = metrics_by_key[y_key]
+    fig = go.Figure()
+    color_map = {
+        focus_school: "#F59E0B",
+    }
+    fallback_colors = ["#6EA8FF", "#22C55E", "#EC4899", "#A78BFA", "#14B8A6"]
+
+    for index, (school, school_frame) in enumerate(frame.groupby("school_name")):
+        ordered = school_frame.sort_values("year")
+        color = color_map.get(school, fallback_colors[index % len(fallback_colors)])
+        fig.add_trace(
+            go.Scatter(
+                x=ordered[x_key],
+                y=ordered[y_key],
+                mode="lines+markers+text",
+                name=school,
+                text=[f"{row.year}" for row in ordered.itertuples(index=False)],
+                textposition="top center",
+                marker={"size": 12, "color": color, "line": {"width": 1, "color": "#E5E7EB"}},
+                line={"color": color, "width": 2},
+                hovertemplate=(
+                    f"{school}<br>%{{text}}년<br>"
+                    f"{x_metric.label}=%{{x:.2f}}{x_metric.unit}<br>"
+                    f"{y_metric.label}=%{{y:.2f}}{y_metric.unit}<extra></extra>"
+                ),
+            )
+        )
+        if len(ordered) >= 2:
+            start = ordered.iloc[0]
+            end = ordered.iloc[-1]
+            fig.add_annotation(
+                x=end[x_key],
+                y=end[y_key],
+                ax=start[x_key],
+                ay=start[y_key],
+                xref="x",
+                yref="y",
+                axref="x",
+                ayref="y",
+                showarrow=True,
+                arrowhead=3,
+                arrowsize=1.3,
+                arrowwidth=2,
+                arrowcolor=color,
+                opacity=0.85,
+            )
+
+    fig.update_layout(
+        height=560,
+        xaxis_title=f"{x_metric.label} ({x_metric.unit})",
+        yaxis_title=f"{y_metric.label} ({y_metric.unit})",
+        plot_bgcolor="rgba(15, 23, 42, 0.82)",
+        paper_bgcolor="rgba(15, 23, 42, 0.0)",
+        font={"color": "#E5EDF7"},
+        legend={"orientation": "h", "y": -0.22},
+        margin={"l": 48, "r": 32, "t": 32, "b": 120},
+    )
+    fig.update_xaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
+    fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def render_comparison_gap_trend_chart(frame: pd.DataFrame, *, metrics_by_key: dict) -> None:
+    metric_options = {
+        f"{metrics_by_key[key].group} · {metrics_by_key[key].label}": key
+        for key in sorted(frame["metric_key"].unique())
+        if key in metrics_by_key
+    }
+    if not metric_options:
+        st.info("선택한 범위에서 격차 추세를 표시할 지표가 없습니다.")
+        return
+    selected_label = st.selectbox("격차 추세 지표", list(metric_options), key="management_gap_trend_metric")
+    selected_key = metric_options[selected_label]
+    metric = metrics_by_key[selected_key]
+    chart_df = frame[frame["metric_key"] == selected_key].sort_values("year")
+    fig = go.Figure(
+        go.Scatter(
+            x=chart_df["year"],
+            y=chart_df["adjusted_gap"],
+            mode="lines+markers",
+            marker={"size": 10, "color": "#F59E0B"},
+            line={"color": "#F59E0B", "width": 3},
+            customdata=chart_df[["focus_value", "comparison_average", "comparison_school_count"]],
+            hovertemplate=(
+                "%{x}년<br>"
+                "조정 격차=%{y:.2f}<br>"
+                "기준 대학=%{customdata[0]:.2f}<br>"
+                "비교 평균=%{customdata[1]:.2f}<br>"
+                "비교 대학 수=%{customdata[2]}<extra></extra>"
+            ),
+        )
+    )
+    fig.add_hline(y=0, line_dash="dot", line_color="#E5E7EB", annotation_text="비교 평균")
+    fig.update_layout(
+        height=430,
+        xaxis_title="연도",
+        yaxis_title=f"조정 격차 ({metric.unit})",
+        plot_bgcolor="rgba(15, 23, 42, 0.82)",
+        paper_bgcolor="rgba(15, 23, 42, 0.0)",
+        font={"color": "#E5EDF7"},
+        margin={"l": 48, "r": 32, "t": 28, "b": 56},
+    )
+    fig.update_xaxes(dtick=1, gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
+    fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
+    st.caption("조정 격차가 0보다 크면 지표 방향을 고려했을 때 기준 대학이 비교대학 평균보다 우위입니다.")
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -445,10 +608,28 @@ with st.sidebar:
         group_options,
         default=group_options,
     )
+    st.header("범위 분석")
+    default_range_start = 2020 if 2020 in available_years else min(available_years)
+    default_range_end = 2024 if 2024 in available_years else max(available_years)
+    range_start_year = st.selectbox(
+        "시작 연도",
+        available_years,
+        index=available_years.index(default_range_start),
+        key="management_range_start_year",
+    )
+    range_end_year = st.selectbox(
+        "종료 연도",
+        available_years,
+        index=available_years.index(default_range_end),
+        key="management_range_end_year",
+    )
+    if range_start_year > range_end_year:
+        st.warning("범위 분석에서는 시작/종료 연도를 자동으로 정렬해 사용합니다.")
 
 included_metric_keys = filter_metric_keys_by_groups(dataset.metrics, selected_groups)
 included_year_metric_count = year_frame[year_frame["metric_key"].isin(included_metric_keys)]["metric_key"].nunique()
 year_school_count = year_frame["school_name"].nunique()
+range_start, range_end = sorted((range_start_year, range_end_year))
 
 metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
 metric_col1.metric("계산 포함 지표", f"{dataset.included_series_count}개")
@@ -477,6 +658,36 @@ with tabs[0]:
         render_profile_chart(profile)
         render_profile_summary(profile)
 
+    st.divider()
+    st.markdown(f"### 범위 진단: {range_start}-{range_end}년")
+    range_classification = build_range_profile_classification(
+        dataset.long,
+        dataset.metrics,
+        start_year=range_start,
+        end_year=range_end,
+        focus_school=focus_school,
+        groups=selected_groups,
+    )
+    if range_classification.empty:
+        st.info("선택한 범위에서 지표 변화 분류를 만들 수 없습니다.")
+    else:
+        render_range_classification_tables(range_classification)
+
+    st.markdown("### 비교대학 대비 격차 추세")
+    gap_trend = build_comparison_gap_trend_frame(
+        dataset.long,
+        dataset.metrics,
+        start_year=range_start,
+        end_year=range_end,
+        focus_school=focus_school,
+        comparison_schools=comparison_schools,
+        groups=selected_groups,
+    )
+    if gap_trend.empty:
+        st.info("비교 대학과 공통으로 관측된 지표가 부족해 격차 추세를 만들 수 없습니다.")
+    else:
+        render_comparison_gap_trend_chart(gap_trend, metrics_by_key=metrics_by_key)
+
 with tabs[1]:
     preset_labels = [preset[0] for preset in QUADRANT_PRESETS]
     selected_preset_label = st.selectbox(
@@ -502,6 +713,28 @@ with tabs[1]:
             focus_school=focus_school,
             comparison_schools=comparison_schools,
             metrics_by_key=metrics_by_key,
+        )
+
+    st.divider()
+    st.markdown(f"### 사분면 이동: {range_start}-{range_end}년")
+    quadrant_path = build_quadrant_path_frame(
+        dataset.wide,
+        start_year=range_start,
+        end_year=range_end,
+        x_metric_key=x_key,
+        y_metric_key=y_key,
+        schools=[focus_school, *comparison_schools],
+    )
+    if quadrant_path.empty:
+        st.info("선택한 범위에서 사분면 이동을 표시할 공통 데이터가 부족합니다.")
+    else:
+        st.caption("선택 대학의 시작연도와 종료연도 위치를 화살표로 연결합니다.")
+        render_quadrant_path_chart(
+            quadrant_path,
+            x_key=x_key,
+            y_key=y_key,
+            metrics_by_key=metrics_by_key,
+            focus_school=focus_school,
         )
 
 with tabs[2]:
