@@ -41,6 +41,9 @@ from utils.config import (
     RESEARCH_COL_OUT,
     RESEARCH_CSV,
     RESEARCH_CSV_ENCODING,
+    SCHOLARSHIP_RATIO_COL,
+    SCHOLARSHIP_RATIO_CSV,
+    SCHOLARSHIP_RATIO_CSV_ENCODING,
     STAFF_PER_STUDENT_COL,
     STAFF_PER_STUDENT_CSV,
     STAFF_PER_STUDENT_CSV_ENCODING,
@@ -768,6 +771,14 @@ def prepare_staff_per_student_frame(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def prepare_scholarship_ratio_frame(df: pd.DataFrame) -> pd.DataFrame:
+    return prepare_kcue_metric_frame(
+        df,
+        metric_id="scholarship_ratio",
+        value_column=SCHOLARSHIP_RATIO_COL,
+    )
+
+
 def load_budam_frame() -> pd.DataFrame:
     return prepare_budam_frame(_load_csv(BUDAM_CSV, BUDAM_CSV_ENCODING))
 
@@ -829,4 +840,10 @@ def load_library_staff_frame() -> pd.DataFrame:
 def load_staff_per_student_frame() -> pd.DataFrame:
     return prepare_staff_per_student_frame(
         _load_csv(STAFF_PER_STUDENT_CSV, STAFF_PER_STUDENT_CSV_ENCODING)
+    )
+
+
+def load_scholarship_ratio_frame() -> pd.DataFrame:
+    return prepare_scholarship_ratio_frame(
+        _load_csv(SCHOLARSHIP_RATIO_CSV, SCHOLARSHIP_RATIO_CSV_ENCODING)
     )

@@ -21,7 +21,6 @@ EXPECTED_PENDING_METRICS = {
     "corp_finance_ratio",
     "student_recruitment",
     "adjunct_faculty",
-    "scholarship_ratio",
     "classroom_area",
     "lab_area",
     "lab_equipment",
@@ -71,7 +70,6 @@ def test_pending_metric_plan_priorities_are_explicit() -> None:
     } == {
         "corp_transfer_ratio",
         "student_recruitment",
-        "scholarship_ratio",
     }
 
 
@@ -119,8 +117,8 @@ def test_bootstrap_pending_metric_database(tmp_path: Path) -> None:
             "SELECT COUNT(*) FROM pending_metric_plans WHERE needs_definition_review = 1"
         ).fetchone()[0]
 
-    assert plan_count == 8
-    assert source_count >= 8
+    assert plan_count == 7
+    assert source_count >= 7
     assert review_count >= 4
 
 

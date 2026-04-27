@@ -5,8 +5,6 @@ from registry.pending_source_acquisition import FIRST_WAVE_SOURCE_ACQUISITION
 
 FIRST_WAVE_METRICS = {
     "student_recruitment",
-    "staff_per_student",
-    "scholarship_ratio",
     "corp_transfer_ratio",
 }
 

@@ -203,37 +203,6 @@ PENDING_METRIC_PLANS: Final[dict[str, PendingMetricPlan]] = {
         ),
         notes="대학알리미 활용가이드에서 직접 항목 존재 여부와 공식 산식 확인 필요.",
     ),
-    "scholarship_ratio": PendingMetricPlan(
-        metric_id="scholarship_ratio",
-        dataset_key="scholarship_ratio",
-        title="장학금 비율",
-        source_priority=(
-            "한국사학진흥재단 대학재정알리미 장학금 지급률",
-            "공공데이터포털 한국장학재단 대학별 장학금 수혜 현황",
-            "대학알리미 재정 현황",
-        ),
-        raw_source_urls=(
-            "https://uniarlimi.kasfo.or.kr/statistics/indicator",
-            "https://www.data.go.kr/data/15038576/fileData.do",
-        ),
-        api_refresh_urls=(),
-        numerator="장학금 지급액",
-        denominator="등록금 수입 또는 학생부담 등록금",
-        formula="장학금 지급액 / 등록금 수입 × 100",
-        unit="%",
-        implementation_priority=1,
-        needs_definition_review=False,
-        proposed_series=(
-            ProposedSeriesSpec(
-                id="scholarship_payment_ratio",
-                label="장학금 비율",
-                column="장학금비율",
-                unit="%",
-                decimals=2,
-            ),
-        ),
-        notes="대학재정알리미 직접 지표와 장학재단 원자료 중 기준을 선택해야 함.",
-    ),
     "classroom_area": PendingMetricPlan(
         metric_id="classroom_area",
         dataset_key="classroom_area",

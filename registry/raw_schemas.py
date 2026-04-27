@@ -227,6 +227,25 @@ RAW_SCHEMA_REGISTRY: Final[dict[str, RawCsvSchema]] = {
             "source_file_name",
         ),
     ),
+    "scholarship_ratio": _schema(
+        "scholarship_ratio",
+        (
+            "metric_id",
+            "metric_label_ko",
+            "reference_year",
+            "evaluation_cycle",
+            "university_name",
+            "founding_type",
+            "region_name",
+            "value",
+            "value_original",
+            "value_recalculated",
+            "numerator",
+            "denominator",
+            "unit",
+            "source_file_name",
+        ),
+    ),
 }
 
 
