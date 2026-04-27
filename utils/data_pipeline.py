@@ -10,6 +10,9 @@ import pandas as pd
 from utils.config import (
     BUDAM_CSV,
     BUDAM_CSV_ENCODING,
+    CORP_TRANSFER_RATIO_COL,
+    CORP_TRANSFER_RATIO_CSV,
+    CORP_TRANSFER_RATIO_CSV_ENCODING,
     DORMITORY_COL,
     DORMITORY_CSV,
     DORMITORY_CSV_ENCODING,
@@ -779,6 +782,14 @@ def prepare_scholarship_ratio_frame(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def prepare_corp_transfer_ratio_frame(df: pd.DataFrame) -> pd.DataFrame:
+    return prepare_kcue_metric_frame(
+        df,
+        metric_id="corporate_transfer_ratio",
+        value_column=CORP_TRANSFER_RATIO_COL,
+    )
+
+
 def load_budam_frame() -> pd.DataFrame:
     return prepare_budam_frame(_load_csv(BUDAM_CSV, BUDAM_CSV_ENCODING))
 
@@ -846,4 +857,10 @@ def load_staff_per_student_frame() -> pd.DataFrame:
 def load_scholarship_ratio_frame() -> pd.DataFrame:
     return prepare_scholarship_ratio_frame(
         _load_csv(SCHOLARSHIP_RATIO_CSV, SCHOLARSHIP_RATIO_CSV_ENCODING)
+    )
+
+
+def load_corp_transfer_ratio_frame() -> pd.DataFrame:
+    return prepare_corp_transfer_ratio_frame(
+        _load_csv(CORP_TRANSFER_RATIO_CSV, CORP_TRANSFER_RATIO_CSV_ENCODING)
     )

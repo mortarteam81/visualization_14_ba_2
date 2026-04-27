@@ -9,6 +9,7 @@ import pandas as pd
 
 from registry import METRIC_REGISTRY
 from utils.config import (
+    CORP_TRANSFER_RATIO_COL,
     DORMITORY_COL,
     EDUCATION_RETURN_COL,
     GYOWON_COL_JAEHAK,
@@ -25,6 +26,7 @@ from utils.config import (
 )
 from utils.data_pipeline import (
     load_budam_frame,
+    load_corp_transfer_ratio_frame,
     load_dormitory_frame,
     load_education_return_frame,
     load_gyeolsan_frame,
@@ -42,7 +44,6 @@ from utils.data_pipeline import (
 
 DEFAULT_ANALYSIS_YEAR: Final[int] = 2024
 PENDING_METRIC_IDS: Final[tuple[str, ...]] = (
-    "corp_transfer_ratio",
     "corp_finance_ratio",
     "student_recruitment",
     "adjunct_faculty",
@@ -131,6 +132,20 @@ ANALYSIS_LOADERS: Final[tuple[LoaderSpec, ...]] = (
                 source_column="부담율",
                 unit="%",
                 group="재정",
+            ),
+        ),
+    ),
+    LoaderSpec(
+        load_corp_transfer_ratio_frame,
+        (
+            InsightMetricSpec(
+                key="corp_transfer_ratio",
+                label="법인전입금 비율",
+                source_metric_id="corp_transfer_ratio",
+                source_column=CORP_TRANSFER_RATIO_COL,
+                unit="%",
+                group="재정",
+                decimals=2,
             ),
         ),
     ),
@@ -596,7 +611,6 @@ def pending_metric_roadmap_frame() -> pd.DataFrame:
 
     rows = [
         ("student_recruitment", "데이터 확보", "정의 확인 완료", "구현 예정"),
-        ("corp_transfer_ratio", "일부 확보", "직접 지표/계정 매핑 확인 필요", "산식 검토"),
         ("corp_finance_ratio", "일부 확보", "법인 재정규모 분모 정의 필요", "산식 검토"),
         ("adjunct_faculty", "일부 확보", "겸임교원 확보율 공식 분모 정의 필요", "산식 검토"),
         ("classroom_area", "일부 확보", "강의실 세부 면적 정의 확인 필요", "산식 검토"),

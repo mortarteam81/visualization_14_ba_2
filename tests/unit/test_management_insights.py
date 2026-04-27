@@ -22,6 +22,7 @@ def test_management_dataset_uses_implemented_metrics_only() -> None:
     assert calculated_source_ids
     assert "staff_per_student" in calculated_source_ids
     assert "scholarship_ratio" in calculated_source_ids
+    assert "corp_transfer_ratio" in calculated_source_ids
     assert calculated_source_ids.isdisjoint(PENDING_METRIC_IDS)
     assert set(dataset.long["source_metric_id"]).isdisjoint(PENDING_METRIC_IDS)
 
@@ -38,6 +39,15 @@ def test_scholarship_ratio_is_finance_metric_in_management_dataset() -> None:
     dataset = build_management_insight_dataset()
 
     metric = next(metric for metric in dataset.metrics if metric.source_metric_id == "scholarship_ratio")
+
+    assert metric.group == "재정"
+    assert metric.higher_is_better is True
+
+
+def test_corp_transfer_ratio_is_finance_metric_in_management_dataset() -> None:
+    dataset = build_management_insight_dataset()
+
+    metric = next(metric for metric in dataset.metrics if metric.source_metric_id == "corp_transfer_ratio")
 
     assert metric.group == "재정"
     assert metric.higher_is_better is True

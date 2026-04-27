@@ -79,25 +79,6 @@ FIRST_WAVE_SOURCE_ACQUISITION: Final[tuple[SourceAcquisitionSpec, ...]] = (
             "개발/운영 활용승인은 자동승인으로 표시됨.",
         ),
     ),
-    SourceAcquisitionSpec(
-        metric_id="corp_transfer_ratio",
-        purpose="raw-first",
-        source_name="한국사학진흥재단 대학재정알리미 대학재정 주요 지표",
-        url="https://uniarlimi.kasfo.or.kr/statistics/indicator",
-        kind="web-indicator",
-        format="web table / possible excel download",
-        auth="web-session-unknown",
-        verified_fields=(
-            "법인전입금 비율",
-            "법인책무성",
-            "법인의 대학에 대한 재정기여도",
-        ),
-        caveats=(
-            "직접 지표는 확인됨.",
-            "엑셀 다운로드 요청 방식과 자동화 가능 여부는 브라우저 기반 추가 확인 필요.",
-            "API-refresh 경로는 아직 확인되지 않음.",
-        ),
-    ),
 )
 
 

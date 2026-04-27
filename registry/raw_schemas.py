@@ -246,6 +246,25 @@ RAW_SCHEMA_REGISTRY: Final[dict[str, RawCsvSchema]] = {
             "source_file_name",
         ),
     ),
+    "corp_transfer_ratio": _schema(
+        "corp_transfer_ratio",
+        (
+            "metric_id",
+            "metric_label_ko",
+            "reference_year",
+            "evaluation_cycle",
+            "university_name",
+            "founding_type",
+            "region_name",
+            "value",
+            "value_original",
+            "value_recalculated",
+            "numerator",
+            "denominator",
+            "unit",
+            "source_file_name",
+        ),
+    ),
 }
 
 

@@ -5,7 +5,6 @@ from registry.pending_source_acquisition import FIRST_WAVE_SOURCE_ACQUISITION
 
 FIRST_WAVE_METRICS = {
     "student_recruitment",
-    "corp_transfer_ratio",
 }
 
 
@@ -36,15 +35,3 @@ def test_source_specs_include_verification_details() -> None:
         assert spec.url.startswith("https://")
         assert spec.format
         assert spec.verified_fields
-
-
-def test_kasfo_corp_transfer_download_needs_manual_confirmation() -> None:
-    [spec] = [
-        item
-        for item in FIRST_WAVE_SOURCE_ACQUISITION
-        if item.metric_id == "corp_transfer_ratio"
-    ]
-
-    assert spec.kind == "web-indicator"
-    assert spec.auth == "web-session-unknown"
-    assert any("다운로드" in caveat for caveat in spec.caveats)

@@ -17,7 +17,6 @@ from scripts.build_pending_metric_db import bootstrap_database, load_csv_as_raw_
 
 
 EXPECTED_PENDING_METRICS = {
-    "corp_transfer_ratio",
     "corp_finance_ratio",
     "student_recruitment",
     "adjunct_faculty",
@@ -68,7 +67,6 @@ def test_pending_metric_plan_priorities_are_explicit() -> None:
         for metric_id, plan in PENDING_METRIC_PLANS.items()
         if plan.implementation_priority == 1
     } == {
-        "corp_transfer_ratio",
         "student_recruitment",
     }
 
@@ -117,8 +115,8 @@ def test_bootstrap_pending_metric_database(tmp_path: Path) -> None:
             "SELECT COUNT(*) FROM pending_metric_plans WHERE needs_definition_review = 1"
         ).fetchone()[0]
 
-    assert plan_count == 7
-    assert source_count >= 7
+    assert plan_count == 6
+    assert source_count >= 6
     assert review_count >= 4
 
 

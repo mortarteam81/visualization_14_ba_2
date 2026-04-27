@@ -76,35 +76,6 @@ LAB_EQUIPMENT_DEFINITION_YEARS: Final[tuple[int, int]] = (2024, 2025)
 
 
 PENDING_METRIC_PLANS: Final[dict[str, PendingMetricPlan]] = {
-    "corp_transfer_ratio": PendingMetricPlan(
-        metric_id="corp_transfer_ratio",
-        dataset_key="corp_transfer_ratio",
-        title="세입 중 법인전입금 비율",
-        source_priority=(
-            "한국사학진흥재단 대학재정알리미 대학재정 주요 지표",
-            "대학별 교비회계 자금계산서/결산 원자료",
-        ),
-        raw_source_urls=(
-            "https://uniarlimi.kasfo.or.kr/statistics/indicator",
-        ),
-        api_refresh_urls=(),
-        numerator="법인전입금 또는 법인전입금수입",
-        denominator="운영수입",
-        formula="법인전입금 / 운영수입 × 100",
-        unit="%",
-        implementation_priority=1,
-        needs_definition_review=False,
-        proposed_series=(
-            ProposedSeriesSpec(
-                id="corp_transfer_ratio",
-                label="법인전입금 비율",
-                column="법인전입금비율",
-                unit="%",
-                decimals=2,
-            ),
-        ),
-        notes="대학재정알리미에 직접 지표가 확인되므로 raw 다운로드 방식 우선.",
-    ),
     "corp_finance_ratio": PendingMetricPlan(
         metric_id="corp_finance_ratio",
         dataset_key="corp_finance_ratio",

@@ -11,6 +11,7 @@ from utils.api.client import DataGoKrClient
 from utils.config import DATA_SOURCE
 from utils.data_pipeline import (
     load_budam_frame,
+    load_corp_transfer_ratio_frame,
     load_dormitory_frame,
     load_education_return_frame,
     load_gyeolsan_frame,
@@ -61,6 +62,7 @@ def _get_dataset(dataset_key: str, include_branch: bool, data_source: str | None
         "library_staff_per_1000_students": load_library_staff_frame,
         "staff_per_student": load_staff_per_student_frame,
         "scholarship_ratio": load_scholarship_ratio_frame,
+        "corp_transfer_ratio": load_corp_transfer_ratio_frame,
     }
     branch_filtered_loaders = {
         "research": load_research_frame,
