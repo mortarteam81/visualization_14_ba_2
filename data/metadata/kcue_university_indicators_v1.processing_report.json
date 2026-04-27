@@ -1,0 +1,294 @@
+{
+  "dataset_id": "kcue_university_indicators",
+  "schema_version": "v1",
+  "processed_at": "2026-04-27",
+  "raw_file_count": 11,
+  "raw_files": [
+    "2주기 2015년도 대학현황지표 - 20260427111443.xlsx",
+    "2주기 2016년도 대학현황지표 - 20260427111439.xlsx",
+    "2주기 2017년도 대학현황지표 - 20260427111435.xlsx",
+    "3주기 2018년도 대학현황지표 - 20260427111426.xlsx",
+    "3주기 2019년도 대학현황지표 - 20260427111422.xlsx",
+    "3주기 2020년도 대학현황지표 - 20260427111416.xlsx",
+    "3주기 2021년도 대학현황지표 - 20260427111410.xlsx",
+    "3주기 2022년도 대학현황지표 - 20260427111404.xlsx",
+    "3주기 2023년도 대학현황지표 - 20260427111358.xlsx",
+    "3주기 2024년도 대학현황지표 - 20260427111352.xlsx",
+    "4주기 2025년도 대학현황지표 - 20260427111140.xlsx"
+  ],
+  "wide_output": "data/processed/kcue_university_indicators/kcue_university_indicators_2015_2025_v1_utf8.csv",
+  "long_output": "data/processed/kcue_university_indicators/kcue_university_metric_values_2015_2025_v1_utf8.csv",
+  "wide_rows": 2054,
+  "wide_columns": 111,
+  "long_rows": 43184,
+  "duplicate_reference_year_university_rows": 0,
+  "year_counts": {
+    "2015": 190,
+    "2016": 187,
+    "2017": 187,
+    "2018": 187,
+    "2019": 187,
+    "2020": 187,
+    "2021": 187,
+    "2022": 187,
+    "2023": 187,
+    "2024": 184,
+    "2025": 184
+  },
+  "metric_counts": {
+    "adjunct_faculty_rate": 184,
+    "books_per_faculty": 2054,
+    "building_facility_rate": 1870,
+    "corporate_finance_transfer_ratio": 155,
+    "corporate_transfer_ratio": 1717,
+    "domestic_papers_per_faculty": 2054,
+    "donation_ratio": 2029,
+    "dormitory_accommodation_rate": 2054,
+    "dormitory_domestic_accommodation_rate": 184,
+    "education_cost_return_rate": 2016,
+    "employment_rate": 1870,
+    "external_research_per_faculty": 2054,
+    "faculty_combined_rate": 184,
+    "freshman_fill_rate": 1870,
+    "full_time_faculty_rate": 2050,
+    "graduate_career_performance": 184,
+    "internal_research_per_faculty": 2054,
+    "lecturer_hourly_pay": 2054,
+    "legal_burden_rate": 155,
+    "library_material_purchase_per_student": 2054,
+    "library_staff_per_1000_students": 2054,
+    "research_performance_vs_standard": 2049,
+    "scholarship_ratio": 2044,
+    "sci_papers_per_faculty": 2054,
+    "student_fill_rate": 1870,
+    "student_recruitment_performance": 184,
+    "students_per_staff": 2054,
+    "tuition_revenue_ratio": 2029
+  },
+  "missing_by_column": {
+    "full_time_faculty_count": 188,
+    "legal_faculty_quota": 188,
+    "full_time_faculty_rate_pct_original": 4,
+    "full_time_faculty_rate_pct_recalculated": 188,
+    "adjunct_faculty_rate_pct_original": 1870,
+    "faculty_combined_rate_pct_original": 1870,
+    "building_facility_area_sqm": 184,
+    "building_required_area_sqm": 184,
+    "building_facility_rate_pct_original": 184,
+    "building_facility_rate_pct_recalculated": 190,
+    "freshman_admissions_within_quota": 184,
+    "freshman_recruitment_quota": 184,
+    "freshman_fill_rate_pct_original": 184,
+    "freshman_fill_rate_pct_recalculated": 189,
+    "enrolled_students_within_quota": 184,
+    "adjusted_student_quota": 184,
+    "student_fill_rate_pct_original": 184,
+    "student_fill_rate_pct_recalculated": 188,
+    "student_recruitment_performance_pct_original": 1870,
+    "total_education_cost_krw": 37,
+    "tuition_revenue_for_education_return_krw": 38,
+    "education_cost_return_rate_pct_original": 38,
+    "education_cost_return_rate_pct_recalculated": 58,
+    "scholarship_amount_krw": 8,
+    "tuition_revenue_for_scholarship_krw": 10,
+    "scholarship_ratio_pct_original": 10,
+    "scholarship_ratio_pct_recalculated": 27,
+    "tuition_revenue_for_operating_revenue_ratio_krw": 25,
+    "operating_revenue_for_tuition_ratio_krw": 25,
+    "tuition_revenue_ratio_pct_original": 25,
+    "tuition_revenue_ratio_pct_recalculated": 35,
+    "donation_amount_krw": 25,
+    "operating_revenue_for_donation_ratio_krw": 25,
+    "donation_ratio_pct_original": 25,
+    "donation_ratio_pct_recalculated": 35,
+    "corporate_transfer_amount_krw": 337,
+    "operating_revenue_for_corporate_transfer_krw": 337,
+    "corporate_transfer_ratio_pct_original": 337,
+    "corporate_transfer_ratio_pct_recalculated": 352,
+    "legal_burden_paid_krw": 1899,
+    "legal_burden_standard_krw": 1899,
+    "legal_burden_rate_pct_original": 1899,
+    "legal_burden_rate_pct_recalculated": 1899,
+    "corporate_transfer_for_corporate_finance_krw": 1898,
+    "corporate_general_account_finance_scale_krw": 1899,
+    "corporate_finance_transfer_ratio_pct_original": 1899,
+    "corporate_finance_transfer_ratio_pct_recalculated": 1899,
+    "lecturer_hourly_pay_krw_recalculated": 31,
+    "internal_research_funds_per_faculty_thousand_krw_recalculated": 7,
+    "students_per_staff_recalculated": 6,
+    "dormitory_accommodation_rate_pct_recalculated": 7,
+    "dormitory_domestic_residents": 1870,
+    "dormitory_domestic_enrolled_students": 1870,
+    "dormitory_domestic_accommodation_rate_pct_original": 1870,
+    "dormitory_domestic_accommodation_rate_pct_recalculated": 1871,
+    "library_material_purchase_per_student_krw_recalculated": 4,
+    "library_staff_per_1000_students_recalculated": 4,
+    "domestic_papers_per_faculty_recalculated": 7,
+    "sci_papers_per_faculty_recalculated": 7,
+    "books_per_faculty_recalculated": 7,
+    "external_research_funds_per_faculty_thousand_krw_recalculated": 7,
+    "research_performance_vs_standard_original": 5,
+    "employment_count": 184,
+    "graduate_count": 184,
+    "employment_rate_pct_original": 184,
+    "employment_rate_pct_recalculated": 272,
+    "career_success_count": 1870,
+    "career_target_count": 1870,
+    "graduate_career_performance_pct_original": 1870,
+    "graduate_career_performance_pct_recalculated": 1870
+  },
+  "validation": {
+    "tolerance": 0.05,
+    "formula_checks": [
+      {
+        "metric_id": "full_time_faculty_rate",
+        "compared_rows": 1866,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "building_facility_rate",
+        "compared_rows": 1864,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "freshman_fill_rate",
+        "compared_rows": 1865,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "student_fill_rate",
+        "compared_rows": 1866,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "education_cost_return_rate",
+        "compared_rows": 1996,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "scholarship_ratio",
+        "compared_rows": 2027,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "tuition_revenue_ratio",
+        "compared_rows": 2019,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "donation_ratio",
+        "compared_rows": 2019,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "corporate_transfer_ratio",
+        "compared_rows": 1702,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "legal_burden_rate",
+        "compared_rows": 155,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "corporate_finance_transfer_ratio",
+        "compared_rows": 155,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "lecturer_hourly_pay",
+        "compared_rows": 2023,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "internal_research_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "students_per_staff",
+        "compared_rows": 2048,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "dormitory_accommodation_rate",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "dormitory_domestic_accommodation_rate",
+        "compared_rows": 183,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "library_material_purchase_per_student",
+        "compared_rows": 2050,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "library_staff_per_1000_students",
+        "compared_rows": 2050,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "domestic_papers_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "sci_papers_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "books_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "external_research_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "employment_rate",
+        "compared_rows": 1782,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "graduate_career_performance",
+        "compared_rows": 184,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      }
+    ]
+  },
+  "known_limitations": [
+    "한국대학평가원 대학통계는 평가용 2차 집계 자료이므로, 최종 제출/심사 수치로 쓰기 전 원 공시자료와 대조가 필요하다.",
+    "4주기 2025 파일은 일부 2~3주기 지표가 빠지고 신규 지표가 추가되어 지표별 연도 커버리지가 다르다.",
+    "원자료에는 캠퍼스/본분교 코드와 대학알리미 학교 ID가 없어 학교명 기반 매칭만 가능하다."
+  ]
+}

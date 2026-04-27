@@ -224,6 +224,8 @@ UNREGISTERED_RAW_CSV_ALLOWLIST: Final[frozenset[Path]] = frozenset(
         "data/raw/pending_manual/manifest.csv",
         "data/raw/pending_manual/scholarship/kosaf_scholarship_by_university_20250831.csv",
         "data/processed/student_recruitment/student_recruitment_2026_candidate.csv",
+        "data/processed/kcue_university_indicators/kcue_university_indicators_2015_2025_v1_utf8.csv",
+        "data/processed/kcue_university_indicators/kcue_university_metric_values_2015_2025_v1_utf8.csv",
     )
 )
 
