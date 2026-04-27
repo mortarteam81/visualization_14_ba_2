@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from utils.data_pipeline import (
+    load_adjunct_faculty_frame,
     load_budam_frame,
     load_corp_transfer_ratio_frame,
     load_dormitory_frame,
@@ -81,6 +82,11 @@ def load_library_staff_data() -> pd.DataFrame:
 @st.cache_data(show_spinner="데이터 로딩 중...")
 def load_staff_per_student_data() -> pd.DataFrame:
     return load_staff_per_student_frame()
+
+
+@st.cache_data(show_spinner="데이터 로딩 중...")
+def load_adjunct_faculty_data() -> pd.DataFrame:
+    return load_adjunct_faculty_frame()
 
 
 @st.cache_data(show_spinner="데이터 로딩 중...")

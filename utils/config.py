@@ -30,6 +30,15 @@ GYOWON_PAGE_ICON = _GYOWON.icon
 GYOWON_COL_JEONGWON = get_series("gyowon_jeongwon").column
 GYOWON_COL_JAEHAK = get_series("gyowon_jaehak").column
 
+_ADJUNCT_FACULTY = get_metric("adjunct_faculty")
+ADJUNCT_FACULTY_CSV = _ADJUNCT_FACULTY.csv_file
+ADJUNCT_FACULTY_CSV_ENCODING = _ADJUNCT_FACULTY.csv_encoding
+ADJUNCT_FACULTY_DEFAULT_SCHOOL = _ADJUNCT_FACULTY.default_school
+ADJUNCT_FACULTY_PAGE_TITLE = _ADJUNCT_FACULTY.title
+ADJUNCT_FACULTY_PAGE_ICON = _ADJUNCT_FACULTY.icon
+ADJUNCT_FACULTY_COL_QUOTA_FINAL = get_series("adjunct_faculty_quota_final").column
+ADJUNCT_FACULTY_COL_ENROLLED_FINAL = get_series("adjunct_faculty_enrolled_final").column
+
 _RESEARCH = get_metric("research")
 RESEARCH_CSV = _RESEARCH.csv_file
 RESEARCH_CSV_ENCODING = _RESEARCH.csv_encoding

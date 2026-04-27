@@ -3,8 +3,15 @@ from __future__ import annotations
 import pandas as pd
 
 from registry import get_series
-from utils.config import CORP_TRANSFER_RATIO_COL, SCHOLARSHIP_RATIO_COL, STAFF_PER_STUDENT_COL
+from utils.config import (
+    ADJUNCT_FACULTY_COL_ENROLLED_FINAL,
+    ADJUNCT_FACULTY_COL_QUOTA_FINAL,
+    CORP_TRANSFER_RATIO_COL,
+    SCHOLARSHIP_RATIO_COL,
+    STAFF_PER_STUDENT_COL,
+)
 from utils.data_pipeline import (
+    prepare_adjunct_faculty_frame,
     prepare_corp_transfer_ratio_frame,
     prepare_scholarship_ratio_frame,
     prepare_staff_per_student_frame,
@@ -147,3 +154,39 @@ def test_corp_transfer_ratio_threshold_is_point_four_percent() -> None:
 
     assert series.threshold == 0.4
     assert series.threshold_direction == "gte"
+
+
+def test_prepare_adjunct_faculty_frame_uses_final_recognition_columns() -> None:
+    raw = pd.DataFrame(
+        {
+            "reference_year": [2025, 2025, 2025],
+            "survey_round": [20251, 20251, 20251],
+            "school_code": [1, 2, 3],
+            "campus_type": ["본교", "본교", "본교"],
+            "university_name": ["성신여자대학교", "서울대학교", "가천대학교"],
+            "field_category": ["총계", "총계", "총계"],
+            "school_type": ["대학교", "대학교", "대학교"],
+            "region_name": ["서울", "서울", "경기"],
+            "founding_type": ["사립", "국립", "사립"],
+            "source_file_name": ["source.xlsx"] * 3,
+            "겸임교원확보율(편제정원_최종)": [3.543, 4.0, 2.1],
+            "겸임교원확보율(재학생_최종)": [3.321, 4.0, 2.0],
+        }
+    )
+
+    result = prepare_adjunct_faculty_frame(raw)
+
+    assert result["학교명"].tolist() == ["가천대학교", "성신여자대학교"]
+    assert result[ADJUNCT_FACULTY_COL_QUOTA_FINAL].tolist() == [2.1, 3.543]
+    assert result[ADJUNCT_FACULTY_COL_ENROLLED_FINAL].tolist() == [2.0, 3.321]
+    assert result["평가주기"].tolist() == [4, 4]
+
+
+def test_adjunct_faculty_threshold_is_max_recognition_four_percent() -> None:
+    quota = get_series("adjunct_faculty_quota_final")
+    enrolled = get_series("adjunct_faculty_enrolled_final")
+
+    assert quota.threshold == 4.0
+    assert enrolled.threshold == 4.0
+    assert quota.threshold_label == "최대 인정값"
+    assert enrolled.threshold_label == "최대 인정값"

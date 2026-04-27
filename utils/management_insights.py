@@ -9,6 +9,8 @@ import pandas as pd
 
 from registry import METRIC_REGISTRY
 from utils.config import (
+    ADJUNCT_FACULTY_COL_ENROLLED_FINAL,
+    ADJUNCT_FACULTY_COL_QUOTA_FINAL,
     CORP_TRANSFER_RATIO_COL,
     DORMITORY_COL,
     EDUCATION_RETURN_COL,
@@ -25,6 +27,7 @@ from utils.config import (
     STAFF_PER_STUDENT_COL,
 )
 from utils.data_pipeline import (
+    load_adjunct_faculty_frame,
     load_budam_frame,
     load_corp_transfer_ratio_frame,
     load_dormitory_frame,
@@ -46,7 +49,6 @@ DEFAULT_ANALYSIS_YEAR: Final[int] = 2024
 PENDING_METRIC_IDS: Final[tuple[str, ...]] = (
     "corp_finance_ratio",
     "student_recruitment",
-    "adjunct_faculty",
     "classroom_area",
     "lab_area",
     "lab_equipment",
@@ -193,6 +195,29 @@ ANALYSIS_LOADERS: Final[tuple[LoaderSpec, ...]] = (
                 source_column=GYOWON_COL_JAEHAK,
                 unit="%",
                 group="교원",
+            ),
+        ),
+    ),
+    LoaderSpec(
+        load_adjunct_faculty_frame,
+        (
+            InsightMetricSpec(
+                key="adjunct_faculty_quota_final",
+                label="겸임교원 확보율(편제정원)",
+                source_metric_id="adjunct_faculty",
+                source_column=ADJUNCT_FACULTY_COL_QUOTA_FINAL,
+                unit="%",
+                group="교원",
+                decimals=3,
+            ),
+            InsightMetricSpec(
+                key="adjunct_faculty_enrolled_final",
+                label="겸임교원 확보율(재학생)",
+                source_metric_id="adjunct_faculty",
+                source_column=ADJUNCT_FACULTY_COL_ENROLLED_FINAL,
+                unit="%",
+                group="교원",
+                decimals=3,
             ),
         ),
     ),
@@ -612,7 +637,6 @@ def pending_metric_roadmap_frame() -> pd.DataFrame:
     rows = [
         ("student_recruitment", "데이터 확보", "정의 확인 완료", "구현 예정"),
         ("corp_finance_ratio", "일부 확보", "법인 재정규모 분모 정의 필요", "산식 검토"),
-        ("adjunct_faculty", "일부 확보", "겸임교원 확보율 공식 분모 정의 필요", "산식 검토"),
         ("classroom_area", "일부 확보", "강의실 세부 면적 정의 확인 필요", "산식 검토"),
         ("lab_area", "공개자료 한계", "계열별 실험실습실 면적 필요", "내부자료 필요"),
         ("lab_equipment", "공개자료 한계", "계열별 기자재 구입비와 2025 결산 필요", "내부자료 필요"),

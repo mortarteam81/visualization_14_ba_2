@@ -60,6 +60,17 @@ RAW_SCHEMA_REGISTRY: Final[dict[str, RawCsvSchema]] = {
             "전임교원 확보율(재학생 기준)",
         ),
     ),
+    "adjunct_faculty": _schema(
+        "adjunct_faculty",
+        (
+            "reference_year",
+            "university_name",
+            "field_category",
+            "source_file_name",
+            "겸임교원확보율(편제정원_최종)",
+            "겸임교원확보율(재학생_최종)",
+        ),
+    ),
     "research": _schema(
         "research",
         (
@@ -283,7 +294,6 @@ UNREGISTERED_RAW_CSV_ALLOWLIST: Final[frozenset[Path]] = frozenset(
         "data/processed/student_recruitment/student_recruitment_2026_candidate.csv",
         "data/processed/kcue_university_indicators/kcue_university_indicators_2015_2025_v1_utf8.csv",
         "data/processed/faculty_securing_rate/faculty_securing_metric_values_2015_2025_v1_utf8.csv",
-        "data/processed/faculty_securing_rate/faculty_securing_rate_total_2015_2025_v1_utf8.csv",
         "data/processed/faculty_securing_rate/faculty_securing_rate_2015_2025_v1_utf8.csv",
     )
 )

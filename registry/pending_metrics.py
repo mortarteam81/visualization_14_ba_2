@@ -143,37 +143,6 @@ PENDING_METRIC_PLANS: Final[dict[str, PendingMetricPlan]] = {
         ),
         notes="API 업데이트 단계에 가장 적합한 1차 구현 후보.",
     ),
-    "adjunct_faculty": PendingMetricPlan(
-        metric_id="adjunct_faculty",
-        dataset_key="adjunct_faculty",
-        title="겸임교원 확보율",
-        source_priority=(
-            "공공데이터포털 한국대학교육협의회 대학알리미 교원·연구 현황",
-            "대학알리미 교원 세부 원자료",
-        ),
-        raw_source_urls=(
-            "https://www.data.go.kr/data/15037505/openapi.do",
-        ),
-        api_refresh_urls=(
-            "http://openapi.academyinfo.go.kr/openapi/service/rest/EducationResearchService",
-        ),
-        numerator="겸임교원 수",
-        denominator="기준 필요 겸임교원 수 또는 전체 교원 수",
-        formula="겸임교원 수 / 기준 필요 겸임교원 수 × 100 (정의 확정 전 임시)",
-        unit="%",
-        implementation_priority=2,
-        needs_definition_review=True,
-        proposed_series=(
-            ProposedSeriesSpec(
-                id="adjunct_faculty_rate",
-                label="겸임교원 확보율",
-                column="겸임교원확보율",
-                unit="%",
-                decimals=1,
-            ),
-        ),
-        notes="대학알리미 활용가이드에서 직접 항목 존재 여부와 공식 산식 확인 필요.",
-    ),
     "classroom_area": PendingMetricPlan(
         metric_id="classroom_area",
         dataset_key="classroom_area",

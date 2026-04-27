@@ -19,7 +19,6 @@ from scripts.build_pending_metric_db import bootstrap_database, load_csv_as_raw_
 EXPECTED_PENDING_METRICS = {
     "corp_finance_ratio",
     "student_recruitment",
-    "adjunct_faculty",
     "classroom_area",
     "lab_area",
     "lab_equipment",
@@ -115,8 +114,8 @@ def test_bootstrap_pending_metric_database(tmp_path: Path) -> None:
             "SELECT COUNT(*) FROM pending_metric_plans WHERE needs_definition_review = 1"
         ).fetchone()[0]
 
-    assert plan_count == 6
-    assert source_count >= 6
+    assert plan_count == 5
+    assert source_count >= 5
     assert review_count >= 4
 
 
