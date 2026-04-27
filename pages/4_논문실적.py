@@ -27,6 +27,7 @@ from utils.comparison_charts import (
     render_bump_chart,
     render_comparison_heatmap,
     render_focus_range_chart,
+    resolve_threshold_focus_range,
 )
 from utils.comparison_page import render_dual_metric_sections, render_single_school_metric_comparison
 from utils.comparison_sidebar import build_default_group_preset_config, build_group_definitions, build_standard_sidebar_meta
@@ -80,15 +81,14 @@ def build_metric(series) -> MetricSpec:
 def _focus_range(series: pd.Series, metric: MetricSpec) -> tuple[float, float] | None:
     if series.empty:
         return None
-    data_min = float(series.min())
-    data_max = float(series.max())
     threshold = metric.threshold.value if metric.threshold else 0.0
-    padding = max(threshold * 0.35, (data_max - data_min) * 0.15, 0.02)
-    lower = max(0.0, min(data_min, threshold - padding))
-    upper = max(data_max, threshold + padding)
-    if upper <= lower:
-        return None
-    return lower, upper
+    upper_offset = 0.15 if metric.key == "paper_sci" else 0.30
+    return resolve_threshold_focus_range(
+        series,
+        metric,
+        lower_offset=threshold,
+        upper_offset=upper_offset,
+    )
 
 
 def render_metric_section(

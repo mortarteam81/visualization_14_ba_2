@@ -37,3 +37,29 @@ def test_prepare_library_staff_frame_uses_recalculated_r_column() -> None:
     assert result["기준년도"].tolist() == [2025]
     assert result[LIBRARY_STAFF_COL].tolist() == [1.2]
     assert result["기준충족"].tolist() == [True]
+
+
+def test_prepare_library_staff_frame_drops_infinite_metric_values() -> None:
+    raw = pd.DataFrame(
+        {
+            "reference_year": [2025, 2025],
+            "university_name": ["성신여자대학교", "서울기독대학교"],
+            "school_type": ["대학", "대학"],
+            "founding_type": ["사립", "사립"],
+            "region_name": ["서울", "서울"],
+            "size_group": ["B그룹", "C그룹"],
+            "regular_staff_certified": [2.0, 0.0],
+            "regular_staff_not_certified": [1.0, 0.0],
+            "non_regular_staff_certified": [1.0, 0.0],
+            "non_regular_staff_not_certified": [0.0, 0.0],
+            "total_staff_certified": [3.0, 0.0],
+            "total_staff_not_certified": [1.0, 0.0],
+            "enrolled_students": [3_000, 0],
+            "library_staff_per_1000_students_recalculated": ["1.20", "inf"],
+        }
+    )
+
+    result = prepare_library_staff_frame(raw)
+
+    assert result["학교명"].tolist() == ["성신여자대학교"]
+    assert result[LIBRARY_STAFF_COL].tolist() == [1.2]

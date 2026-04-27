@@ -20,6 +20,7 @@ from utils.comparison_charts import (
     render_bump_chart,
     render_comparison_heatmap,
     render_focus_range_chart,
+    resolve_threshold_focus_range,
 )
 from utils.comparison_sidebar import build_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
@@ -84,14 +85,13 @@ def build_metric() -> MetricSpec:
 def _focus_range(series: pd.Series, metric: MetricSpec) -> tuple[float, float] | None:
     if series.empty:
         return None
-    data_min = float(series.min())
-    data_max = float(series.max())
     threshold = metric.threshold.value if metric.threshold else 0.4
-    lower = max(0.0, min(data_min, threshold - 0.2))
-    upper = max(data_max, threshold + 2.0)
-    if upper <= lower:
-        return None
-    return lower, upper
+    return resolve_threshold_focus_range(
+        series,
+        metric,
+        lower_offset=threshold,
+        upper_offset=5.0,
+    )
 
 
 def main() -> None:

@@ -15,6 +15,7 @@ from utils.comparison_charts import (
     build_chart_styler,
     render_bump_chart,
     render_comparison_heatmap,
+    resolve_distribution_focus_range,
 )
 from utils.comparison_sidebar import build_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
@@ -179,9 +180,16 @@ def render_zoomed_pay_chart(
     chart_styler(fig)
     visible_values = zoom_df[SERIES.column].dropna()
     threshold_values = pd.Series(list(LECTURER_PAY_THRESHOLDS.values()))
-    y_min = max(0.0, min(float(visible_values.min()), float(threshold_values.min())) - 1_500)
-    y_max = max(float(visible_values.max()), float(threshold_values.max())) + 1_500
-    fig.update_yaxes(range=[y_min, y_max])
+    resolved_range = resolve_distribution_focus_range(
+        visible_values,
+        lower_quantile=0.05,
+        upper_quantile=0.90,
+        padding_ratio=0.08,
+        min_padding=1_500.0,
+        include_values=tuple(threshold_values),
+    )
+    if resolved_range is not None:
+        fig.update_yaxes(range=list(resolved_range))
     fig.update_traces(
         hovertemplate=f"{SCHOOL_COL}=%{{fullData.name}}<br>{YEAR_COL}=%{{x}}<br>강사 강의료=%{{y:,.0f}}원<extra></extra>"
     )

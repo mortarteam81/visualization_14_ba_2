@@ -657,6 +657,10 @@ def prepare_library_staff_frame(df: pd.DataFrame) -> pd.DataFrame:
             errors="coerce",
         )
 
+    frame[LIBRARY_STAFF_COL] = frame[LIBRARY_STAFF_COL].replace(
+        [float("inf"), float("-inf")],
+        float("nan"),
+    )
     frame = frame.dropna(subset=["기준년도", "학교명", LIBRARY_STAFF_COL])
     frame["기준년도"] = frame["기준년도"].astype(int)
     frame["기준충족"] = frame[LIBRARY_STAFF_COL] >= 1.0

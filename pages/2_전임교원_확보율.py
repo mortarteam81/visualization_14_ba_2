@@ -19,6 +19,8 @@ from utils.comparison_charts import (
     render_bump_chart,
     render_comparison_heatmap,
     render_focus_range_chart,
+    resolve_distribution_focus_range,
+    resolve_threshold_focus_range,
 )
 from utils.comparison_page import render_single_school_metric_comparison
 from utils.comparison_sidebar import build_default_group_preset_config, build_group_definitions, build_standard_sidebar_meta
@@ -63,17 +65,20 @@ def build_metric(series) -> MetricSpec:
 def _focus_range(series: pd.Series, metric: MetricSpec) -> tuple[float, float] | None:
     if series.empty:
         return None
-    data_min = float(series.min())
-    data_max = float(series.max())
     if metric.threshold is not None:
-        lower = max(0.0, min(data_min, metric.threshold.value - 15))
-        upper = max(metric.threshold.value + 20, min(data_max, metric.threshold.value + 35))
-    else:
-        lower = max(0.0, data_min - 10)
-        upper = data_max + 10
-    if upper <= lower:
-        return None
-    return lower, upper
+        return resolve_threshold_focus_range(
+            series,
+            metric,
+            lower_offset=15.0,
+            upper_offset=20.0,
+        )
+    return resolve_distribution_focus_range(
+        series,
+        lower_quantile=0.05,
+        upper_quantile=0.85,
+        padding_ratio=0.08,
+        min_padding=5.0,
+    )
 
 
 def main() -> None:
@@ -191,6 +196,12 @@ def main() -> None:
         chart_styler=chart_styler,
     )
 
+    focus_title = "기준선 인근 확대 보기" if selected_metric.threshold else "집중 구간 확대 보기"
+    focus_caption = (
+        "인증 기준 주변 구간을 확대해 학교별 차이를 더 쉽게 비교할 수 있습니다."
+        if selected_metric.threshold
+        else "선택 비교군이 주로 분포한 구간을 확대해 학교별 차이를 더 쉽게 비교할 수 있습니다."
+    )
     render_focus_range_chart(
         chart_df,
         metric=selected_metric,
@@ -198,8 +209,8 @@ def main() -> None:
         school_col=SCHOOL_COL,
         chart_title=f"{selected_metric.label} 기준선 인근 확대 비교",
         chart_styler=chart_styler,
-        title="기준선 인근 확대 보기",
-        caption="인증 기준 주변 구간을 확대해 학교별 차이를 더 쉽게 비교할 수 있습니다.",
+        title=focus_title,
+        caption=focus_caption,
         range_resolver=_focus_range,
     )
 

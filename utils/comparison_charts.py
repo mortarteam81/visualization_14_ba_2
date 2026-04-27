@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Mapping, Sequence
 from typing import Optional
 
@@ -36,6 +37,64 @@ RIGHT_LABEL_X_PADDING_RATIO = 0.16
 RIGHT_LABEL_X_PADDING_MIN = 0.35
 RIGHT_LABEL_X_PADDING_PER_CHAR_RATIO = 0.035
 RIGHT_LABEL_X_PADDING_MAX_RATIO = 0.5
+
+
+def finite_metric_values(series: pd.Series) -> pd.Series:
+    """Return numeric finite values for chart range calculations."""
+    numeric = pd.to_numeric(series, errors="coerce")
+    finite_mask = numeric.map(lambda value: pd.notna(value) and math.isfinite(float(value)))
+    return numeric[finite_mask]
+
+
+def resolve_threshold_focus_range(
+    series: pd.Series,
+    metric: MetricSpec,
+    *,
+    lower_offset: float,
+    upper_offset: float,
+    min_lower: float = 0.0,
+) -> tuple[float, float] | None:
+    """Resolve a fixed-width y-axis range around a metric threshold."""
+    if metric.threshold is None:
+        return resolve_distribution_focus_range(series, min_lower=min_lower)
+
+    threshold = float(metric.threshold.value)
+    lower = max(min_lower, threshold - lower_offset)
+    upper = threshold + upper_offset
+    if upper <= lower:
+        return None
+    return lower, upper
+
+
+def resolve_distribution_focus_range(
+    series: pd.Series,
+    *,
+    lower_quantile: float = 0.05,
+    upper_quantile: float = 0.95,
+    padding_ratio: float = 0.08,
+    min_padding: float = 0.0,
+    min_lower: float = 0.0,
+    include_values: Sequence[float] = (),
+) -> tuple[float, float] | None:
+    """Resolve a y-axis range around the dense part of the visible distribution."""
+    values = finite_metric_values(series)
+    if values.empty:
+        return None
+
+    lower_base = float(values.quantile(lower_quantile))
+    upper_base = float(values.quantile(upper_quantile))
+    for value in include_values:
+        if math.isfinite(float(value)):
+            lower_base = min(lower_base, float(value))
+            upper_base = max(upper_base, float(value))
+
+    span = upper_base - lower_base
+    padding = max(span * padding_ratio, min_padding)
+    lower = max(min_lower, lower_base - padding)
+    upper = upper_base + padding
+    if upper <= lower:
+        return None
+    return lower, upper
 
 
 def apply_right_label_xaxis_padding(
@@ -362,7 +421,7 @@ def render_focus_range_chart(
 
     chart_styler(fig)
 
-    series = chart_df[metric.value_col].dropna()
+    series = finite_metric_values(chart_df[metric.value_col])
     resolver = range_resolver or _default_focus_range_resolver
     resolved_range = resolver(series, metric)
     if resolved_range is not None:

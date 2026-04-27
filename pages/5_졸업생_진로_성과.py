@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pandas as pd
 import streamlit as st
 
 from registry import get_metric, get_series
@@ -12,6 +13,7 @@ from utils.comparison_charts import (
     render_bump_chart,
     render_comparison_heatmap,
     render_focus_range_chart,
+    resolve_threshold_focus_range,
 )
 from utils.comparison_sidebar import build_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
@@ -71,6 +73,17 @@ def build_metric() -> MetricSpec:
             dash="dot",
         ),
         chart_title=f"{PAGE.title} 비교 추이",
+    )
+
+
+def _focus_range(series: pd.Series, metric: MetricSpec) -> tuple[float, float] | None:
+    if series.empty:
+        return None
+    return resolve_threshold_focus_range(
+        series,
+        metric,
+        lower_offset=15.0,
+        upper_offset=20.0,
     )
 
 
@@ -185,6 +198,7 @@ def main() -> None:
         chart_styler=chart_styler,
         title="기준선 인근 확대 보기",
         caption="기준선 주변 구간을 확대해 낮은 진로 성과 학교들의 연도별 차이를 더 쉽게 비교할 수 있습니다.",
+        range_resolver=_focus_range,
     )
 
     render_comparison_heatmap(
