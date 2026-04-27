@@ -71,6 +71,19 @@ RAW_SCHEMA_REGISTRY: Final[dict[str, RawCsvSchema]] = {
             "겸임교원확보율(재학생_최종)",
         ),
     ),
+    "fulltime_adjunct_faculty": _schema(
+        "fulltime_adjunct_faculty",
+        (
+            "reference_year",
+            "university_name",
+            "field_category",
+            "source_file_name",
+            "교원확보율(전임교원)(편제정원)",
+            "교원확보율(전임교원)(재학생)",
+            "겸임교원확보율(편제정원_최종)",
+            "겸임교원확보율(재학생_최종)",
+        ),
+    ),
     "research": _schema(
         "research",
         (

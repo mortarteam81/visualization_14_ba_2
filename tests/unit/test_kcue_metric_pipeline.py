@@ -7,12 +7,15 @@ from utils.config import (
     ADJUNCT_FACULTY_COL_ENROLLED_FINAL,
     ADJUNCT_FACULTY_COL_QUOTA_FINAL,
     CORP_TRANSFER_RATIO_COL,
+    FULLTIME_ADJUNCT_FACULTY_COL_ENROLLED_RATE,
+    FULLTIME_ADJUNCT_FACULTY_COL_QUOTA_RATE,
     SCHOLARSHIP_RATIO_COL,
     STAFF_PER_STUDENT_COL,
 )
 from utils.data_pipeline import (
     prepare_adjunct_faculty_frame,
     prepare_corp_transfer_ratio_frame,
+    prepare_fulltime_adjunct_faculty_frame,
     prepare_scholarship_ratio_frame,
     prepare_staff_per_student_frame,
 )
@@ -190,3 +193,41 @@ def test_adjunct_faculty_threshold_is_max_recognition_four_percent() -> None:
     assert enrolled.threshold == 4.0
     assert quota.threshold_label == "최대 인정값"
     assert enrolled.threshold_label == "최대 인정값"
+
+
+def test_prepare_fulltime_adjunct_faculty_frame_adds_fulltime_and_adjunct_final_values() -> None:
+    raw = pd.DataFrame(
+        {
+            "reference_year": [2025, 2025, 2025, 2025],
+            "survey_round": [20251, 20251, 20251, 20251],
+            "school_code": [1, 2, 3, 4],
+            "campus_type": ["본교", "본교", "본교", "본교"],
+            "university_name": ["성신여자대학교", "서울대학교", "가천대학교", "성신여자대학교"],
+            "field_category": ["총계", "총계", "총계", "인문사회계열"],
+            "school_type": ["대학교", "대학교", "대학교", "대학교"],
+            "region_name": ["서울", "서울", "경기", "서울"],
+            "founding_type": ["사립", "국립", "사립", "사립"],
+            "source_file_name": ["source.xlsx"] * 4,
+            "교원확보율(전임교원)(편제정원)": [61.0, 70.0, 59.5, 80.0],
+            "교원확보율(전임교원)(재학생)": [60.5, 71.0, 62.0, 81.0],
+            "겸임교원확보율(편제정원_최종)": [3.543, 4.0, 4.0, 1.0],
+            "겸임교원확보율(재학생_최종)": [3.321, 4.0, 3.0, 1.0],
+        }
+    )
+
+    result = prepare_fulltime_adjunct_faculty_frame(raw)
+
+    assert result["학교명"].tolist() == ["가천대학교", "성신여자대학교"]
+    assert result[FULLTIME_ADJUNCT_FACULTY_COL_QUOTA_RATE].tolist() == [63.5, 64.543]
+    assert result[FULLTIME_ADJUNCT_FACULTY_COL_ENROLLED_RATE].tolist() == [65.0, 63.821]
+    assert result["평가주기"].tolist() == [4, 4]
+
+
+def test_fulltime_adjunct_faculty_threshold_is_64_percent() -> None:
+    quota = get_series("fulltime_adjunct_faculty_quota_rate")
+    enrolled = get_series("fulltime_adjunct_faculty_enrolled_rate")
+
+    assert quota.threshold == 64.0
+    assert enrolled.threshold == 64.0
+    assert quota.threshold_label == "4주기 인증 기준"
+    assert enrolled.threshold_label == "4주기 인증 기준"

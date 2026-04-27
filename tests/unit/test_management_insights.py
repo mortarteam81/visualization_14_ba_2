@@ -53,6 +53,16 @@ def test_corp_transfer_ratio_is_finance_metric_in_management_dataset() -> None:
     assert metric.higher_is_better is True
 
 
+def test_fulltime_adjunct_faculty_is_teacher_metric_in_management_dataset() -> None:
+    dataset = build_management_insight_dataset()
+
+    metric = next(metric for metric in dataset.metrics if metric.source_metric_id == "fulltime_adjunct_faculty")
+
+    assert metric.group == "교원"
+    assert metric.higher_is_better is True
+    assert metric.decimals == 3
+
+
 def test_percentile_profile_reverses_lower_is_better_metric() -> None:
     metric = InsightMetricSpec(
         key="tuition_ratio",
