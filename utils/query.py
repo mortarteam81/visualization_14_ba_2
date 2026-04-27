@@ -21,6 +21,7 @@ from utils.data_pipeline import (
     load_library_staff_frame,
     load_paper_frame,
     load_research_frame,
+    load_staff_per_student_frame,
     prepare_gyowon_frame,
 )
 from utils.repository.api_repository import ApiUniversityRepository
@@ -57,6 +58,7 @@ def _get_dataset(dataset_key: str, include_branch: bool, data_source: str | None
         "lecturer_pay": load_lecturer_pay_frame,
         "library_material_purchase_per_student": load_library_material_purchase_frame,
         "library_staff_per_1000_students": load_library_staff_frame,
+        "staff_per_student": load_staff_per_student_frame,
     }
     branch_filtered_loaders = {
         "research": load_research_frame,

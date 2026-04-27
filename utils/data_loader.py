@@ -17,6 +17,7 @@ from utils.data_pipeline import (
     load_library_staff_frame,
     load_paper_frame,
     load_research_frame,
+    load_staff_per_student_frame,
 )
 
 
@@ -73,3 +74,8 @@ def load_library_material_purchase_data() -> pd.DataFrame:
 @st.cache_data(show_spinner="데이터 로딩 중...")
 def load_library_staff_data() -> pd.DataFrame:
     return load_library_staff_frame()
+
+
+@st.cache_data(show_spinner="데이터 로딩 중...")
+def load_staff_per_student_data() -> pd.DataFrame:
+    return load_staff_per_student_frame()

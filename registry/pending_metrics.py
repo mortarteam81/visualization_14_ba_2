@@ -203,35 +203,6 @@ PENDING_METRIC_PLANS: Final[dict[str, PendingMetricPlan]] = {
         ),
         notes="대학알리미 활용가이드에서 직접 항목 존재 여부와 공식 산식 확인 필요.",
     ),
-    "staff_per_student": PendingMetricPlan(
-        metric_id="staff_per_student",
-        dataset_key="staff_per_student",
-        title="직원 1인당 학생수",
-        source_priority=(
-            "공공데이터포털 교육부 대학알리미 대학주요정보 학생·교원·연구·재정·교육여건",
-            "대학알리미 직원 현황 및 학생 현황 원자료",
-        ),
-        raw_source_urls=(
-            "https://www.data.go.kr/data/15118998/fileData.do",
-        ),
-        api_refresh_urls=(),
-        numerator="재학생 수",
-        denominator="직원총계",
-        formula="재학생 수 / 직원총계",
-        unit="명",
-        implementation_priority=1,
-        needs_definition_review=False,
-        proposed_series=(
-            ProposedSeriesSpec(
-                id="students_per_staff",
-                label="직원 1인당 학생수",
-                column="직원1인당학생수",
-                unit="명",
-                decimals=1,
-            ),
-        ),
-        notes="대학주요정보 파일에 재학생 수와 직원총계가 함께 있으면 원자료 기반 계산 가능.",
-    ),
     "scholarship_ratio": PendingMetricPlan(
         metric_id="scholarship_ratio",
         dataset_key="scholarship_ratio",

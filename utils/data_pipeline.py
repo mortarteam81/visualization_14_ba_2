@@ -41,6 +41,9 @@ from utils.config import (
     RESEARCH_COL_OUT,
     RESEARCH_CSV,
     RESEARCH_CSV_ENCODING,
+    STAFF_PER_STUDENT_COL,
+    STAFF_PER_STUDENT_CSV,
+    STAFF_PER_STUDENT_CSV_ENCODING,
 )
 
 
@@ -672,6 +675,99 @@ def prepare_library_staff_frame(df: pd.DataFrame) -> pd.DataFrame:
     return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
 
 
+def prepare_kcue_metric_frame(
+    df: pd.DataFrame,
+    *,
+    metric_id: str,
+    value_column: str,
+    region_name: str = "서울",
+    private_only: bool = True,
+) -> pd.DataFrame:
+    frame = df.copy()
+    required = {
+        "metric_id",
+        "metric_label_ko",
+        "reference_year",
+        "evaluation_cycle",
+        "university_name",
+        "founding_type",
+        "region_name",
+        "value",
+        "value_original",
+        "value_recalculated",
+        "numerator",
+        "denominator",
+        "unit",
+        "source_file_name",
+    }
+    _check_columns(frame, required)
+
+    frame = frame[frame["metric_id"].astype(str).str.strip() == metric_id].copy()
+    if region_name:
+        frame = frame[frame["region_name"].astype(str).str.strip() == region_name].copy()
+    if private_only:
+        frame = frame[frame["founding_type"].astype(str).str.strip() == "사립"].copy()
+
+    rename_map = {
+        "reference_year": "기준년도",
+        "evaluation_cycle": "평가주기",
+        "university_name": "학교명",
+        "founding_type": "설립구분",
+        "region_name": "지역",
+        "value": "통합지표값",
+        "value_original": "원자료지표값",
+        "value_recalculated": "재계산지표값",
+        "numerator": "분자",
+        "denominator": "분모",
+        "unit": "단위",
+        "source_file_name": "원본파일명",
+    }
+    frame = frame.rename(columns=rename_map)
+
+    numeric_columns = [
+        "기준년도",
+        "통합지표값",
+        "원자료지표값",
+        "재계산지표값",
+        "분자",
+        "분모",
+    ]
+    for column in numeric_columns:
+        frame[column] = pd.to_numeric(
+            frame[column].astype(str).str.replace(",", "", regex=False),
+            errors="coerce",
+        )
+
+    frame[value_column] = frame["재계산지표값"].combine_first(frame["통합지표값"])
+    frame = frame.dropna(subset=["기준년도", "학교명", value_column])
+    frame["기준년도"] = frame["기준년도"].astype(int)
+
+    keep_columns = [
+        "기준년도",
+        "학교명",
+        "평가주기",
+        "설립구분",
+        "지역",
+        "통합지표값",
+        "원자료지표값",
+        "재계산지표값",
+        "분자",
+        "분모",
+        "단위",
+        "원본파일명",
+        value_column,
+    ]
+    return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
+
+
+def prepare_staff_per_student_frame(df: pd.DataFrame) -> pd.DataFrame:
+    return prepare_kcue_metric_frame(
+        df,
+        metric_id="students_per_staff",
+        value_column=STAFF_PER_STUDENT_COL,
+    )
+
+
 def load_budam_frame() -> pd.DataFrame:
     return prepare_budam_frame(_load_csv(BUDAM_CSV, BUDAM_CSV_ENCODING))
 
@@ -728,3 +824,9 @@ def load_library_material_purchase_frame() -> pd.DataFrame:
 
 def load_library_staff_frame() -> pd.DataFrame:
     return prepare_library_staff_frame(_load_csv(LIBRARY_STAFF_CSV, LIBRARY_STAFF_CSV_ENCODING))
+
+
+def load_staff_per_student_frame() -> pd.DataFrame:
+    return prepare_staff_per_student_frame(
+        _load_csv(STAFF_PER_STUDENT_CSV, STAFF_PER_STUDENT_CSV_ENCODING)
+    )
