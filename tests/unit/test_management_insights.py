@@ -20,8 +20,17 @@ def test_management_dataset_uses_implemented_metrics_only() -> None:
     calculated_source_ids = {metric.source_metric_id for metric in dataset.metrics}
 
     assert calculated_source_ids
+    assert "staff_per_student" in calculated_source_ids
     assert calculated_source_ids.isdisjoint(PENDING_METRIC_IDS)
     assert set(dataset.long["source_metric_id"]).isdisjoint(PENDING_METRIC_IDS)
+
+
+def test_staff_per_student_is_lower_is_better_in_management_dataset() -> None:
+    dataset = build_management_insight_dataset()
+
+    metric = next(metric for metric in dataset.metrics if metric.source_metric_id == "staff_per_student")
+
+    assert metric.higher_is_better is False
 
 
 def test_percentile_profile_reverses_lower_is_better_metric() -> None:

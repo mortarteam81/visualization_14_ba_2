@@ -20,6 +20,7 @@ from utils.config import (
     PAPER_COL_SCI,
     RESEARCH_COL_IN,
     RESEARCH_COL_OUT,
+    STAFF_PER_STUDENT_COL,
 )
 from utils.data_pipeline import (
     load_budam_frame,
@@ -33,6 +34,7 @@ from utils.data_pipeline import (
     load_library_staff_frame,
     load_paper_frame,
     load_research_frame,
+    load_staff_per_student_frame,
 )
 
 
@@ -42,7 +44,6 @@ PENDING_METRIC_IDS: Final[tuple[str, ...]] = (
     "corp_finance_ratio",
     "student_recruitment",
     "adjunct_faculty",
-    "staff_per_student",
     "scholarship_ratio",
     "classroom_area",
     "lab_area",
@@ -277,6 +278,20 @@ ANALYSIS_LOADERS: Final[tuple[LoaderSpec, ...]] = (
                 unit="명",
                 group="교육여건",
                 decimals=2,
+            ),
+        ),
+    ),
+    LoaderSpec(
+        load_staff_per_student_frame,
+        (
+            InsightMetricSpec(
+                key="students_per_staff",
+                label="직원 1인당 학생수",
+                source_metric_id="staff_per_student",
+                source_column=STAFF_PER_STUDENT_COL,
+                unit="명",
+                group="교육여건",
+                higher_is_better=False,
             ),
         ),
     ),
@@ -566,7 +581,6 @@ def pending_metric_roadmap_frame() -> pd.DataFrame:
 
     rows = [
         ("student_recruitment", "데이터 확보", "정의 확인 완료", "구현 예정"),
-        ("staff_per_student", "데이터 확보", "직원 총계 합산 규칙 확정 필요", "구현 예정"),
         ("scholarship_ratio", "데이터 확보", "등록금수입 분모 매핑 필요", "구현 예정"),
         ("corp_transfer_ratio", "일부 확보", "직접 지표/계정 매핑 확인 필요", "산식 검토"),
         ("corp_finance_ratio", "일부 확보", "법인 재정규모 분모 정의 필요", "산식 검토"),

@@ -4,7 +4,14 @@ import pandas as pd
 import streamlit as st
 
 from registry import get_metric, get_series
-from ui import MetricSpec, SidebarConfig, SidebarMeta, render_school_sidebar, render_single_metric_page
+from ui import (
+    MetricSpec,
+    SidebarConfig,
+    SidebarMeta,
+    ThresholdSpec,
+    render_school_sidebar,
+    render_single_metric_page,
+)
 from utils.ai_panel import render_metric_ai_analysis_panel
 from utils.auth import require_authenticated_user
 from utils.comparison_charts import (
@@ -67,6 +74,12 @@ def build_metric() -> MetricSpec:
         value_col=SERIES.column,
         y_axis_label=f"{SERIES.label} ({SERIES.unit})",
         precision=SERIES.decimals,
+        threshold=ThresholdSpec(
+            value=SERIES.threshold or 70.0,
+            label=SERIES.threshold_label or "기준값",
+            color="#F59E0B",
+            dash="dot",
+        ),
         higher_is_better=False,
         chart_title=f"{PAGE.title} 비교 추이",
         formatter=_format_students,
@@ -171,9 +184,11 @@ def main() -> None:
             "화면 표시값": "한국대학평가원 대학현황지표의 직원 1인당 학생수 재계산값을 우선 사용합니다.",
             "산식": "재학생 수 ÷ 직원총계 (명)",
             "해석 방향": "값이 낮을수록 직원 1인이 담당하는 학생 수가 적어 학생 지원 여건이 상대적으로 양호한 것으로 볼 수 있습니다.",
+            "기준값": "70명 이하",
             "비교 대상 그룹": "선택 학교와 비교 그룹 평균선을 함께 보여줘 상대적 위치를 확인할 수 있습니다.",
             "업데이트": DATA_UPDATED,
         },
+        kpi_threshold_suffix="70명 이하",
         chart_styler=chart_styler,
     )
 

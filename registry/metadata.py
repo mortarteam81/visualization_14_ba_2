@@ -457,13 +457,16 @@ METRIC_REGISTRY: Final[dict[str, MetricSpec]] = {
         csv_encoding="utf-8-sig",
         default_school="성신여자대학교",
         nav_order=14,
-        threshold_note="주 표시값: 직원 1인당 학생수(재계산)",
+        threshold_note="기준값: 70명 이하",
         series=(
             SeriesSpec(
                 id="students_per_staff",
                 label="직원 1인당 학생수",
                 column="직원1인당학생수",
                 unit="명",
+                threshold=70.0,
+                threshold_label="기준값",
+                threshold_direction="lte",
                 decimals=1,
             ),
         ),

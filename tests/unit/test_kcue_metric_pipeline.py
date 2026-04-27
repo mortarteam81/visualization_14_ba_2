@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
+from registry import get_series
 from utils.config import STAFF_PER_STUDENT_COL
 from utils.data_pipeline import prepare_staff_per_student_frame
 
@@ -43,3 +44,10 @@ def test_prepare_staff_per_student_frame_filters_and_uses_recalculated_value() -
     assert result[STAFF_PER_STUDENT_COL].tolist() == [38.1234]
     assert result["분자"].tolist() == [3812]
     assert result["분모"].tolist() == [100]
+
+
+def test_staff_per_student_threshold_is_lte_70_people() -> None:
+    series = get_series("students_per_staff")
+
+    assert series.threshold == 70.0
+    assert series.threshold_direction == "lte"
