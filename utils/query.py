@@ -15,6 +15,7 @@ from utils.data_pipeline import (
     load_corp_transfer_ratio_frame,
     load_dormitory_frame,
     load_education_return_frame,
+    load_faculty_securing_reference_frame,
     load_fulltime_adjunct_faculty_frame,
     load_gyeolsan_frame,
     load_gyowon_csv_frame,
@@ -65,6 +66,7 @@ def _get_dataset(dataset_key: str, include_branch: bool, data_source: str | None
         "staff_per_student": load_staff_per_student_frame,
         "adjunct_faculty": load_adjunct_faculty_frame,
         "fulltime_adjunct_faculty": load_fulltime_adjunct_faculty_frame,
+        "faculty_securing_reference": load_faculty_securing_reference_frame,
         "scholarship_ratio": load_scholarship_ratio_frame,
         "corp_transfer_ratio": load_corp_transfer_ratio_frame,
     }

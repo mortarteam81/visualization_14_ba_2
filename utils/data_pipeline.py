@@ -23,6 +23,14 @@ from utils.config import (
     EDUCATION_RETURN_COL,
     EDUCATION_RETURN_CSV,
     EDUCATION_RETURN_CSV_ENCODING,
+    FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_ENROLLED_RATE,
+    FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_QUOTA_RATE,
+    FACULTY_REFERENCE_COL_FULLTIME_ENROLLED_RATE,
+    FACULTY_REFERENCE_COL_FULLTIME_QUOTA_RATE,
+    FACULTY_REFERENCE_COL_INVITED_INCLUDED_ENROLLED_RATE,
+    FACULTY_REFERENCE_COL_INVITED_INCLUDED_QUOTA_RATE,
+    FACULTY_SECURING_REFERENCE_CSV,
+    FACULTY_SECURING_REFERENCE_CSV_ENCODING,
     FULLTIME_ADJUNCT_FACULTY_COL_ENROLLED_RATE,
     FULLTIME_ADJUNCT_FACULTY_COL_QUOTA_RATE,
     FULLTIME_ADJUNCT_FACULTY_CSV,
@@ -937,6 +945,82 @@ def prepare_fulltime_adjunct_faculty_frame(
     return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
 
 
+def prepare_faculty_securing_reference_frame(
+    df: pd.DataFrame,
+    *,
+    private_only: bool = True,
+) -> pd.DataFrame:
+    df = _apply_column_aliases(df)
+    metric_columns = [
+        FACULTY_REFERENCE_COL_FULLTIME_QUOTA_RATE,
+        FACULTY_REFERENCE_COL_FULLTIME_ENROLLED_RATE,
+        FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_QUOTA_RATE,
+        FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_ENROLLED_RATE,
+        FACULTY_REFERENCE_COL_INVITED_INCLUDED_QUOTA_RATE,
+        FACULTY_REFERENCE_COL_INVITED_INCLUDED_ENROLLED_RATE,
+    ]
+    required = [
+        "reference_year",
+        "survey_round",
+        "school_code",
+        "campus_type",
+        "university_name",
+        "field_category",
+        "school_type",
+        "region_name",
+        "founding_type",
+        "source_file_name",
+        *metric_columns,
+    ]
+    _check_columns(df, required)
+
+    frame = df[required].copy()
+    frame = frame[frame["field_category"].astype(str).str.strip() == "총계"].copy()
+    if private_only:
+        founding = frame["founding_type"].fillna("").astype(str).str.strip()
+        frame = frame[(founding == "사립") | (founding == "")].copy()
+
+    rename_map = {
+        "reference_year": "기준년도",
+        "survey_round": "조사회차",
+        "school_code": "학교코드",
+        "campus_type": "본분교명",
+        "university_name": "학교명",
+        "field_category": "계열구분",
+        "school_type": "학제",
+        "region_name": "지역",
+        "founding_type": "설립구분",
+        "source_file_name": "원본파일명",
+    }
+    frame = frame.rename(columns=rename_map)
+    frame["평가주기"] = frame["기준년도"].apply(
+        lambda year: 2 if int(year) <= 2017 else 3 if int(year) <= 2024 else 4
+    )
+
+    for column in ["기준년도", *metric_columns]:
+        frame[column] = pd.to_numeric(
+            frame[column].astype(str).str.replace(",", "", regex=False),
+            errors="coerce",
+        )
+
+    frame = frame.dropna(subset=["기준년도", "학교명"])
+    frame["기준년도"] = frame["기준년도"].astype(int)
+    keep_columns = [
+        "기준년도",
+        "학교명",
+        "평가주기",
+        "학교코드",
+        "본분교명",
+        "계열구분",
+        "학제",
+        "지역",
+        "설립구분",
+        *metric_columns,
+        "원본파일명",
+    ]
+    return frame[keep_columns].sort_values(["기준년도", "학교명"]).reset_index(drop=True)
+
+
 def prepare_staff_per_student_frame(df: pd.DataFrame) -> pd.DataFrame:
     return prepare_kcue_metric_frame(
         df,
@@ -1028,6 +1112,12 @@ def load_adjunct_faculty_frame() -> pd.DataFrame:
 def load_fulltime_adjunct_faculty_frame() -> pd.DataFrame:
     return prepare_fulltime_adjunct_faculty_frame(
         _load_csv(FULLTIME_ADJUNCT_FACULTY_CSV, FULLTIME_ADJUNCT_FACULTY_CSV_ENCODING)
+    )
+
+
+def load_faculty_securing_reference_frame() -> pd.DataFrame:
+    return prepare_faculty_securing_reference_frame(
+        _load_csv(FACULTY_SECURING_REFERENCE_CSV, FACULTY_SECURING_REFERENCE_CSV_ENCODING)
     )
 
 

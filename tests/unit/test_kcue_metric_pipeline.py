@@ -7,6 +7,12 @@ from utils.config import (
     ADJUNCT_FACULTY_COL_ENROLLED_FINAL,
     ADJUNCT_FACULTY_COL_QUOTA_FINAL,
     CORP_TRANSFER_RATIO_COL,
+    FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_ENROLLED_RATE,
+    FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_QUOTA_RATE,
+    FACULTY_REFERENCE_COL_FULLTIME_ENROLLED_RATE,
+    FACULTY_REFERENCE_COL_FULLTIME_QUOTA_RATE,
+    FACULTY_REFERENCE_COL_INVITED_INCLUDED_ENROLLED_RATE,
+    FACULTY_REFERENCE_COL_INVITED_INCLUDED_QUOTA_RATE,
     FULLTIME_ADJUNCT_FACULTY_COL_ENROLLED_RATE,
     FULLTIME_ADJUNCT_FACULTY_COL_QUOTA_RATE,
     SCHOLARSHIP_RATIO_COL,
@@ -15,6 +21,7 @@ from utils.config import (
 from utils.data_pipeline import (
     prepare_adjunct_faculty_frame,
     prepare_corp_transfer_ratio_frame,
+    prepare_faculty_securing_reference_frame,
     prepare_fulltime_adjunct_faculty_frame,
     prepare_scholarship_ratio_frame,
     prepare_staff_per_student_frame,
@@ -231,3 +238,52 @@ def test_fulltime_adjunct_faculty_threshold_is_64_percent() -> None:
     assert enrolled.threshold == 64.0
     assert quota.threshold_label == "4주기 인증 기준"
     assert enrolled.threshold_label == "4주기 인증 기준"
+
+
+def test_prepare_faculty_securing_reference_frame_keeps_six_reference_rate_columns() -> None:
+    raw = pd.DataFrame(
+        {
+            "reference_year": [2025, 2025, 2025, 2025],
+            "survey_round": [20251, 20251, 20251, 20251],
+            "school_code": [1, 2, 3, 4],
+            "campus_type": ["본교", "본교", "본교", "본교"],
+            "university_name": ["성신여자대학교", "서울대학교", "가천대학교", "성신여자대학교"],
+            "field_category": ["총계", "총계", "총계", "인문사회계열"],
+            "school_type": ["대학교", "대학교", "대학교", "대학교"],
+            "region_name": ["서울", "서울", "경기", "서울"],
+            "founding_type": ["사립", "국립", "사립", "사립"],
+            "source_file_name": ["source.xlsx"] * 4,
+            "교원확보율(전임교원)(편제정원)": [61.0, 70.0, 59.5, 80.0],
+            "교원확보율(전임교원)(재학생)": [60.5, 71.0, 62.0, 81.0],
+            "교원확보율(겸임포함)(편제정원)": [72.0, 77.0, 63.5, 82.0],
+            "교원확보율(겸임포함)(재학생)": [71.5, 78.0, 65.0, 83.0],
+            "교원확보율(초빙포함)(편제정원)": [101.0, 103.0, 99.5, 84.0],
+            "교원확보율(초빙포함)(재학생)": [100.5, 104.0, 101.0, 85.0],
+        }
+    )
+
+    result = prepare_faculty_securing_reference_frame(raw)
+
+    assert result["학교명"].tolist() == ["가천대학교", "성신여자대학교"]
+    assert result[FACULTY_REFERENCE_COL_FULLTIME_QUOTA_RATE].tolist() == [59.5, 61.0]
+    assert result[FACULTY_REFERENCE_COL_FULLTIME_ENROLLED_RATE].tolist() == [62.0, 60.5]
+    assert result[FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_QUOTA_RATE].tolist() == [63.5, 72.0]
+    assert result[FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_ENROLLED_RATE].tolist() == [65.0, 71.5]
+    assert result[FACULTY_REFERENCE_COL_INVITED_INCLUDED_QUOTA_RATE].tolist() == [99.5, 101.0]
+    assert result[FACULTY_REFERENCE_COL_INVITED_INCLUDED_ENROLLED_RATE].tolist() == [101.0, 100.5]
+
+
+def test_faculty_securing_reference_threshold_is_100_percent() -> None:
+    series_ids = (
+        "faculty_reference_fulltime_quota_rate",
+        "faculty_reference_fulltime_enrolled_rate",
+        "faculty_reference_adjunct_included_quota_rate",
+        "faculty_reference_adjunct_included_enrolled_rate",
+        "faculty_reference_invited_included_quota_rate",
+        "faculty_reference_invited_included_enrolled_rate",
+    )
+
+    for series_id in series_ids:
+        series = get_series(series_id)
+        assert series.threshold == 100.0
+        assert series.threshold_label == "교원확보율 100%"

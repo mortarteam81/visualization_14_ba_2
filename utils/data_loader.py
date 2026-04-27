@@ -11,6 +11,7 @@ from utils.data_pipeline import (
     load_corp_transfer_ratio_frame,
     load_dormitory_frame,
     load_education_return_frame,
+    load_faculty_securing_reference_frame,
     load_fulltime_adjunct_faculty_frame,
     load_gyeolsan_frame,
     load_gyowon_csv_frame,
@@ -93,6 +94,11 @@ def load_adjunct_faculty_data() -> pd.DataFrame:
 @st.cache_data(show_spinner="데이터 로딩 중...")
 def load_fulltime_adjunct_faculty_data() -> pd.DataFrame:
     return load_fulltime_adjunct_faculty_frame()
+
+
+@st.cache_data(show_spinner="데이터 로딩 중...")
+def load_faculty_securing_reference_data() -> pd.DataFrame:
+    return load_faculty_securing_reference_frame()
 
 
 @st.cache_data(show_spinner="데이터 로딩 중...")

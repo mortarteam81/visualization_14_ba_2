@@ -48,6 +48,27 @@ FULLTIME_ADJUNCT_FACULTY_PAGE_ICON = _FULLTIME_ADJUNCT_FACULTY.icon
 FULLTIME_ADJUNCT_FACULTY_COL_QUOTA_RATE = get_series("fulltime_adjunct_faculty_quota_rate").column
 FULLTIME_ADJUNCT_FACULTY_COL_ENROLLED_RATE = get_series("fulltime_adjunct_faculty_enrolled_rate").column
 
+_FACULTY_SECURING_REFERENCE = get_metric("faculty_securing_reference")
+FACULTY_SECURING_REFERENCE_CSV = _FACULTY_SECURING_REFERENCE.csv_file
+FACULTY_SECURING_REFERENCE_CSV_ENCODING = _FACULTY_SECURING_REFERENCE.csv_encoding
+FACULTY_SECURING_REFERENCE_DEFAULT_SCHOOL = _FACULTY_SECURING_REFERENCE.default_school
+FACULTY_SECURING_REFERENCE_PAGE_TITLE = _FACULTY_SECURING_REFERENCE.title
+FACULTY_SECURING_REFERENCE_PAGE_ICON = _FACULTY_SECURING_REFERENCE.icon
+FACULTY_REFERENCE_COL_FULLTIME_QUOTA_RATE = get_series("faculty_reference_fulltime_quota_rate").column
+FACULTY_REFERENCE_COL_FULLTIME_ENROLLED_RATE = get_series("faculty_reference_fulltime_enrolled_rate").column
+FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_QUOTA_RATE = get_series(
+    "faculty_reference_adjunct_included_quota_rate"
+).column
+FACULTY_REFERENCE_COL_ADJUNCT_INCLUDED_ENROLLED_RATE = get_series(
+    "faculty_reference_adjunct_included_enrolled_rate"
+).column
+FACULTY_REFERENCE_COL_INVITED_INCLUDED_QUOTA_RATE = get_series(
+    "faculty_reference_invited_included_quota_rate"
+).column
+FACULTY_REFERENCE_COL_INVITED_INCLUDED_ENROLLED_RATE = get_series(
+    "faculty_reference_invited_included_enrolled_rate"
+).column
+
 _RESEARCH = get_metric("research")
 RESEARCH_CSV = _RESEARCH.csv_file
 RESEARCH_CSV_ENCODING = _RESEARCH.csv_encoding
