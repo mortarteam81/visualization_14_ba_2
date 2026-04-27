@@ -1,0 +1,907 @@
+{
+  "dataset_id": "faculty_securing_rate",
+  "schema_version": "v1",
+  "processed_at": "2026-04-27",
+  "raw_file_count": 11,
+  "excluded_temp_file_count": 2,
+  "excluded_files": [
+    {
+      "file_name": "~$2015년교원확보율.xlsx",
+      "reason": "Excel temporary lock file; excluded from source processing"
+    },
+    {
+      "file_name": "~$2016년교원확보율.xlsx",
+      "reason": "Excel temporary lock file; excluded from source processing"
+    }
+  ],
+  "detail_output": "data/processed/faculty_securing_rate/faculty_securing_rate_2015_2025_v1_utf8.csv",
+  "total_output": "data/processed/faculty_securing_rate/faculty_securing_rate_total_2015_2025_v1_utf8.csv",
+  "long_output": "data/processed/faculty_securing_rate/faculty_securing_metric_values_2015_2025_v1_utf8.csv",
+  "detail_rows": 14812,
+  "total_rows": 2116,
+  "detail_columns": 20,
+  "long_rows": 148120,
+  "year_detail_counts": {
+    "2015": 1393,
+    "2016": 1393,
+    "2017": 1358,
+    "2018": 1337,
+    "2019": 1337,
+    "2020": 1337,
+    "2021": 1330,
+    "2022": 1330,
+    "2023": 1344,
+    "2024": 1337,
+    "2025": 1316
+  },
+  "year_total_counts": {
+    "2015": 199,
+    "2016": 199,
+    "2017": 194,
+    "2018": 191,
+    "2019": 191,
+    "2020": 191,
+    "2021": 190,
+    "2022": 190,
+    "2023": 192,
+    "2024": 191,
+    "2025": 188
+  },
+  "field_category_counts": {
+    "공학": 2116,
+    "소계": 2116,
+    "예체능": 2116,
+    "의학": 2116,
+    "인문사회": 2116,
+    "자연과학": 2116,
+    "총계": 2116
+  },
+  "column_mappings": [
+    {
+      "source_file_name": "2015년교원확보율.xlsx",
+      "sheet_name": "sheet1",
+      "max_row": 1396,
+      "max_column": 54,
+      "data_rows_loaded": 1393,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [
+        "school_type",
+        "region_name",
+        "founding_type"
+      ],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "계열구분 > 계열구분 > 계열구분"
+        },
+        "school_type": {
+          "column_index": null,
+          "header": null
+        },
+        "region_name": {
+          "column_index": null,
+          "header": null
+        },
+        "founding_type": {
+          "column_index": null,
+          "header": null
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 35,
+          "header": "교원확보율(%) > 전임교원 > 편제"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 36,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 37,
+          "header": "교원확보율(%) > 겸임포함 > 편제"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 38,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 초빙교원 > 편제"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 초빙교원 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2016년교원확보율.xlsx",
+      "sheet_name": "Worksheet",
+      "max_row": 1405,
+      "max_column": 57,
+      "data_rows_loaded": 1393,
+      "blank_rows_dropped": 9,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "계열구분 > 계열구분 > 계열구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 38,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2017년교원확보율.xlsx",
+      "sheet_name": "201701",
+      "max_row": 1361,
+      "max_column": 57,
+      "data_rows_loaded": 1358,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "계열구분 > 계열구분 > 계열구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 38,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2018년교원확보율.xlsx",
+      "sheet_name": "Worksheet",
+      "max_row": 1340,
+      "max_column": 56,
+      "data_rows_loaded": 1337,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [
+        "school_code"
+      ],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": null,
+          "header": null
+        },
+        "campus_type": {
+          "column_index": 2,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 3,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 4,
+          "header": "계열구분 > 계열구분 > 계열구분"
+        },
+        "school_type": {
+          "column_index": 5,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 6,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 7,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 37,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 38,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2019년교원확보율.xlsx",
+      "sheet_name": "Worksheet",
+      "max_row": 1340,
+      "max_column": 57,
+      "data_rows_loaded": 1337,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "구분 > 구분 > 구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 38,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2020년교원확보율.xlsx",
+      "sheet_name": "Worksheet",
+      "max_row": 1340,
+      "max_column": 57,
+      "data_rows_loaded": 1337,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "구분 > 구분 > 구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 38,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2021년교원확보율.xlsx",
+      "sheet_name": "Worksheet",
+      "max_row": 1333,
+      "max_column": 57,
+      "data_rows_loaded": 1330,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "구분 > 구분 > 구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 38,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2022년교원확보율.xlsx",
+      "sheet_name": "Worksheet",
+      "max_row": 1333,
+      "max_column": 62,
+      "data_rows_loaded": 1330,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "구분 > 구분 > 구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 44,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2023년교원확보율.xlsx",
+      "sheet_name": "Sheet1",
+      "max_row": 1347,
+      "max_column": 64,
+      "data_rows_loaded": 1344,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 2,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "구분 > 구분 > 구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 44,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2024년교원확보율.xlsx",
+      "sheet_name": "자료",
+      "max_row": 1340,
+      "max_column": 62,
+      "data_rows_loaded": 1337,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "구분 > 구분 > 구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 44,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    },
+    {
+      "source_file_name": "2025년교원확보율.xlsx",
+      "sheet_name": "2025년",
+      "max_row": 1319,
+      "max_column": 57,
+      "data_rows_loaded": 1316,
+      "blank_rows_dropped": 0,
+      "blank_trailing_columns": 0,
+      "missing_base_columns": [],
+      "base_columns": {
+        "survey_round": {
+          "column_index": 1,
+          "header": "조사회차 > 조사회차 > 조사회차"
+        },
+        "school_code": {
+          "column_index": 2,
+          "header": "학교코드 > 학교코드 > 학교코드"
+        },
+        "campus_type": {
+          "column_index": 3,
+          "header": "본분교 > 본분교 > 본분교"
+        },
+        "university_name": {
+          "column_index": 4,
+          "header": "학교명 > 학교명 > 학교명"
+        },
+        "field_category": {
+          "column_index": 5,
+          "header": "구분 > 구분 > 구분"
+        },
+        "school_type": {
+          "column_index": 6,
+          "header": "학제 > 학제 > 학제"
+        },
+        "region_name": {
+          "column_index": 7,
+          "header": "시도 > 시도 > 시도"
+        },
+        "founding_type": {
+          "column_index": 8,
+          "header": "설립구분 > 설립구분 > 설립구분"
+        }
+      },
+      "metric_columns": {
+        "교원확보율(전임교원)(편제정원)": {
+          "column_index": 38,
+          "header": "교원확보율(%) > 전임교원 > 편제 정원"
+        },
+        "교원확보율(전임교원)(재학생)": {
+          "column_index": 39,
+          "header": "교원확보율(%) > 전임교원 > 재학생"
+        },
+        "교원확보율(겸임포함)(편제정원)": {
+          "column_index": 40,
+          "header": "교원확보율(%) > 겸임포함 > 편제 정원"
+        },
+        "교원확보율(겸임포함)(재학생)": {
+          "column_index": 41,
+          "header": "교원확보율(%) > 겸임포함 > 재학생"
+        },
+        "교원확보율(초빙포함)(편제정원)": {
+          "column_index": 42,
+          "header": "교원확보율(%) > 초빙포함 > 편제 정원"
+        },
+        "교원확보율(초빙포함)(재학생)": {
+          "column_index": 43,
+          "header": "교원확보율(%) > 초빙포함 > 재학생"
+        }
+      }
+    }
+  ],
+  "missing_by_column": {
+    "reference_year": 0,
+    "survey_round": 0,
+    "school_code": 0,
+    "campus_type": 0,
+    "university_name": 0,
+    "field_category": 0,
+    "school_type": 0,
+    "region_name": 0,
+    "founding_type": 0,
+    "source_file_name": 0,
+    "교원확보율(전임교원)(편제정원)": 0,
+    "교원확보율(전임교원)(재학생)": 0,
+    "교원확보율(겸임포함)(편제정원)": 0,
+    "교원확보율(겸임포함)(재학생)": 0,
+    "교원확보율(초빙포함)(편제정원)": 0,
+    "교원확보율(초빙포함)(재학생)": 0,
+    "겸임교원확보율(편제정원)": 0,
+    "겸임교원확보율(재학생)": 0,
+    "겸임교원확보율(편제정원_최종)": 0,
+    "겸임교원확보율(재학생_최종)": 0
+  },
+  "negative_derived_values": {
+    "겸임교원확보율(편제정원)": {
+      "count": 0,
+      "samples": []
+    },
+    "겸임교원확보율(재학생)": {
+      "count": 0,
+      "samples": []
+    }
+  },
+  "final_cap_counts": {
+    "겸임교원확보율(편제정원_최종)_equals_4": 1689,
+    "겸임교원확보율(재학생_최종)_equals_4": 1675
+  },
+  "validation": {
+    "formula_checks": [
+      {
+        "check_name": "adjunct_quota_difference",
+        "compared_rows": 14812,
+        "mismatch_rows_over_1e_9": 0,
+        "max_abs_diff": 0.0
+      },
+      {
+        "check_name": "adjunct_enrolled_difference",
+        "compared_rows": 14812,
+        "mismatch_rows_over_1e_9": 0,
+        "max_abs_diff": 0.0
+      },
+      {
+        "check_name": "adjunct_quota_final",
+        "compared_rows": 14812,
+        "mismatch_rows_over_1e_9": 0,
+        "max_abs_diff": 0.0
+      },
+      {
+        "check_name": "adjunct_enrolled_final",
+        "compared_rows": 14812,
+        "mismatch_rows_over_1e_9": 0,
+        "max_abs_diff": 0.0
+      }
+    ]
+  },
+  "structure_notes": [
+    "2015년 파일은 학제/시도/설립구분 컬럼이 없고 학교명에 본교 표기가 포함된 값이 존재한다.",
+    "2016년 파일은 데이터 하단에 빈 행 2개와 계열명만 있는 보조 행 7개가 있어 로딩 시 제외한다.",
+    "2018년 파일은 학교코드 컬럼이 없어 school_code를 결측으로 보존한다.",
+    "2023년 파일은 후행 빈 컬럼 2개가 있어 의미 컬럼 매핑에서 제외한다."
+  ]
+}

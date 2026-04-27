@@ -1,0 +1,71 @@
+{
+  "dataset_id": "faculty_securing_rate",
+  "dataset_name_ko": "교원확보율",
+  "dataset_name_en": "Faculty Securing Rate",
+  "schema_version": "v1",
+  "source_name": "한국대학평가원 대학통계",
+  "source_org": "한국대학교육협의회 병설 한국대학평가원",
+  "source_url": "https://aims.kcue.or.kr/kor/sub03/eval/evalView.do",
+  "source_section": "대학통계 > 대학 및 평가지표 > 데이터 다운로드",
+  "download_method": "사용자 수동 업로드 후 로컬 변환",
+  "original_file_format": "xlsx",
+  "raw_input_directory": "data/raw/faculty_securing_rate/original",
+  "collected_years": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "downloaded_at": "2026-04-27",
+  "processed_at": "2026-04-27",
+  "original_files": [
+    "2015년교원확보율.xlsx",
+    "2016년교원확보율.xlsx",
+    "2017년교원확보율.xlsx",
+    "2018년교원확보율.xlsx",
+    "2019년교원확보율.xlsx",
+    "2020년교원확보율.xlsx",
+    "2021년교원확보율.xlsx",
+    "2022년교원확보율.xlsx",
+    "2023년교원확보율.xlsx",
+    "2024년교원확보율.xlsx",
+    "2025년교원확보율.xlsx"
+  ],
+  "excluded_files": [
+    {
+      "file_name": "~$2015년교원확보율.xlsx",
+      "reason": "Excel temporary lock file; excluded from source processing"
+    },
+    {
+      "file_name": "~$2016년교원확보율.xlsx",
+      "reason": "Excel temporary lock file; excluded from source processing"
+    }
+  ],
+  "processed_output_files": [
+    "data/processed/faculty_securing_rate/faculty_securing_rate_2015_2025_v1_utf8.csv",
+    "data/processed/faculty_securing_rate/faculty_securing_rate_total_2015_2025_v1_utf8.csv",
+    "data/processed/faculty_securing_rate/faculty_securing_metric_values_2015_2025_v1_utf8.csv"
+  ],
+  "processing_summary": [
+    "1~3행 병합 다단 헤더를 의미 기반으로 해제",
+    "계열구분/구분, 초빙교원/초빙포함, 편제/편제 정원 표기 차이 정규화",
+    "요청한 6개 원천 교원확보율 컬럼을 연도별 위치와 무관하게 추출",
+    "겸임교원확보율 파생 컬럼 2개와 0.3 가중 및 4.0 cap 최종 컬럼 2개 생성",
+    "전체 계열 상세 CSV, 총계 업로드용 CSV, long metric CSV를 UTF-8-SIG로 저장"
+  ],
+  "recommended_upload_file": "data/processed/faculty_securing_rate/faculty_securing_rate_total_2015_2025_v1_utf8.csv",
+  "recommended_detail_file": "data/processed/faculty_securing_rate/faculty_securing_rate_2015_2025_v1_utf8.csv",
+  "recommended_metric_values_file": "data/processed/faculty_securing_rate/faculty_securing_metric_values_2015_2025_v1_utf8.csv",
+  "notes": [
+    "겸임교원확보율은 원자료 직접 항목이 아니라 겸임포함 확보율에서 전임교원 확보율을 뺀 파생값이다.",
+    "최종값은 파생 겸임교원확보율에 0.3을 곱한 값과 4.0 중 작은 값이다.",
+    "학교명 표준화는 적용하지 않았고 원자료 표기를 보존했다."
+  ]
+}
