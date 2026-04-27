@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from utils.app_db import ROLE_ADMIN, ROLE_VIEWER, AppUserRecord, normalize_email, normalize_role
-from utils.auth import parse_initial_admin_emails
+from utils.auth import missing_runtime_dependencies, parse_initial_admin_emails
 
 
 def test_normalize_email_strips_and_lowercases() -> None:
@@ -18,6 +18,18 @@ def test_parse_initial_admin_emails_accepts_list_and_comma_string() -> None:
     assert parse_initial_admin_emails("one@example.com, two@example.com\nONE@example.com") == (
         "one@example.com",
         "two@example.com",
+    )
+
+
+def test_missing_runtime_dependencies_reports_missing_packages() -> None:
+    installed = {"authlib"}
+
+    def fake_find_spec(module_name: str) -> object | None:
+        return object() if module_name in installed else None
+
+    assert missing_runtime_dependencies(fake_find_spec) == (
+        "sqlalchemy>=2.0.0",
+        "psycopg2-binary>=2.9.9",
     )
 
 

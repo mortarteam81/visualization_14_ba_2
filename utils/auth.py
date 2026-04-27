@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from importlib.util import find_spec
 
 import streamlit as st
 
@@ -23,6 +24,11 @@ AUTH_SESSION_KEY = "authenticated_user"
 AUTH_EMAIL_SESSION_KEY = "authenticated_user_email"
 DB_BOOTSTRAPPED_SESSION_KEY = "app_db_bootstrapped"
 LOGIN_RECORDED_SESSION_KEY = "app_login_recorded_email"
+REQUIRED_RUNTIME_MODULES = {
+    "authlib": "Authlib>=1.3.2,<1.4",
+    "sqlalchemy": "sqlalchemy>=2.0.0",
+    "psycopg2": "psycopg2-binary>=2.9.9",
+}
 
 
 @dataclass(frozen=True)
@@ -35,6 +41,21 @@ class AuthenticatedUser:
 
 def _role_label(role: str) -> str:
     return "운영자" if role == ROLE_ADMIN else "조회 사용자"
+
+
+def missing_runtime_dependencies(
+    spec_finder: object = find_spec,
+) -> tuple[str, ...]:
+    missing: list[str] = []
+    finder = spec_finder if callable(spec_finder) else find_spec
+    for module_name, requirement in REQUIRED_RUNTIME_MODULES.items():
+        try:
+            found = finder(module_name)
+        except (ImportError, ModuleNotFoundError, ValueError):
+            found = None
+        if found is None:
+            missing.append(requirement)
+    return tuple(missing)
 
 
 def parse_initial_admin_emails(value: object) -> tuple[str, ...]:
@@ -122,6 +143,15 @@ def _render_login() -> None:
     st.stop()
 
 
+def _render_missing_dependencies(missing: tuple[str, ...]) -> None:
+    st.title("실행 환경 설정 필요")
+    st.error("현재 Python 환경에 로그인/DB 실행에 필요한 패키지가 설치되어 있지 않습니다.")
+    st.caption("프로젝트 가상환경으로 실행하거나, 현재 Python 환경에 아래 패키지를 설치해 주세요.")
+    st.code("python -m pip install " + " ".join(f'"{requirement}"' for requirement in missing), language="bash")
+    st.code(".venv/bin/streamlit run app.py", language="bash")
+    st.stop()
+
+
 def _render_unauthorized(email: str) -> None:
     st.title("접근 권한이 없습니다")
     st.error("이 계정은 아직 대시보드 사용 권한이 없거나 비활성화되어 있습니다.")
@@ -153,6 +183,10 @@ def _ensure_database_ready() -> tuple[str, ...]:
 
 def require_authenticated_user() -> AuthenticatedUser:
     """Require Google OIDC login and an active DB allowlist record."""
+
+    missing_dependencies = missing_runtime_dependencies()
+    if missing_dependencies:
+        _render_missing_dependencies(missing_dependencies)
 
     if not _is_logged_in():
         _render_login()
@@ -205,6 +239,7 @@ __all__ = [
     "AuthenticatedUser",
     "ROLE_ADMIN",
     "ROLE_VIEWER",
+    "missing_runtime_dependencies",
     "parse_initial_admin_emails",
     "initial_admin_emails_from_secrets",
     "require_authenticated_user",
