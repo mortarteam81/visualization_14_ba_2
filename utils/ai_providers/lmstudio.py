@@ -19,13 +19,47 @@ class LMStudioConfig:
     timeout_seconds: int = 60
 
 
+def _nonempty_string(value: Any) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def _streamlit_secret(name: str, section_key: str) -> str | None:
+    try:
+        import streamlit as st
+
+        secrets = st.secrets
+    except Exception:
+        return None
+
+    try:
+        value = secrets.get(name)
+    except Exception:
+        value = None
+    if root_value := _nonempty_string(value):
+        return root_value
+
+    try:
+        section = secrets.get("lmstudio", {})
+    except Exception:
+        return None
+    if not callable(getattr(section, "get", None)):
+        return None
+    return _nonempty_string(section.get(section_key))
+
+
+def _config_value(env_name: str, section_key: str, default: str | None = None) -> str | None:
+    return _nonempty_string(os.getenv(env_name)) or _streamlit_secret(env_name, section_key) or default
+
+
 class LMStudioClient:
     """Small OpenAI-compatible client for LM Studio local server."""
 
     def __init__(self, config: LMStudioConfig | None = None) -> None:
-        base_url = os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1").rstrip("/")
-        model = os.getenv("LMSTUDIO_MODEL") or None
-        api_key = os.getenv("LMSTUDIO_API_KEY") or None
+        base_url = (_config_value("LMSTUDIO_BASE_URL", "base_url", "http://localhost:1234/v1") or "").rstrip("/")
+        model = _config_value("LMSTUDIO_MODEL", "model")
+        api_key = _config_value("LMSTUDIO_API_KEY", "api_key")
         self.config = config or LMStudioConfig(base_url=base_url, model=model, api_key=api_key)
 
     def _headers(self) -> dict[str, str]:
