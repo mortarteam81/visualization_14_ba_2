@@ -139,6 +139,10 @@ def _user_claims() -> dict[str, object]:
 def _render_login() -> None:
     st.title("로그인")
     st.caption("지정된 사용자만 접근할 수 있는 대학 경영 인사이트 대시보드입니다.")
+    if not _has_google_auth_config():
+        st.error("Google 로그인 설정이 필요합니다.")
+        st.caption("Streamlit Cloud Secrets의 [auth] 설정을 확인해 주세요.")
+        st.stop()
     st.button("Google로 로그인", type="primary", on_click=st.login)
     st.stop()
 
