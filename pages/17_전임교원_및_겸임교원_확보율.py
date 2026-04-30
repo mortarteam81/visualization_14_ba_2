@@ -25,7 +25,14 @@ from utils.comparison_page import render_single_school_metric_comparison
 from utils.comparison_sidebar import build_default_group_preset_config, build_group_definitions, build_standard_sidebar_meta
 from utils.config import DATA_UPDATED
 from utils.query import get_dataset
+from utils.source_display import render_source_caption
 from utils.theme import apply_app_theme
+
+try:
+    from utils.analysis_scope import apply_default_analysis_scope
+except ImportError:
+    def apply_default_analysis_scope(df: pd.DataFrame, metric_or_manifest: object) -> pd.DataFrame:
+        return df
 
 
 PAGE = get_metric("fulltime_adjunct_faculty")
@@ -81,6 +88,7 @@ def main() -> None:
     st.caption("한국대학평가원 대학현황지표 기반 전임교원 및 겸임교원 확보율")
 
     df = get_dataset(PAGE.dataset_key)
+    df = apply_default_analysis_scope(df, PAGE)
     schools = sorted(df[SCHOOL_COL].dropna().unique())
     years = sorted(df[YEAR_COL].dropna().unique())
     latest_year = max(years)
@@ -110,7 +118,7 @@ def main() -> None:
                 year_min=min(years),
                 year_max=latest_year,
                 unit="%",
-                data_source="한국대학평가원 대학현황지표 가공 CSV",
+                source=PAGE,
             ),
         ),
     )
@@ -242,7 +250,7 @@ def main() -> None:
     )
 
     st.markdown("---")
-    st.caption(f"데이터 출처: 한국대학평가원 대학현황지표 가공 CSV | 업데이트: {DATA_UPDATED}")
+    render_source_caption(PAGE)
 
 
 main()

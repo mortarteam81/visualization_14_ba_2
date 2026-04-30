@@ -1,0 +1,22 @@
+{
+  "dataset_key": "fulltime_adjunct_faculty",
+  "metric_ids": ["fulltime_adjunct_faculty"],
+  "title": "전임교원 및 겸임교원 확보율",
+  "current_asset": "data/processed/faculty_securing_rate/faculty_securing_rate_total_2015_2025_v1_utf8.csv",
+  "source_data_scope": "faculty_processed",
+  "verification_status": "partial",
+  "default_analysis_scope": "2015-2025 school-level processed metric values",
+  "metadata_files": {
+    "source": "data/metadata/faculty_securing_rate_v1.source.json",
+    "schema": "data/metadata/faculty_securing_rate_v1_schema.md",
+    "report": "data/metadata/faculty_securing_rate_v1.processing_report.json",
+    "guide": null
+  },
+  "quality_flags": [
+    "processed_faculty_dataset",
+    "composite_metric"
+  ],
+  "backlog": [
+    "Complete independent source reconciliation before marking verified."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "dataset_key": "jirosung",
+  "metric_ids": ["jirosung"],
+  "title": "졸업생 진로 성과",
+  "current_asset": "data/졸업생_취업률.csv",
+  "source_data_scope": "national_raw",
+  "verification_status": "partial",
+  "default_analysis_scope": "raw national school-level extract",
+  "metadata_files": {
+    "source": null,
+    "schema": null,
+    "report": null,
+    "guide": null
+  },
+  "quality_flags": [
+    "raw_national_extract",
+    "partial_verification"
+  ],
+  "backlog": [
+    "Add source/schema metadata for the raw graduate outcome asset."
+  ]
+}

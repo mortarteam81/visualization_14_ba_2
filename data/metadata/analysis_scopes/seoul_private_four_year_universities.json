@@ -1,0 +1,70 @@
+{
+  "scope_id": "seoul_private_four_year_universities",
+  "title": "서울 사립 4년제 대학교 본교",
+  "description": "2026 academyinfo 주요정보 기준 서울 소재 사립 4년제 대학교 본교 중 학교상태가 기존인 학교 34개.",
+  "source": {
+    "name": "academyinfo university key indicators",
+    "year": 2026,
+    "path": "data/raw/academyinfo/university_key_indicators/2026/academyinfo_key_indicators_2026.json",
+    "record_count": 489
+  },
+  "criteria": {
+    "pbnf_area_nm": "서울",
+    "schl_estb_div_nm": "사립",
+    "schl_div_nm": "대학",
+    "schl_knd_nm": "대학교",
+    "psbs_div_nm": "본교",
+    "schl_stat_nm": "기존"
+  },
+  "school_count": 34,
+  "schools": [
+    {"school_name": "감리교신학대학교", "school_id": "0000050", "rep_school_id": "0000050", "corporate_code": "00006"},
+    {"school_name": "강서대학교", "school_id": "0000079", "rep_school_id": "0000079", "corporate_code": "00077"},
+    {"school_name": "건국대학교", "school_id": "0000052", "rep_school_id": "0000052", "corporate_code": "00016"},
+    {"school_name": "경희대학교", "school_id": "0000066", "rep_school_id": "0000066", "corporate_code": "00043"},
+    {"school_name": "고려대학교", "school_id": "0000069", "rep_school_id": "0000069", "corporate_code": "00048"},
+    {"school_name": "광운대학교", "school_id": "0000074", "rep_school_id": "0000074", "corporate_code": "00057"},
+    {"school_name": "국민대학교", "school_id": "0000078", "rep_school_id": "0000078", "corporate_code": "00065"},
+    {"school_name": "덕성여자대학교", "school_id": "0000099", "rep_school_id": "0000099", "corporate_code": "00114"},
+    {"school_name": "동국대학교", "school_id": "0000100", "rep_school_id": "0000100", "corporate_code": "00116"},
+    {"school_name": "동덕여자대학교", "school_id": "0000102", "rep_school_id": "0000102", "corporate_code": "00118"},
+    {"school_name": "삼육대학교", "school_id": "0000116", "rep_school_id": "0000116", "corporate_code": "00164"},
+    {"school_name": "상명대학교", "school_id": "0000117", "rep_school_id": "0000117", "corporate_code": "00165"},
+    {"school_name": "서강대학교", "school_id": "0000120", "rep_school_id": "0000120", "corporate_code": "00167"},
+    {"school_name": "서경대학교", "school_id": "0000121", "rep_school_id": "0000121", "corporate_code": "00168"},
+    {"school_name": "서울기독대학교", "school_id": "0000098", "rep_school_id": "0000098", "corporate_code": "00174"},
+    {"school_name": "서울여자대학교", "school_id": "0000126", "rep_school_id": "0000126", "corporate_code": "00185"},
+    {"school_name": "서울한영대학교", "school_id": "0000205", "rep_school_id": "0000205", "corporate_code": "00410"},
+    {"school_name": "성공회대학교", "school_id": "0000132", "rep_school_id": "0000132", "corporate_code": "00198"},
+    {"school_name": "성균관대학교", "school_id": "0000133", "rep_school_id": "0000133", "corporate_code": "00199"},
+    {"school_name": "성신여자대학교", "school_id": "0000136", "rep_school_id": "0000136", "corporate_code": "00203"},
+    {"school_name": "세종대학교", "school_id": "0000138", "rep_school_id": "0000138", "corporate_code": "00208"},
+    {"school_name": "숙명여자대학교", "school_id": "0000141", "rep_school_id": "0000141", "corporate_code": "00216"},
+    {"school_name": "숭실대학교", "school_id": "0000143", "rep_school_id": "0000143", "corporate_code": "00221"},
+    {"school_name": "연세대학교", "school_id": "0000149", "rep_school_id": "0000149", "corporate_code": "00240"},
+    {"school_name": "이화여자대학교", "school_id": "0000163", "rep_school_id": "0000163", "corporate_code": "00268"},
+    {"school_name": "장로회신학대학교", "school_id": "0000170", "rep_school_id": "0000170", "corporate_code": "00276"},
+    {"school_name": "중앙대학교", "school_id": "0000175", "rep_school_id": "0000175", "corporate_code": "00296"},
+    {"school_name": "총신대학교", "school_id": "0000180", "rep_school_id": "0000180", "corporate_code": "00387"},
+    {"school_name": "추계예술대학교", "school_id": "0000181", "rep_school_id": "0000181", "corporate_code": "00314"},
+    {"school_name": "한국성서대학교", "school_id": "0000191", "rep_school_id": "0000191", "corporate_code": "00341"},
+    {"school_name": "한국외국어대학교", "school_id": "0000192", "rep_school_id": "0000192", "corporate_code": "00162"},
+    {"school_name": "한성대학교", "school_id": "0000200", "rep_school_id": "0000200", "corporate_code": "00360"},
+    {"school_name": "한양대학교", "school_id": "0000203", "rep_school_id": "0000203", "corporate_code": "00363"},
+    {"school_name": "홍익대학교", "school_id": "0000212", "rep_school_id": "0000212", "corporate_code": "00374"}
+  ],
+  "alias_groups": [
+    {
+      "canonical_school_name": "강서대학교",
+      "rep_school_id": "0000079",
+      "school_id": "0000079",
+      "aliases": ["그리스도대학교", "케이씨대학교"]
+    },
+    {
+      "canonical_school_name": "서울한영대학교",
+      "rep_school_id": "0000205",
+      "school_id": "0000205",
+      "aliases": ["한영신학대학교"]
+    }
+  ]
+}

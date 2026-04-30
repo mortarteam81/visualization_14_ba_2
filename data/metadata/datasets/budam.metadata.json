@@ -1,0 +1,22 @@
+{
+  "dataset_key": "budam",
+  "metric_ids": ["budam"],
+  "title": "법정부담금 부담율",
+  "current_asset": "data/법정부담금_부담율.csv",
+  "source_data_scope": "seoul_subset_legacy",
+  "verification_status": "legacy_schema_missing",
+  "default_analysis_scope": "legacy Seoul private university subset",
+  "metadata_files": {
+    "source": null,
+    "schema": null,
+    "report": null,
+    "guide": null
+  },
+  "quality_flags": [
+    "legacy_seoul_subset",
+    "schema_metadata_missing"
+  ],
+  "backlog": [
+    "Recover source/schema provenance for the legacy CSV."
+  ]
+}

@@ -18,7 +18,14 @@ from utils.comparison_charts import (
 from utils.comparison_sidebar import build_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
+from utils.source_display import render_source_caption
 from utils.theme import apply_app_theme
+
+try:
+    from utils.analysis_scope import apply_default_analysis_scope
+except ImportError:
+    def apply_default_analysis_scope(df: pd.DataFrame, metric_or_manifest: object) -> pd.DataFrame:
+        return df
 
 
 PAGE = get_metric("jirosung")
@@ -99,6 +106,7 @@ def main() -> None:
     st.caption(APP_SUBTITLE)
 
     raw_df = get_dataset(PAGE.dataset_key, include_branch=True)
+    raw_df = apply_default_analysis_scope(raw_df, PAGE)
 
     with st.sidebar:
         st.header("옵션")
@@ -238,7 +246,7 @@ def main() -> None:
     )
 
     st.markdown("---")
-    st.caption(f"데이터 출처: 대학알리미 | 업데이트: {DATA_UPDATED}")
+    render_source_caption(PAGE)
 
 
 main()

@@ -1,0 +1,22 @@
+{
+  "dataset_key": "lecturer_pay",
+  "metric_ids": ["lecturer_pay"],
+  "title": "강사 강의료",
+  "current_asset": "data/processed/lecturer_pay/lecturer_pay_2023_2025_v2_1_utf8.csv",
+  "source_data_scope": "national_processed",
+  "verification_status": "partial",
+  "default_analysis_scope": "2023-2025 processed national school-level values",
+  "metadata_files": {
+    "source": "data/metadata/lecturer_pay_v2_1.source.json",
+    "schema": null,
+    "report": null,
+    "guide": null
+  },
+  "quality_flags": [
+    "processed_national_dataset",
+    "partial_metadata"
+  ],
+  "backlog": [
+    "Add standalone schema/report metadata before promoting to verified."
+  ]
+}

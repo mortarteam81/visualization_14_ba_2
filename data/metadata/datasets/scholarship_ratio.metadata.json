@@ -1,0 +1,22 @@
+{
+  "dataset_key": "scholarship_ratio",
+  "metric_ids": ["scholarship_ratio"],
+  "title": "장학금 비율",
+  "current_asset": "data/processed/kcue_university_indicators/kcue_university_metric_values_2015_2025_v1_utf8.csv",
+  "source_data_scope": "kcue_processed",
+  "verification_status": "partial",
+  "default_analysis_scope": "2015-2025 school-level processed metric values",
+  "metadata_files": {
+    "source": "data/metadata/kcue_university_indicators_v1.source.json",
+    "schema": "data/metadata/kcue_university_indicators_v1_schema.md",
+    "report": "data/metadata/kcue_university_indicators_v1.processing_report.json",
+    "guide": null
+  },
+  "quality_flags": [
+    "processed_kcue_dataset",
+    "partial_verification"
+  ],
+  "backlog": [
+    "Complete scholarship source cross-check before marking verified."
+  ]
+}
