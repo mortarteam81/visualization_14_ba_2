@@ -371,6 +371,30 @@ def render_correlation_heatmap(
     *,
     metrics_by_key: dict,
 ) -> None:
+    if is_mobile_compact_mode():
+        rows: list[dict[str, object]] = []
+        columns = list(correlation.columns)
+        for left_index, left_key in enumerate(columns):
+            for right_key in columns[left_index + 1:]:
+                value = correlation.loc[left_key, right_key]
+                if pd.isna(value):
+                    continue
+                rows.append(
+                    {
+                        "지표 A": metrics_by_key[left_key].label,
+                        "지표 B": metrics_by_key[right_key].label,
+                        "상관계수": round(float(value), 2),
+                        "강도": round(abs(float(value)), 2),
+                    }
+                )
+        if not rows:
+            st.info("표시할 상관관계가 없습니다.")
+            return
+        table_frame = pd.DataFrame(rows).sort_values("강도", ascending=False).drop(columns=["강도"]).head(20)
+        st.caption("모바일에서는 히트맵 대신 상관 강도가 큰 지표 조합을 표로 보여줍니다.")
+        st.dataframe(table_frame, width="stretch", hide_index=True)
+        return
+
     labels = [metrics_by_key[key].label for key in correlation.columns]
     values = correlation.values
     text = [
@@ -620,46 +644,55 @@ with st.sidebar:
     focus_school_key = "management_focus_school"
     comparison_schools_key = "management_comparison_schools"
     profile_stamp_key = "management_comparison_profile_signature"
-    if st.session_state.get(profile_stamp_key) != profile_signature:
-        st.session_state.pop(focus_school_key, None)
-        st.session_state.pop(comparison_schools_key, None)
-        st.session_state[profile_stamp_key] = profile_signature
-    st.caption("저장된 기본 비교군을 기준으로 시작하며, 여기서 바꾼 선택은 현재 화면에만 적용됩니다.")
-    if st.button("기본 비교군 다시 적용", key="management_reset_comparison_profile"):
-        st.session_state.pop(focus_school_key, None)
-        st.session_state.pop(comparison_schools_key, None)
-        st.rerun()
-    if st.session_state.get(focus_school_key) in school_options:
-        focus_school = st.selectbox("기준 대학", school_options, key=focus_school_key)
-    else:
-        st.session_state.pop(focus_school_key, None)
-        focus_school = st.selectbox(
-            "기준 대학",
-            school_options,
-            index=school_options.index(default_school),
-            key=focus_school_key,
-        )
-    comparison_options = [school for school in school_options if school != focus_school]
-    comparison_defaults = [
-        school
-        for school in comparison_profile.comparison_schools
-        if school in comparison_options
-    ][:MAX_COMPARISON_SCHOOLS]
-    if comparison_schools_key not in st.session_state:
-        st.session_state[comparison_schools_key] = comparison_defaults
-    else:
-        selected_comparisons = st.session_state.get(comparison_schools_key, [])
-        st.session_state[comparison_schools_key] = [
+    if is_mobile_compact_mode():
+        focus_school = default_school
+        comparison_options = [school for school in school_options if school != focus_school]
+        comparison_schools = [
             school
-            for school in selected_comparisons
+            for school in comparison_profile.comparison_schools
             if school in comparison_options
         ][:MAX_COMPARISON_SCHOOLS]
-    comparison_schools = st.multiselect(
-        "비교 대학",
-        comparison_options,
-        key=comparison_schools_key,
-        max_selections=MAX_COMPARISON_SCHOOLS,
-    )
+    else:
+        if st.session_state.get(profile_stamp_key) != profile_signature:
+            st.session_state.pop(focus_school_key, None)
+            st.session_state.pop(comparison_schools_key, None)
+            st.session_state[profile_stamp_key] = profile_signature
+        st.caption("저장된 기본 비교군을 기준으로 시작하며, 여기서 바꾼 선택은 현재 화면에만 적용됩니다.")
+        if st.button("기본 비교군 다시 적용", key="management_reset_comparison_profile"):
+            st.session_state.pop(focus_school_key, None)
+            st.session_state.pop(comparison_schools_key, None)
+            st.rerun()
+        if st.session_state.get(focus_school_key) in school_options:
+            focus_school = st.selectbox("기준 대학", school_options, key=focus_school_key)
+        else:
+            st.session_state.pop(focus_school_key, None)
+            focus_school = st.selectbox(
+                "기준 대학",
+                school_options,
+                index=school_options.index(default_school),
+                key=focus_school_key,
+            )
+        comparison_options = [school for school in school_options if school != focus_school]
+        comparison_defaults = [
+            school
+            for school in comparison_profile.comparison_schools
+            if school in comparison_options
+        ][:MAX_COMPARISON_SCHOOLS]
+        if comparison_schools_key not in st.session_state:
+            st.session_state[comparison_schools_key] = comparison_defaults
+        else:
+            selected_comparisons = st.session_state.get(comparison_schools_key, [])
+            st.session_state[comparison_schools_key] = [
+                school
+                for school in selected_comparisons
+                if school in comparison_options
+            ][:MAX_COMPARISON_SCHOOLS]
+        comparison_schools = st.multiselect(
+            "비교 대학",
+            comparison_options,
+            key=comparison_schools_key,
+            max_selections=MAX_COMPARISON_SCHOOLS,
+        )
     selected_groups = st.multiselect(
         "지표 영역",
         group_options,
@@ -682,6 +715,11 @@ with st.sidebar:
     )
     if range_start_year > range_end_year:
         st.warning("범위 분석에서는 시작/종료 연도를 자동으로 정렬해 사용합니다.")
+
+if is_mobile_compact_mode():
+    comparison_summary = ", ".join(comparison_schools) if comparison_schools else "비교대학 없음"
+    st.info(f"기본 비교군 적용 중: 기준 대학 {focus_school} / 비교 대학 {comparison_summary}")
+    st.link_button("비교대학 설정에서 변경", "/비교대학_설정")
 
 included_metric_keys = filter_metric_keys_by_groups(dataset.metrics, selected_groups)
 included_year_metric_count = year_frame[year_frame["metric_key"].isin(included_metric_keys)]["metric_key"].nunique()

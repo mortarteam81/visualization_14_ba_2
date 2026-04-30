@@ -18,7 +18,11 @@ from utils.ai_analysis import analyze_budam_with_lmstudio, build_budam_analysis_
 from utils.ai_providers import LMStudioError
 from utils.auth import require_authenticated_user
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
-from utils.comparison_charts import apply_right_label_xaxis_padding, build_chart_frame as build_shared_chart_frame
+from utils.comparison_charts import (
+    apply_right_label_xaxis_padding,
+    build_chart_frame as build_shared_chart_frame,
+    render_mobile_latest_comparison,
+)
 from utils.comparison_sidebar import build_group_definitions as build_shared_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.grouping import AVERAGE_LINE_SUFFIX
@@ -374,6 +378,18 @@ def render_comparison_heatmap(
     selected_schools: list[str],
     group_definitions: dict[str, list[str]],
 ) -> None:
+    if is_mobile_compact_mode():
+        render_mobile_latest_comparison(
+            chart_df,
+            metric=build_metric(),
+            year_col=YEAR_COL,
+            school_col=SCHOOL_COL,
+            selected_schools=selected_schools,
+            group_definitions=group_definitions,
+            title="학교별 부담율 최근연도 비교",
+        )
+        return
+
     st.subheader("학교별 부담율 히트맵")
     st.caption("연도별 부담율 강도를 색으로 보여줘서, 어느 학교가 높은지 낮은지 빠르게 비교할 수 있습니다.")
 

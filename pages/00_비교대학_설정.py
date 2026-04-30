@@ -4,6 +4,7 @@ from collections.abc import Callable
 
 import streamlit as st
 
+from utils.analysis_scope import filter_default_analysis_school_options
 from utils.app_db import (
     AppDatabaseError,
     AppUserStore,
@@ -57,7 +58,7 @@ def _group_schools_key(prefix: str, slot: int) -> str:
 
 def _load_school_options() -> list[str]:
     dataset = build_management_insight_dataset()
-    return sorted(dataset.long["school_name"].dropna().unique())
+    return filter_default_analysis_school_options(dataset.long["school_name"].dropna().unique())
 
 
 def _clean_group_state(prefix: str, slot: int, school_options: list[str]) -> None:
@@ -160,6 +161,9 @@ def _render_profile_editor(
 ) -> None:
     st.subheader(title)
     st.caption(caption)
+    st.info(
+        "선택 후보는 기본 분석 범위인 서울 소재 사립 일반대학(4년제) 본교/기존 학교로 제한됩니다."
+    )
 
     try:
         profile = store.load(school_options)

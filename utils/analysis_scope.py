@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -68,6 +68,51 @@ def load_default_analysis_scope(scope_id: str = DEFAULT_SCOPE_ID) -> dict[str, A
     path = DEFAULT_SCOPE_DIR / f"{scope_id}.json"
     with path.open(encoding="utf-8") as f:
         return json.load(f)
+
+
+def default_analysis_school_names(
+    manifest_or_scope: Mapping[str, Any] | str | Path | None = None,
+    *,
+    include_aliases: bool = False,
+) -> list[str]:
+    """Return canonical school names in the default analysis scope."""
+
+    manifest = _resolve_manifest(manifest_or_scope)
+    names: list[str] = []
+    seen: set[str] = set()
+
+    for school in manifest.get("schools", []):
+        if not isinstance(school, Mapping):
+            continue
+        name = str(school.get("school_name", "")).strip()
+        if not name or name in seen:
+            continue
+        names.append(name)
+        seen.add(name)
+
+    if include_aliases:
+        for alias_group in manifest.get("alias_groups", []):
+            if not isinstance(alias_group, Mapping):
+                continue
+            for alias in alias_group.get("aliases", []):
+                name = str(alias).strip()
+                if not name or name in seen:
+                    continue
+                names.append(name)
+                seen.add(name)
+
+    return names
+
+
+def filter_default_analysis_school_options(
+    available_schools: Iterable[str],
+    manifest_or_scope: Mapping[str, Any] | str | Path | None = None,
+) -> list[str]:
+    """Return available schools limited to the default analysis scope."""
+
+    available = {str(school).strip() for school in available_schools if str(school).strip()}
+    scoped = [school for school in default_analysis_school_names(manifest_or_scope) if school in available]
+    return sorted(scoped or available)
 
 
 def annotate_default_analysis_flags(

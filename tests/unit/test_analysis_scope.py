@@ -5,6 +5,8 @@ import pandas as pd
 from utils.analysis_scope import (
     annotate_default_analysis_flags,
     apply_default_analysis_scope,
+    default_analysis_school_names,
+    filter_default_analysis_school_options,
     load_default_analysis_scope,
 )
 
@@ -16,6 +18,39 @@ def test_load_default_analysis_scope_contains_34_schools_and_aliases() -> None:
     assert len(scope["schools"]) == 34
     assert any(group["aliases"] == ["그리스도대학교", "케이씨대학교"] for group in scope["alias_groups"])
     assert any(group["aliases"] == ["한영신학대학교"] for group in scope["alias_groups"])
+
+
+def test_default_analysis_school_names_returns_canonical_names_only_by_default() -> None:
+    names = default_analysis_school_names()
+
+    assert len(names) == 34
+    assert "성신여자대학교" in names
+    assert "그리스도대학교" not in names
+    assert "케이씨대학교" not in names
+    assert "한영신학대학교" not in names
+
+
+def test_default_analysis_school_names_can_include_aliases() -> None:
+    names = default_analysis_school_names(include_aliases=True)
+
+    assert "강서대학교" in names
+    assert "그리스도대학교" in names
+    assert "케이씨대학교" in names
+    assert "한영신학대학교" in names
+
+
+def test_filter_default_analysis_school_options_limits_available_schools_to_scope() -> None:
+    options = filter_default_analysis_school_options(
+        ["성신여자대학교", "숙명여자대학교", "가천대학교", "서울대학교"]
+    )
+
+    assert options == ["성신여자대학교", "숙명여자대학교"]
+
+
+def test_filter_default_analysis_school_options_falls_back_when_scope_has_no_overlap() -> None:
+    options = filter_default_analysis_school_options(["테스트대학교", "샘플대학교"])
+
+    assert options == ["샘플대학교", "테스트대학교"]
 
 
 def test_annotate_default_analysis_flags_prefers_column_filters() -> None:

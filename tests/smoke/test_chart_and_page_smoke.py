@@ -6,7 +6,9 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from streamlit.testing.v1 import AppTest
 
+from utils.auth import AuthenticatedUser, ROLE_ADMIN
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
 
 
@@ -16,6 +18,19 @@ PAGE_DIR = ROOT_DIR / "pages"
 
 def _iter_streamlit_entrypoints() -> list[Path]:
     return [ROOT_DIR / "app.py", *sorted(PAGE_DIR.glob("*.py"))]
+
+
+def _iter_metric_pages() -> list[Path]:
+    return sorted(PAGE_DIR.glob("[1-9]*.py"))
+
+
+def _fake_authenticated_user() -> AuthenticatedUser:
+    return AuthenticatedUser(
+        email="qa@example.com",
+        name="QA",
+        role=ROLE_ADMIN,
+        is_admin=True,
+    )
 
 
 class TestChartSmoke:
@@ -160,3 +175,68 @@ class TestPageSmoke:
     )
     def test_shared_page_modules_import(self, module_name: str) -> None:
         importlib.import_module(module_name)
+
+    @pytest.mark.parametrize("path", [ROOT_DIR / "app.py", PAGE_DIR / "0_경영_인사이트_대시보드.py", *_iter_metric_pages()], ids=lambda path: path.name)
+    def test_mobile_compact_pages_run_without_exceptions(self, path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_authenticated_user)
+        app = AppTest.from_file(str(path), default_timeout=20)
+        app.session_state["mobile_compact_mode"] = True
+
+        app.run()
+
+        assert [exception.message for exception in app.exception] == []
+
+    @pytest.mark.parametrize("path", _iter_metric_pages(), ids=lambda path: path.name)
+    def test_mobile_compact_metric_pages_hide_comparison_multiselects(
+        self,
+        path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_authenticated_user)
+        app = AppTest.from_file(str(path), default_timeout=20)
+        app.session_state["mobile_compact_mode"] = True
+
+        app.run()
+
+        assert [exception.message for exception in app.exception] == []
+        assert len(app.multiselect) == 0
+        assert any("최근연도 비교" in subheader.value for subheader in app.subheader)
+
+    def test_mobile_compact_management_hides_comparison_school_picker(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_authenticated_user)
+        app = AppTest.from_file(str(PAGE_DIR / "0_경영_인사이트_대시보드.py"), default_timeout=20)
+        app.session_state["mobile_compact_mode"] = True
+
+        app.run()
+
+        assert [exception.message for exception in app.exception] == []
+        assert [multiselect.label for multiselect in app.multiselect] == ["지표 영역"]
+
+    def test_mobile_compact_management_correlation_uses_table_summary(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_authenticated_user)
+        app = AppTest.from_file(str(PAGE_DIR / "0_경영_인사이트_대시보드.py"), default_timeout=20)
+        app.session_state["mobile_compact_mode"] = True
+        app.session_state["management_compact_section"] = "상관관계"
+
+        app.run()
+
+        assert [exception.message for exception in app.exception] == []
+        assert any(
+            "모바일에서는 히트맵 대신 상관 강도가 큰 지표 조합을 표로 보여줍니다" in caption.value
+            for caption in app.caption
+        )
+        assert len(app.dataframe) >= 1

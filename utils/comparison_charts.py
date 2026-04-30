@@ -185,6 +185,187 @@ def build_chart_frame(
     return pd.concat([selected_df, group_average_df], ignore_index=True)
 
 
+def build_mobile_latest_comparison_frame(
+    chart_df: pd.DataFrame,
+    *,
+    metric: MetricSpec,
+    year_col: str,
+    school_col: str,
+    selected_schools: Sequence[str],
+    group_definitions: Mapping[str, Sequence[str]],
+) -> pd.DataFrame:
+    """Build a compact latest-year comparison for mobile screens."""
+
+    required_columns = {year_col, school_col, metric.value_col}
+    if chart_df.empty or not required_columns.issubset(chart_df.columns):
+        return pd.DataFrame()
+
+    average_line_names = {
+        f"{group_name} {AVERAGE_LINE_SUFFIX}"
+        for group_name, schools_in_group in group_definitions.items()
+        if group_name and schools_in_group
+    }
+    visible_rows = [
+        *selected_schools,
+        *sorted(average_line_names),
+    ]
+    visible_rows = list(dict.fromkeys(row for row in visible_rows if row in set(chart_df[school_col].dropna())))
+    if not visible_rows:
+        return pd.DataFrame()
+
+    working = chart_df[[year_col, school_col, metric.value_col]].copy()
+    working["_year_sort"] = pd.to_numeric(working[year_col], errors="coerce")
+    working[metric.value_col] = pd.to_numeric(working[metric.value_col], errors="coerce")
+    working = working.dropna(subset=["_year_sort", metric.value_col])
+    working = working[working[school_col].isin(visible_rows)]
+    if working.empty:
+        return pd.DataFrame()
+
+    latest_year_sort = working["_year_sort"].max()
+    previous_years = working.loc[working["_year_sort"] < latest_year_sort, "_year_sort"]
+    previous_year_sort = previous_years.max() if not previous_years.empty else None
+    latest_year = int(latest_year_sort) if float(latest_year_sort).is_integer() else latest_year_sort
+
+    latest_values = (
+        working[working["_year_sort"] == latest_year_sort]
+        .groupby(school_col, as_index=False)[metric.value_col]
+        .mean()
+    )
+    latest_values = latest_values.set_index(school_col).reindex(visible_rows).dropna().reset_index()
+    if latest_values.empty:
+        return pd.DataFrame()
+
+    if previous_year_sort is not None and pd.notna(previous_year_sort):
+        previous_values = (
+            working[working["_year_sort"] == previous_year_sort]
+            .groupby(school_col)[metric.value_col]
+            .mean()
+        )
+        latest_values["전년 대비"] = latest_values[metric.value_col] - latest_values[school_col].map(previous_values)
+    else:
+        latest_values["전년 대비"] = pd.NA
+
+    latest_values["최신연도"] = latest_year
+    latest_values["순위"] = (
+        latest_values[metric.value_col]
+        .rank(method="dense", ascending=not metric.higher_is_better)
+        .astype(int)
+    )
+    latest_values["구분"] = latest_values[school_col].map(
+        lambda name: "비교그룹 평균" if name in average_line_names else "선택 학교"
+    )
+    return latest_values.sort_values(["순위", school_col]).reset_index(drop=True)
+
+
+def _format_mobile_metric_value(value: object, precision: int) -> str:
+    numeric = pd.to_numeric(value, errors="coerce")
+    if pd.isna(numeric):
+        return "-"
+    return f"{float(numeric):,.{precision}f}"
+
+
+def _format_mobile_delta(value: object, precision: int) -> str:
+    numeric = pd.to_numeric(value, errors="coerce")
+    if pd.isna(numeric):
+        return "-"
+    return f"{float(numeric):+,.{precision}f}"
+
+
+def render_mobile_latest_comparison(
+    chart_df: pd.DataFrame,
+    *,
+    metric: MetricSpec,
+    year_col: str,
+    school_col: str,
+    selected_schools: Sequence[str],
+    group_definitions: Mapping[str, Sequence[str]],
+    title: str = "최근연도 비교",
+    caption: str = "모바일에서는 히트맵 대신 최신연도 순위와 전년 대비 변화를 보여줍니다.",
+) -> None:
+    st.subheader(title)
+    st.caption(caption)
+
+    latest_frame = build_mobile_latest_comparison_frame(
+        chart_df,
+        metric=metric,
+        year_col=year_col,
+        school_col=school_col,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+    )
+    if latest_frame.empty:
+        st.info("최근연도 비교를 표시할 데이터가 없습니다.")
+        return
+
+    unit = _unit_from_metric(metric)
+    colors = [
+        "#F6C453" if category == "비교그룹 평균" else "#6EA8FF"
+        for category in latest_frame["구분"]
+    ]
+    value_labels = [
+        _format_mobile_metric_value(value, metric.precision)
+        for value in latest_frame[metric.value_col]
+    ]
+    fig = go.Figure(
+        go.Bar(
+            x=latest_frame[metric.value_col],
+            y=latest_frame[school_col],
+            orientation="h",
+            marker={"color": colors},
+            text=value_labels,
+            textposition="auto",
+            customdata=latest_frame[["순위", "구분", "전년 대비"]],
+            hovertemplate=(
+                "학교명=%{y}<br>"
+                f"{metric.label}=%{{x:.{metric.precision}f}}{unit}<br>"
+                "순위=%{customdata[0]}위<br>"
+                "구분=%{customdata[1]}<br>"
+                f"전년 대비=%{{customdata[2]:+.{metric.precision}f}}<extra></extra>"
+            ),
+        )
+    )
+    if metric.threshold is not None:
+        fig.add_vline(
+            x=metric.threshold.value,
+            line_dash=metric.threshold.dash,
+            line_color=metric.threshold.color or "#F59E0B",
+            annotation_text=metric.threshold.label,
+            annotation_font_color="#F8FBFF",
+        )
+    fig.update_layout(
+        height=max(300, min(460, 54 * len(latest_frame) + 120)),
+        margin={"l": 8, "r": 12, "t": 24, "b": 48},
+        paper_bgcolor="rgba(15, 23, 42, 0.0)",
+        plot_bgcolor="rgba(15, 23, 42, 0.82)",
+        font={"size": 11, "color": "#E5EDF7"},
+        showlegend=False,
+    )
+    fig.update_xaxes(
+        title=f"{metric.label} ({unit})",
+        title_font={"size": 11, "color": "#F8FBFF"},
+        tickfont={"size": 10, "color": "#DDE6F3"},
+        gridcolor="rgba(148, 163, 184, 0.12)",
+        zeroline=False,
+    )
+    fig.update_yaxes(
+        autorange="reversed",
+        tickfont={"size": 10, "color": "#E7EEF8"},
+        automargin=True,
+    )
+    disable_mobile_plotly_zoom(fig)
+    st.plotly_chart(fig, width="stretch", config=get_plotly_chart_config())
+
+    table_frame = latest_frame[[school_col, "구분", "순위", "최신연도", metric.value_col, "전년 대비"]].copy()
+    table_frame = table_frame.rename(columns={metric.value_col: f"{metric.label} ({unit})"})
+    table_frame[f"{metric.label} ({unit})"] = table_frame[f"{metric.label} ({unit})"].map(
+        lambda value: _format_mobile_metric_value(value, metric.precision)
+    )
+    table_frame["전년 대비"] = table_frame["전년 대비"].map(
+        lambda value: _format_mobile_delta(value, metric.precision)
+    )
+    st.dataframe(table_frame, width="stretch", hide_index=True)
+
+
 def build_chart_styler(
     selected_schools: Sequence[str],
     group_definitions: Mapping[str, Sequence[str]],
@@ -449,6 +630,21 @@ def render_comparison_heatmap(
     caption: str,
     hover_value_label: str,
 ) -> None:
+    if is_mobile_compact_mode():
+        mobile_title = title.replace("히트맵", "최근연도 비교")
+        if mobile_title == title:
+            mobile_title = f"{title} 최근연도 비교"
+        render_mobile_latest_comparison(
+            chart_df,
+            metric=metric,
+            year_col=year_col,
+            school_col=school_col,
+            selected_schools=selected_schools,
+            group_definitions=group_definitions,
+            title=mobile_title,
+        )
+        return
+
     st.subheader(title)
     st.caption(caption)
 

@@ -6,8 +6,13 @@ from ui import SidebarMeta
 
 import streamlit as st
 
-from utils.comparison_profile import comparison_profile_signature, current_comparison_profile_store
+from utils.comparison_profile import (
+    comparison_group_definitions,
+    comparison_profile_signature,
+    current_comparison_profile_store,
+)
 from utils.source_display import format_source_caption
+from utils.theme import is_mobile_compact_mode
 
 
 DEFAULT_CUSTOM_PRESET_LABEL = "직접 구성"
@@ -208,6 +213,19 @@ def _display_group_title(title: str) -> str:
     return "현재 화면용 비교그룹" if title.strip() == "비교 대상 그룹" else title
 
 
+def _render_mobile_group_summary(group_definitions: Mapping[str, Sequence[str]]) -> None:
+    st.markdown("#### 기본 비교그룹 적용")
+    if not group_definitions:
+        st.caption("저장된 비교그룹 없음")
+    else:
+        summary = ", ".join(
+            f"{group_name}({len(schools)}개교)"
+            for group_name, schools in group_definitions.items()
+        )
+        st.caption(summary)
+    st.link_button("비교대학 설정에서 변경", "/비교대학_설정")
+
+
 def build_group_definitions(
     schools: Sequence[str],
     *,
@@ -226,6 +244,11 @@ def build_group_definitions(
     group_schools_help: str = "그룹에 포함할 학교를 직접 조정할 수 있습니다.",
     default_group_name_template: str = "그룹 {slot}",
 ) -> dict[str, list[str]]:
+    if is_mobile_compact_mode():
+        mobile_groups = comparison_group_definitions(schools)
+        _render_mobile_group_summary(mobile_groups)
+        return mobile_groups
+
     preset_options = list(group_presets.keys())
     try:
         profile = current_comparison_profile_store().load(schools)

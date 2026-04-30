@@ -12,6 +12,7 @@ from utils.comparison_profile import (
     default_selected_schools,
     selected_schools_from_profile,
 )
+from utils.theme import is_mobile_compact_mode
 
 from .models import SidebarConfig
 
@@ -51,6 +52,16 @@ def _comparison_school_label(label: str) -> str:
     return label
 
 
+def _format_school_summary(schools: Sequence[str], *, limit: int = 4) -> str:
+    selected = list(schools)
+    if not selected:
+        return "저장된 비교대학이 없어 기본 학교만 표시됩니다."
+    visible = ", ".join(selected[:limit])
+    if len(selected) <= limit:
+        return visible
+    return f"{visible} 외 {len(selected) - limit}개교"
+
+
 def render_school_sidebar(
     *,
     schools: Sequence[str],
@@ -69,6 +80,11 @@ def render_school_sidebar(
     profile_stamp_key = f"{key_prefix}_comparison_profile_signature" if key_prefix else None
     reset_key = f"{key_prefix}_reset_comparison_profile" if key_prefix else None
     values: dict[str, Any] = {}
+    mobile_compact = is_mobile_compact_mode()
+
+    if mobile_compact and sidebar_config.show_profile_controls:
+        st.info(f"기본 비교군 적용 중: {_format_school_summary(default_selection)}")
+        st.link_button("비교대학 설정에서 변경", "/비교대학_설정")
 
     if selection_key and profile_stamp_key:
         if st.session_state.get(profile_stamp_key) != profile_signature:
@@ -83,8 +99,9 @@ def render_school_sidebar(
             )
 
     with st.sidebar:
-        st.header(sidebar_config.header)
-        if sidebar_config.show_profile_controls:
+        if not mobile_compact:
+            st.header(sidebar_config.header)
+        if sidebar_config.show_profile_controls and not mobile_compact:
             st.caption(sidebar_config.profile_notice)
             if selection_key and reset_key and st.button(sidebar_config.profile_reset_label, key=reset_key):
                 st.session_state[selection_key] = list(default_selection)
@@ -105,7 +122,9 @@ def render_school_sidebar(
                 horizontal=radio.horizontal,
             )
 
-        if selection_key:
+        if mobile_compact:
+            values["selected_schools"] = list(default_selection)
+        elif selection_key:
             values["selected_schools"] = st.multiselect(
                 school_label,
                 list(schools),
