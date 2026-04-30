@@ -33,7 +33,7 @@ from utils.comparison_page import render_dual_metric_sections, render_single_sch
 from utils.comparison_sidebar import build_default_group_preset_config, build_group_definitions, build_standard_sidebar_meta
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
-from utils.theme import apply_app_theme
+from utils.theme import apply_app_theme, apply_mobile_plotly_layout, get_plotly_chart_config
 
 
 PAGE = get_metric("research")
@@ -127,7 +127,8 @@ def render_metric_section(
             dash=metric.threshold.dash,
         )
     chart_styler(fig)
-    st.plotly_chart(fig, use_container_width=True)
+    apply_mobile_plotly_layout(fig)
+    st.plotly_chart(fig, use_container_width=True, config=get_plotly_chart_config())
 
     render_focus_range_chart(
         chart_df,

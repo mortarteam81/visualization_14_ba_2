@@ -27,7 +27,7 @@ from utils.comparison_charts import (
 from utils.comparison_sidebar import build_default_group_preset_config, build_group_definitions, build_standard_sidebar_meta
 from utils.config import DATA_UPDATED
 from utils.query import get_dataset
-from utils.theme import apply_app_theme
+from utils.theme import apply_app_theme, is_mobile_compact_mode
 
 
 PAGE = get_metric("faculty_securing_reference")
@@ -115,36 +115,62 @@ def _build_cumulative_long_frame(
     return pd.concat(pieces, ignore_index=True)
 
 
+def _plotly_config() -> dict:
+    config = {"responsive": True}
+    if is_mobile_compact_mode():
+        config["displayModeBar"] = False
+    return config
+
+
+def _render_cumulative_comparison_basis(
+    filtered_df: pd.DataFrame,
+    basis: str,
+    series_tuple: Sequence,
+) -> None:
+    metrics = [build_metric(series) for series in series_tuple]
+    long_df = _build_cumulative_long_frame(filtered_df, metrics=metrics)
+    fig = create_trend_line_chart(
+        long_df,
+        x=YEAR_COL,
+        y="확보율",
+        color="비교항목",
+        title=f"{basis} 누적 교원확보율 비교",
+        y_label="교원확보율 (%)",
+    )
+    add_threshold_hline(
+        fig,
+        threshold=STANDARD_RATE,
+        label="교원확보율 100%",
+        dash="dot",
+    )
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
+
+    with st.expander(f"{basis} 연도별 데이터", expanded=False):
+        if is_mobile_compact_mode():
+            st.caption("표는 좌우로 스크롤해서 전체 열을 확인할 수 있습니다.")
+        table_columns = [YEAR_COL, SCHOOL_COL, *[metric.value_col for metric in metrics]]
+        st.dataframe(
+            filtered_df[table_columns].sort_values([SCHOOL_COL, YEAR_COL]),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+
 def render_cumulative_comparison_tabs(filtered_df: pd.DataFrame) -> None:
     st.subheader("전임·겸임포함·초빙포함 누적 확보율")
+    if is_mobile_compact_mode():
+        basis = st.selectbox(
+            "누적 확보율 기준",
+            list(SERIES_BY_BASIS),
+            key=f"{PAGE.id}_compact_cumulative_basis",
+        )
+        _render_cumulative_comparison_basis(filtered_df, basis, SERIES_BY_BASIS[basis])
+        return
+
     tabs = st.tabs(list(SERIES_BY_BASIS))
     for tab, (basis, series_tuple) in zip(tabs, SERIES_BY_BASIS.items()):
         with tab:
-            metrics = [build_metric(series) for series in series_tuple]
-            long_df = _build_cumulative_long_frame(filtered_df, metrics=metrics)
-            fig = create_trend_line_chart(
-                long_df,
-                x=YEAR_COL,
-                y="확보율",
-                color="비교항목",
-                title=f"{basis} 누적 교원확보율 비교",
-                y_label="교원확보율 (%)",
-            )
-            add_threshold_hline(
-                fig,
-                threshold=STANDARD_RATE,
-                label="교원확보율 100%",
-                dash="dot",
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-            with st.expander(f"{basis} 연도별 데이터", expanded=False):
-                table_columns = [YEAR_COL, SCHOOL_COL, *[metric.value_col for metric in metrics]]
-                st.dataframe(
-                    filtered_df[table_columns].sort_values([SCHOOL_COL, YEAR_COL]),
-                    use_container_width=True,
-                    hide_index=True,
-                )
+            _render_cumulative_comparison_basis(filtered_df, basis, series_tuple)
 
 
 def main() -> None:

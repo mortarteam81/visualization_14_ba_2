@@ -5,6 +5,9 @@ from __future__ import annotations
 import streamlit as st
 
 
+MOBILE_COMPACT_MODE_KEY = "mobile_compact_mode"
+
+
 DARK_THEME_CSS = """
 <style>
 :root {
@@ -228,11 +231,144 @@ a {
 [data-testid="stSidebar"] span {
     color: var(--text-secondary) !important;
 }
+
+@media (max-width: 768px) {
+    .block-container {
+        max-width: 100%;
+        padding: 1rem 0.75rem 2rem;
+    }
+
+    h1 {
+        font-size: 1.55rem !important;
+        line-height: 1.25 !important;
+    }
+
+    h2 {
+        font-size: 1.28rem !important;
+        line-height: 1.3 !important;
+    }
+
+    h3 {
+        font-size: 1.12rem !important;
+        line-height: 1.35 !important;
+    }
+
+    [data-testid="stHorizontalBlock"] {
+        gap: 0.75rem;
+    }
+
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+    }
+
+    [data-testid="stMetric"] {
+        padding: 0.85rem 0.95rem;
+    }
+
+    [data-testid="stMetricLabel"] {
+        font-size: 0.85rem !important;
+    }
+
+    [data-testid="stMetricValue"] {
+        font-size: 1.35rem !important;
+    }
+
+    [data-testid="stTabs"] [data-baseweb="tab-list"] {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.25rem;
+    }
+
+    [data-testid="stTabs"] [data-baseweb="tab"] {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 0.4rem 0.7rem;
+    }
+
+    [data-testid="stDataFrame"] {
+        overflow-x: auto;
+    }
+
+    .js-plotly-plot,
+    .plotly,
+    [data-testid="stPlotlyChart"] {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .stButton > button,
+    .stDownloadButton > button {
+        width: 100%;
+        min-height: 2.75rem;
+    }
+
+    [data-testid="stSidebar"] {
+        border-right: 0;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        font-size: 0.92rem;
+    }
+}
 </style>
 """
+
+
+def is_mobile_compact_mode() -> bool:
+    """Return whether the user enabled the mobile-friendly compact layout."""
+
+    return bool(st.session_state.get(MOBILE_COMPACT_MODE_KEY, False))
+
+
+def render_mobile_compact_toggle() -> None:
+    """Render the shared mobile compact layout toggle in the sidebar."""
+
+    with st.sidebar:
+        st.toggle(
+            "모바일 간편보기",
+            value=False,
+            key=MOBILE_COMPACT_MODE_KEY,
+            help=(
+                "스마트폰에서 KPI, 탭, 표, AI 분석 영역을 세로형으로 단순화합니다. "
+                "PC 기본 화면은 토글을 끄면 그대로 유지됩니다."
+            ),
+        )
+
+
+def get_plotly_chart_config() -> dict[str, bool]:
+    """Return the shared Plotly config for responsive Streamlit charts."""
+
+    config = {"responsive": True}
+    if is_mobile_compact_mode():
+        config["displayModeBar"] = False
+    return config
+
+
+def apply_mobile_plotly_layout(fig, *, height: int = 360, legend_y: float = -0.36) -> None:
+    """Make dense Plotly charts easier to scan in mobile compact mode."""
+
+    if not is_mobile_compact_mode():
+        return
+
+    fig.update_layout(
+        height=height,
+        margin=dict(l=8, r=8, t=52, b=32),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=legend_y,
+            xanchor="left",
+            x=0,
+            font=dict(size=10),
+        ),
+        font=dict(size=11),
+    )
 
 
 def apply_app_theme() -> None:
     """Inject the shared dark theme CSS once per page render."""
 
     st.markdown(DARK_THEME_CSS, unsafe_allow_html=True)
+    render_mobile_compact_toggle()

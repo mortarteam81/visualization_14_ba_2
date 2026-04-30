@@ -38,7 +38,7 @@ from utils.management_insights import (
     metric_map,
     pending_metric_roadmap_frame,
 )
-from utils.theme import apply_app_theme
+from utils.theme import apply_app_theme, is_mobile_compact_mode
 
 
 st.set_page_config(
@@ -53,6 +53,13 @@ apply_app_theme()
 @st.cache_data(show_spinner="분석 데이터 구성 중...")
 def load_dashboard_data():
     return build_management_insight_dataset()
+
+
+def _plotly_config() -> dict:
+    config = {"responsive": True}
+    if is_mobile_compact_mode():
+        config["displayModeBar"] = False
+    return config
 
 
 def render_profile_chart(profile: pd.DataFrame) -> None:
@@ -96,7 +103,7 @@ def render_profile_chart(profile: pd.DataFrame) -> None:
     )
     fig.update_xaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
     fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.04)")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
 def render_profile_summary(profile: pd.DataFrame) -> None:
@@ -228,7 +235,7 @@ def render_quadrant_chart(
         },
         margin={"l": 48, "r": 32, "t": 36, "b": 132},
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
 def render_quadrant_path_chart(
@@ -299,7 +306,7 @@ def render_quadrant_path_chart(
     )
     fig.update_xaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
     fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
 def render_comparison_gap_trend_chart(frame: pd.DataFrame, *, metrics_by_key: dict) -> None:
@@ -345,7 +352,7 @@ def render_comparison_gap_trend_chart(frame: pd.DataFrame, *, metrics_by_key: di
     fig.update_xaxes(dtick=1, gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
     fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
     st.caption("조정 격차가 0보다 크면 지표 방향을 고려했을 때 기준 대학이 비교대학 평균보다 우위입니다.")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
 def render_correlation_heatmap(
@@ -385,7 +392,7 @@ def render_correlation_heatmap(
         margin={"l": 120, "r": 32, "t": 32, "b": 120},
     )
     fig.update_xaxes(tickangle=35)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
 def render_management_ai_list(title: str, items: list[str]) -> None:
@@ -667,10 +674,18 @@ if dataset.skipped_sources:
     with st.expander("불러오지 못한 구현 완료 지표", expanded=False):
         st.write("\n".join(f"- {item}" for item in dataset.skipped_sources))
 
-selected_quadrant_preset = QUADRANT_PRESETS[0]
-tabs = st.tabs(["강점/약점", "정책 사분면", "상관관계", "AI 분석", "지표 로드맵"])
+section_labels = ["강점/약점", "정책 사분면", "상관관계", "AI 분석", "지표 로드맵"]
 
-with tabs[0]:
+
+def _resolve_selected_quadrant_preset() -> tuple[str, str, str]:
+    selected_label = st.session_state.get("management_quadrant_preset", QUADRANT_PRESETS[0][0])
+    return next(
+        (preset for preset in QUADRANT_PRESETS if preset[0] == selected_label),
+        QUADRANT_PRESETS[0],
+    )
+
+
+def render_strength_weakness_section() -> None:
     profile = build_percentile_profile(
         dataset.long,
         dataset.metrics,
@@ -714,7 +729,8 @@ with tabs[0]:
     else:
         render_comparison_gap_trend_chart(gap_trend, metrics_by_key=metrics_by_key)
 
-with tabs[1]:
+
+def render_quadrant_section() -> tuple[str, str, str]:
     preset_labels = [preset[0] for preset in QUADRANT_PRESETS]
     selected_preset_label = st.selectbox(
         "사분면 프리셋",
@@ -762,8 +778,10 @@ with tabs[1]:
             metrics_by_key=metrics_by_key,
             focus_school=focus_school,
         )
+    return selected_quadrant_preset
 
-with tabs[2]:
+
+def render_correlation_section() -> None:
     correlation = build_rank_correlation(
         dataset.wide,
         included_metric_keys,
@@ -776,7 +794,8 @@ with tabs[2]:
         st.caption("상관관계는 정책 가설 탐색용이며 인과관계를 의미하지 않습니다.")
         render_correlation_heatmap(correlation, metrics_by_key=metrics_by_key)
 
-with tabs[3]:
+
+def render_ai_dashboard_section(quadrant_preset: tuple[str, str, str]) -> None:
     render_management_ai_panel(
         dataset=dataset,
         available_years=available_years,
@@ -784,12 +803,45 @@ with tabs[3]:
         focus_school=focus_school,
         comparison_schools=comparison_schools,
         selected_groups=selected_groups,
-        quadrant_preset=selected_quadrant_preset,
+        quadrant_preset=quadrant_preset,
     )
 
-with tabs[4]:
+
+def render_roadmap_section() -> None:
     st.dataframe(
         pending_metric_roadmap_frame().drop(columns=["metric_id"]),
         width="stretch",
         hide_index=True,
     )
+
+
+selected_quadrant_preset = _resolve_selected_quadrant_preset()
+if is_mobile_compact_mode():
+    selected_section = st.selectbox(
+        "대시보드 섹션",
+        section_labels,
+        key="management_compact_section",
+    )
+    st.markdown(f"### {selected_section}")
+    if selected_section == "강점/약점":
+        render_strength_weakness_section()
+    elif selected_section == "정책 사분면":
+        selected_quadrant_preset = render_quadrant_section()
+    elif selected_section == "상관관계":
+        render_correlation_section()
+    elif selected_section == "AI 분석":
+        render_ai_dashboard_section(selected_quadrant_preset)
+    else:
+        render_roadmap_section()
+else:
+    tabs = st.tabs(section_labels)
+    with tabs[0]:
+        render_strength_weakness_section()
+    with tabs[1]:
+        selected_quadrant_preset = render_quadrant_section()
+    with tabs[2]:
+        render_correlation_section()
+    with tabs[3]:
+        render_ai_dashboard_section(selected_quadrant_preset)
+    with tabs[4]:
+        render_roadmap_section()

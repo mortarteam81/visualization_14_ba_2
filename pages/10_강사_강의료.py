@@ -20,7 +20,7 @@ from utils.comparison_charts import (
 from utils.comparison_sidebar import build_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
-from utils.theme import apply_app_theme
+from utils.theme import apply_app_theme, apply_mobile_plotly_layout, get_plotly_chart_config
 
 
 PAGE = get_metric("lecturer_pay")
@@ -193,7 +193,8 @@ def render_zoomed_pay_chart(
     fig.update_traces(
         hovertemplate=f"{SCHOOL_COL}=%{{fullData.name}}<br>{YEAR_COL}=%{{x}}<br>강사 강의료=%{{y:,.0f}}원<extra></extra>"
     )
-    st.plotly_chart(fig, use_container_width=True)
+    apply_mobile_plotly_layout(fig)
+    st.plotly_chart(fig, use_container_width=True, config=get_plotly_chart_config())
 
 
 def main() -> None:

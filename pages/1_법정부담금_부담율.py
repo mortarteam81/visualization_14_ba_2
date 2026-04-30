@@ -23,7 +23,7 @@ from utils.comparison_sidebar import build_group_definitions as build_shared_gro
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 from utils.query import get_dataset
-from utils.theme import apply_app_theme
+from utils.theme import apply_app_theme, is_mobile_compact_mode
 
 
 PAGE = get_metric("budam")
@@ -64,6 +64,13 @@ GROUP_PRESETS = {
 }
 AI_RESULT_KEY = "budam_ai_analysis_result"
 AI_ERROR_KEY = "budam_ai_analysis_error"
+
+
+def _plotly_config() -> dict:
+    config = {"responsive": True}
+    if is_mobile_compact_mode():
+        config["displayModeBar"] = False
+    return config
 
 
 def _resolve_column_name(df: pd.DataFrame, preferred: str, aliases: list[str]) -> str:
@@ -454,7 +461,7 @@ def render_comparison_heatmap(
         tickfont={"size": 12, "color": "#E7EEF8"},
         autorange="reversed",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
 def render_bump_chart(
@@ -639,7 +646,7 @@ def render_bump_chart(
         gridcolor="rgba(148, 163, 184, 0.10)",
         zeroline=False,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
 def render_low_range_chart(
@@ -674,7 +681,7 @@ def render_low_range_chart(
         )
     chart_styler(fig)
     fig.update_yaxes(range=[0, LOW_RANGE_MAX])
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
 def _render_analysis_list(title: str, items: list[str]) -> None:
@@ -696,13 +703,18 @@ def render_ai_analysis_panel(
     st.subheader("AI 분석")
     st.caption("LM Studio 로컬 모델이 현재 선택 결과를 바탕으로 요약과 해석을 생성합니다.")
 
-    control_col1, control_col2, control_col3 = st.columns([1, 1, 1.2])
-    with control_col1:
+    if is_mobile_compact_mode():
         tone = st.selectbox("분석 톤", ["보고서형", "간결형"], key="budam_ai_tone")
-    with control_col2:
         focus = st.selectbox("분석 초점", ["선택 학교 중심", "그룹 비교 중심"], key="budam_ai_focus")
-    with control_col3:
         run_analysis = st.button("AI 분석 실행", width="stretch", type="primary")
+    else:
+        control_col1, control_col2, control_col3 = st.columns([1, 1, 1.2])
+        with control_col1:
+            tone = st.selectbox("분석 톤", ["보고서형", "간결형"], key="budam_ai_tone")
+        with control_col2:
+            focus = st.selectbox("분석 초점", ["선택 학교 중심", "그룹 비교 중심"], key="budam_ai_focus")
+        with control_col3:
+            run_analysis = st.button("AI 분석 실행", width="stretch", type="primary")
 
     if run_analysis:
         payload = build_budam_analysis_payload(
@@ -739,6 +751,26 @@ def render_ai_analysis_panel(
     result = st.session_state.get(AI_RESULT_KEY)
     if not result:
         st.info("분석 옵션을 선택한 뒤 `AI 분석 실행`을 누르면 현재 선택 학교와 그룹 기준 해석을 볼 수 있습니다.")
+        return
+
+    if is_mobile_compact_mode():
+        st.markdown("**핵심 요약**")
+        st.write(result["summary"] or "요약이 생성되지 않았습니다.")
+        st.markdown("**기준선 해석**")
+        st.write(result["threshold_assessment"] or "기준선 해석이 생성되지 않았습니다.")
+
+        st.markdown("**경영 시사점**")
+        management_implications = result.get("management_implications", [])
+        if management_implications:
+            for item in management_implications:
+                st.markdown(f"- {item}")
+        else:
+            st.caption("경영 시사점이 생성되지 않았습니다.")
+
+        _render_analysis_list("주요 시사점", result["highlights"])
+        _render_analysis_list("권고 액션", result["recommended_actions"])
+        _render_analysis_list("주의 요소", result["risks"])
+        _render_analysis_list("해석 유의사항", result["caveats"])
         return
 
     summary_col, threshold_col = st.columns([1.3, 1])

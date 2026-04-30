@@ -11,6 +11,7 @@ import streamlit as st
 from ui import MetricSpec
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
+from utils.theme import apply_mobile_plotly_layout, get_plotly_chart_config, is_mobile_compact_mode
 
 
 ChartStyler = Callable[[go.Figure], None]
@@ -427,7 +428,8 @@ def render_focus_range_chart(
     if resolved_range is not None:
         fig.update_yaxes(range=list(resolved_range))
 
-    st.plotly_chart(fig, use_container_width=True)
+    apply_mobile_plotly_layout(fig)
+    st.plotly_chart(fig, use_container_width=True, config=get_plotly_chart_config())
 
 
 def render_comparison_heatmap(
@@ -533,7 +535,16 @@ def render_comparison_heatmap(
         tickfont={"size": 12, "color": "#E7EEF8"},
         autorange="reversed",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    if is_mobile_compact_mode():
+        fig.update_layout(
+            height=min(height, 520),
+            margin={"l": 24, "r": 12, "t": 52, "b": 32},
+            title_font={"size": 18, "color": "#F8FBFF"},
+            font={"size": 10, "color": "#E5EDF7"},
+        )
+        fig.update_xaxes(title_font={"size": 12, "color": "#F8FBFF"}, tickfont={"size": 10, "color": "#DDE6F3"})
+        fig.update_yaxes(title_font={"size": 12, "color": "#F8FBFF"}, tickfont={"size": 10, "color": "#E7EEF8"})
+    st.plotly_chart(fig, use_container_width=True, config=get_plotly_chart_config())
 
 
 def render_bump_chart(
@@ -708,4 +719,22 @@ def render_bump_chart(
         gridcolor="rgba(148, 163, 184, 0.10)",
         zeroline=False,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    if is_mobile_compact_mode():
+        fig.update_layout(
+            height=min(max(360, 32 * len(row_order) + 96), 560),
+            margin={"l": 32, "r": 16, "t": 52, "b": 96},
+            title_font={"size": 18, "color": "#F8FBFF"},
+            font={"size": 10, "color": "#E5EDF7"},
+            legend={
+                "orientation": "h",
+                "yanchor": "top",
+                "y": -0.16,
+                "xanchor": "left",
+                "x": 0,
+                "font": {"size": 10, "color": "#F8FBFF"},
+                "title": {"text": "학교명", "font": {"size": 11, "color": "#F6C453"}},
+            },
+        )
+        fig.update_xaxes(title_font={"size": 12, "color": "#F8FBFF"}, tickfont={"size": 10, "color": "#DDE6F3"})
+        fig.update_yaxes(title_font={"size": 12, "color": "#F8FBFF"}, tickfont={"size": 10, "color": "#DDE6F3"})
+    st.plotly_chart(fig, use_container_width=True, config=get_plotly_chart_config())

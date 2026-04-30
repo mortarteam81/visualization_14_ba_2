@@ -7,6 +7,8 @@ from typing import Iterable, Sequence
 import pandas as pd
 import streamlit as st
 
+from utils.theme import is_mobile_compact_mode
+
 from .models import KPIItem, MetricSpec
 
 
@@ -143,7 +145,7 @@ def render_kpis(items: Iterable[KPIItem], columns: int | None = None) -> None:
     if not item_list:
         return
 
-    column_count = columns or len(item_list)
+    column_count = 1 if is_mobile_compact_mode() else columns or len(item_list)
     containers = st.columns(column_count)
 
     for index, item in enumerate(item_list):

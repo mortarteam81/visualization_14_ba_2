@@ -8,6 +8,7 @@ import streamlit as st
 from ui import MetricSpec
 from utils.ai_analysis import analyze_metric_with_lmstudio, build_metric_analysis_payload
 from utils.ai_providers import LMStudioError
+from utils.theme import is_mobile_compact_mode
 
 
 def _render_analysis_list(title: str, items: list[str]) -> None:
@@ -17,6 +18,53 @@ def _render_analysis_list(title: str, items: list[str]) -> None:
         return
     for item in items:
         st.markdown(f"- {item}")
+
+
+def _render_analysis_result_desktop(result: dict) -> None:
+    summary_col, threshold_col = st.columns([1.3, 1])
+    with summary_col:
+        st.markdown("**요약**")
+        st.write(result["summary"] or "요약이 생성되지 않았습니다.")
+    with threshold_col:
+        st.markdown("**기준 해석**")
+        st.write(result["threshold_assessment"] or "기준 해석이 생성되지 않았습니다.")
+
+    st.markdown("**경영 시사점**")
+    management_implications = result.get("management_implications", [])
+    if management_implications:
+        for item in management_implications:
+            st.markdown(f"- {item}")
+    else:
+        st.caption("경영 시사점이 생성되지 않았습니다.")
+
+    detail_col1, detail_col2 = st.columns(2)
+    with detail_col1:
+        _render_analysis_list("주요 시사점", result["highlights"])
+        _render_analysis_list("권고 액션", result["recommended_actions"])
+    with detail_col2:
+        _render_analysis_list("주의 요소", result["risks"])
+        _render_analysis_list("해석 유의사항", result["caveats"])
+
+
+def _render_analysis_result_mobile(result: dict) -> None:
+    st.markdown("**요약**")
+    st.write(result["summary"] or "요약이 생성되지 않았습니다.")
+
+    st.markdown("**기준 해석**")
+    st.write(result["threshold_assessment"] or "기준 해석이 생성되지 않았습니다.")
+
+    st.markdown("**경영 시사점**")
+    management_implications = result.get("management_implications", [])
+    if management_implications:
+        for item in management_implications:
+            st.markdown(f"- {item}")
+    else:
+        st.caption("경영 시사점이 생성되지 않았습니다.")
+
+    _render_analysis_list("주요 시사점", result["highlights"])
+    _render_analysis_list("권고 액션", result["recommended_actions"])
+    _render_analysis_list("주의 요소", result["risks"])
+    _render_analysis_list("해석 유의사항", result["caveats"])
 
 
 def render_metric_ai_analysis_panel(
@@ -40,15 +88,21 @@ def render_metric_ai_analysis_panel(
     metric_options = {metric.label: metric for metric in metrics}
     metric_labels = list(metric_options.keys())
 
-    control_col1, control_col2, control_col3, control_col4 = st.columns([1.1, 1.1, 1.1, 1.2])
-    with control_col1:
+    if is_mobile_compact_mode():
         selected_metric_label = st.selectbox("분석 지표", metric_labels, key=f"{page_key}_ai_metric")
-    with control_col2:
         tone = st.selectbox("분석 톤", ["실무 보고형", "전략 제안형"], key=f"{page_key}_ai_tone")
-    with control_col3:
         focus = st.selectbox("분석 초점", ["선택 학교 중심", "비교 그룹 중심"], key=f"{page_key}_ai_focus")
-    with control_col4:
         run_analysis = st.button("AI 분석 실행", width="stretch", type="primary", key=f"{page_key}_ai_run")
+    else:
+        control_col1, control_col2, control_col3, control_col4 = st.columns([1.1, 1.1, 1.1, 1.2])
+        with control_col1:
+            selected_metric_label = st.selectbox("분석 지표", metric_labels, key=f"{page_key}_ai_metric")
+        with control_col2:
+            tone = st.selectbox("분석 톤", ["실무 보고형", "전략 제안형"], key=f"{page_key}_ai_tone")
+        with control_col3:
+            focus = st.selectbox("분석 초점", ["선택 학교 중심", "비교 그룹 중심"], key=f"{page_key}_ai_focus")
+        with control_col4:
+            run_analysis = st.button("AI 분석 실행", width="stretch", type="primary", key=f"{page_key}_ai_run")
 
     selected_metric = metric_options[selected_metric_label]
 
@@ -92,26 +146,7 @@ def render_metric_ai_analysis_panel(
         st.info("분석 옵션을 선택한 뒤 `AI 분석 실행`을 누르면 현재 선택 학교와 그룹 기준 해석을 볼 수 있습니다.")
         return
 
-    summary_col, threshold_col = st.columns([1.3, 1])
-    with summary_col:
-        st.markdown("**요약**")
-        st.write(result["summary"] or "요약이 생성되지 않았습니다.")
-    with threshold_col:
-        st.markdown("**기준 해석**")
-        st.write(result["threshold_assessment"] or "기준 해석이 생성되지 않았습니다.")
-
-    st.markdown("**경영 시사점**")
-    management_implications = result.get("management_implications", [])
-    if management_implications:
-        for item in management_implications:
-            st.markdown(f"- {item}")
+    if is_mobile_compact_mode():
+        _render_analysis_result_mobile(result)
     else:
-        st.caption("경영 시사점이 생성되지 않았습니다.")
-
-    detail_col1, detail_col2 = st.columns(2)
-    with detail_col1:
-        _render_analysis_list("주요 시사점", result["highlights"])
-        _render_analysis_list("권고 액션", result["recommended_actions"])
-    with detail_col2:
-        _render_analysis_list("주의 요소", result["risks"])
-        _render_analysis_list("해석 유의사항", result["caveats"])
+        _render_analysis_result_desktop(result)

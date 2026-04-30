@@ -7,7 +7,21 @@ from typing import Mapping
 import pandas as pd
 import streamlit as st
 
+from utils.theme import is_mobile_compact_mode
+
 from .models import MetricSpec
+
+
+def _render_mobile_table_hint() -> None:
+    if is_mobile_compact_mode():
+        st.caption("모바일에서는 표를 좌우로 스크롤해 자세한 값을 확인할 수 있습니다.")
+
+
+def _render_table(df: pd.DataFrame, *, mobile_height: int) -> None:
+    kwargs: dict[str, object] = {"width": "stretch"}
+    if is_mobile_compact_mode():
+        kwargs["height"] = mobile_height
+    st.dataframe(df, **kwargs)
 
 
 def build_yearly_stats(
@@ -54,7 +68,8 @@ def render_stats_table(
 ) -> None:
     if title:
         st.subheader(title)
-    st.dataframe(df, width="stretch")
+    _render_mobile_table_hint()
+    _render_table(df, mobile_height=280)
 
 
 def render_pivot_table(
@@ -64,7 +79,8 @@ def render_pivot_table(
     expanded: bool = False,
 ) -> None:
     with st.expander(label, expanded=expanded):
-        st.dataframe(df, width="stretch")
+        _render_mobile_table_hint()
+        _render_table(df, mobile_height=320)
 
 
 def render_definition_table(rows: Mapping[str, str], *, label: str = "용어 설명") -> None:
