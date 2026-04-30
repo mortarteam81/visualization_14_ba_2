@@ -38,7 +38,7 @@ from utils.management_insights import (
     metric_map,
     pending_metric_roadmap_frame,
 )
-from utils.theme import apply_app_theme, is_mobile_compact_mode
+from utils.theme import apply_app_theme, is_mobile_compact_mode, render_mobile_compact_toggle
 
 
 st.set_page_config(
@@ -584,6 +584,7 @@ years = default_year = default_analysis_year(dataset.long)
 
 st.title("경영 인사이트 대시보드")
 st.caption("구현 완료 지표만 계산에 사용한 정책 가설 탐색용 프로토타입")
+render_mobile_compact_toggle(placement="inline")
 
 if default_year is None:
     st.error("분석 가능한 구현 완료 지표 데이터가 없습니다.")
