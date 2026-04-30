@@ -77,13 +77,16 @@ class SidebarMeta:
 @dataclass(frozen=True)
 class SidebarConfig:
     header: str = "필터"
-    school_label: str = "학교 선택"
+    school_label: str = "현재 화면에 표시할 학교"
     school_help: str | None = None
     empty_selection_message: str = "사이드바에서 학교를 하나 이상 선택하세요."
     toggles: Sequence[SidebarToggle] = field(default_factory=tuple)
     radios: Sequence[SidebarRadio] = field(default_factory=tuple)
     meta_lines: Sequence[SidebarMeta] = field(default_factory=tuple)
     divider_after_controls: bool = True
+    show_profile_controls: bool = True
+    profile_notice: str = "저장된 기본 비교군을 기준으로 시작하며, 여기서 바꾼 선택은 현재 화면에만 적용됩니다."
+    profile_reset_label: str = "기본 비교군 다시 적용"
 
 
 @dataclass(frozen=True)

@@ -109,9 +109,29 @@ class TestPageSmoke:
         source = (PAGE_DIR / "00_비교대학_설정.py").read_text(encoding="utf-8")
 
         assert "auth_user.is_admin" in source
+        assert "기본 비교군 설정" in source
         assert "운영자 기본 비교군" in source
         assert "사용자 관리" in source
         assert "기존 사용자 수정" in source
+
+    def test_metric_pages_key_school_selection_by_metric_id(self) -> None:
+        missing_key_prefix: list[str] = []
+        for path in PAGE_DIR.glob("*.py"):
+            source = path.read_text(encoding="utf-8")
+            if "render_school_sidebar(" not in source:
+                continue
+            module = ast.parse(source, filename=str(path))
+            for node in ast.walk(module):
+                if not (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "render_school_sidebar"
+                ):
+                    continue
+                if not any(keyword.arg == "key_prefix" for keyword in node.keywords):
+                    missing_key_prefix.append(path.name)
+
+        assert missing_key_prefix == []
 
     def test_authenticated_user_can_logout_from_sidebar(self) -> None:
         source = (ROOT_DIR / "utils" / "auth.py").read_text(encoding="utf-8")

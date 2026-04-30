@@ -185,7 +185,7 @@ def _render_profile_editor(
     comparison_options = [school for school in school_options if school != base_school]
     _clean_comparison_state(prefix, base_school, comparison_options)
     comparison_schools = st.multiselect(
-        "비교대학",
+        "기본 비교대학",
         comparison_options,
         key=comparison_key,
         max_selections=MAX_COMPARISON_SCHOOLS,
@@ -194,20 +194,21 @@ def _render_profile_editor(
     if len(comparison_schools) < 3:
         st.warning("비교대학은 3개 이상을 권장합니다. 저장은 가능하지만 비교 평균의 대표성이 약해질 수 있습니다.")
 
-    st.markdown("### 비교 대상 그룹")
+    st.markdown("### 기본 비교그룹")
+    st.caption("각 지표 화면은 이 설정을 시작값으로 불러오며, 지표 화면에서 바꾼 값은 현재 화면에만 적용됩니다.")
     for slot in range(1, MAX_COMPARISON_GROUPS + 1):
         with st.expander(f"그룹 {slot}", expanded=slot == 1):
             st.text_input(
                 "그룹 이름",
                 key=_group_name_key(prefix, slot),
-                help="각 지표 페이지의 그룹 평균선 이름으로 사용됩니다.",
+                help="각 지표 페이지의 기본 그룹 평균선 이름으로 사용됩니다.",
             )
             _clean_group_state(prefix, slot, school_options)
             st.multiselect(
                 "그룹 학교",
                 school_options,
                 key=_group_schools_key(prefix, slot),
-                help="그룹을 사용하지 않으려면 학교를 선택하지 않은 상태로 두면 됩니다.",
+                help="기본 그룹을 사용하지 않으려면 학교를 선택하지 않은 상태로 두면 됩니다.",
             )
 
     comparison_groups = _profile_groups_from_selection(prefix)
@@ -223,8 +224,8 @@ def _render_profile_editor(
 
     summary_col1, summary_col2, summary_col3 = st.columns(3)
     summary_col1.metric("기준대학", preview_profile.base_school)
-    summary_col2.metric("비교대학", f"{len(preview_profile.comparison_schools)}개")
-    summary_col3.metric("비교 그룹", f"{len(preview_profile.comparison_groups)}개")
+    summary_col2.metric("기본 비교대학", f"{len(preview_profile.comparison_schools)}개")
+    summary_col3.metric("기본 비교그룹", f"{len(preview_profile.comparison_groups)}개")
 
     st.dataframe(
         [
@@ -373,19 +374,19 @@ def _render_user_management(auth_email: str, initial_admin_emails: tuple[str, ..
 
 
 st.set_page_config(
-    page_title="비교대학 설정 | 교육 여건 지표",
+    page_title="기본 비교군 설정 | 교육 여건 지표",
     page_icon=APP_ICON,
     layout="wide",
 )
 auth_user = require_authenticated_user()
 apply_app_theme()
 
-st.title("비교대학 설정")
+st.title("기본 비교군 설정")
 st.caption(APP_SUBTITLE)
 
 school_options = _load_school_options()
 if not school_options:
-    st.error("비교대학 설정에 사용할 학교 목록을 찾지 못했습니다.")
+    st.error("기본 비교군 설정에 사용할 학교 목록을 찾지 못했습니다.")
     st.stop()
 
 user_profile_store = DatabaseComparisonProfileStore.for_user(auth_user.email)
@@ -393,17 +394,17 @@ system_profile_store = DatabaseComparisonProfileStore.for_system()
 initial_admin_emails = initial_admin_emails_from_secrets()
 
 if auth_user.is_admin:
-    my_tab, system_tab, users_tab = st.tabs(["내 비교군", "운영자 기본 비교군", "사용자 관리"])
+    my_tab, system_tab, users_tab = st.tabs(["내 기본 비교군", "운영자 기본 비교군", "사용자 관리"])
     with my_tab:
         _render_profile_editor(
             prefix="my_comparison_profile",
-            title="내 비교군",
-            caption="내 계정에 저장되는 비교군입니다.",
-            profile_name="내 비교군",
+            title="내 기본 비교군",
+            caption="모든 지표 화면의 시작값으로 사용되는 내 기본 비교군입니다.",
+            profile_name="내 기본 비교군",
             store=user_profile_store,
             school_options=school_options,
-            save_notice="내 비교군을 저장했습니다.",
-            restore_notice="내 비교군을 초기화하고 운영자 기본 비교군을 적용했습니다.",
+            save_notice="내 기본 비교군을 저장했습니다.",
+            restore_notice="내 기본 비교군을 초기화하고 운영자 기본 비교군을 적용했습니다.",
             restore_action=user_profile_store.delete,
         )
     with system_tab:
@@ -423,12 +424,12 @@ if auth_user.is_admin:
 else:
     _render_profile_editor(
         prefix="my_comparison_profile",
-        title="내 비교군",
-        caption="내 계정에 저장되는 비교군입니다.",
-        profile_name="내 비교군",
+        title="내 기본 비교군",
+        caption="모든 지표 화면의 시작값으로 사용되는 내 기본 비교군입니다.",
+        profile_name="내 기본 비교군",
         store=user_profile_store,
         school_options=school_options,
-        save_notice="내 비교군을 저장했습니다.",
-        restore_notice="내 비교군을 초기화하고 운영자 기본 비교군을 적용했습니다.",
+        save_notice="내 기본 비교군을 저장했습니다.",
+        restore_notice="내 기본 비교군을 초기화하고 운영자 기본 비교군을 적용했습니다.",
         restore_action=user_profile_store.delete,
     )

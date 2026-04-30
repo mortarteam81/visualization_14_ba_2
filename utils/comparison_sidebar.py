@@ -6,7 +6,7 @@ from ui import SidebarMeta
 
 import streamlit as st
 
-from utils.comparison_profile import current_comparison_profile_store
+from utils.comparison_profile import comparison_profile_signature, current_comparison_profile_store
 from utils.source_display import format_source_caption
 
 
@@ -186,16 +186,26 @@ def _reset_group_state_if_profile_changed(
     *,
     key_prefix: str,
     slot_count: int,
-    profile_updated_at: str,
+    profile_signature: str,
 ) -> None:
-    stamp_key = f"{key_prefix}_comparison_profile_updated_at"
-    if st.session_state.get(stamp_key) == profile_updated_at:
+    stamp_key = f"{key_prefix}_comparison_group_profile_signature"
+    if st.session_state.get(stamp_key) == profile_signature:
         return
 
     for slot in range(1, slot_count + 1):
         for state_key in _group_state_keys(key_prefix, slot):
             st.session_state.pop(state_key, None)
-    st.session_state[stamp_key] = profile_updated_at
+    st.session_state[stamp_key] = profile_signature
+
+
+def _clear_group_state(key_prefix: str, slot_count: int) -> None:
+    for slot in range(1, slot_count + 1):
+        for state_key in _group_state_keys(key_prefix, slot):
+            st.session_state.pop(state_key, None)
+
+
+def _display_group_title(title: str) -> str:
+    return "현재 화면용 비교그룹" if title.strip() == "비교 대상 그룹" else title
 
 
 def build_group_definitions(
@@ -220,20 +230,24 @@ def build_group_definitions(
     try:
         profile = current_comparison_profile_store().load(schools)
         default_profile_groups = tuple((group.name, list(group.schools)) for group in profile.comparison_groups)
-        profile_updated_at = profile.updated_at or "default"
-    except (OSError, ValueError, TypeError):
+        profile_signature = comparison_profile_signature(profile)
+    except Exception:
         default_profile_groups = ()
-        profile_updated_at = "unavailable"
+        profile_signature = "comparison-profile-unavailable"
     _reset_group_state_if_profile_changed(
         key_prefix=key_prefix,
         slot_count=slot_count,
-        profile_updated_at=profile_updated_at,
+        profile_signature=profile_signature,
     )
 
     with st.sidebar:
         st.divider()
-        st.subheader(title)
+        st.subheader(_display_group_title(title))
         st.caption(caption)
+        st.caption("저장된 기본 비교그룹을 기준으로 시작하며, 여기서 바꾼 내용은 현재 화면에만 적용됩니다.")
+        if st.button("기본 비교그룹 다시 적용", key=f"{key_prefix}_reset_comparison_groups"):
+            _clear_group_state(key_prefix, slot_count)
+            st.rerun()
 
         for slot in range(1, slot_count + 1):
             _ensure_group_state(

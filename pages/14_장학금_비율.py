@@ -111,6 +111,7 @@ def main() -> None:
 
     sidebar_values = render_school_sidebar(
         schools=schools,
+        key_prefix=PAGE.id,
         default_schools=[PAGE.default_school] if PAGE.default_school in schools else schools[:1],
         config=SidebarConfig(
             header="학교 선택",

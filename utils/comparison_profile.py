@@ -237,6 +237,12 @@ def selected_schools_from_profile(
     return [school for school in selected if school in valid_schools]
 
 
+def comparison_profile_signature(profile: ComparisonProfile) -> str:
+    """Return a stable value that changes whenever a profile should reset page defaults."""
+
+    return json.dumps(profile.to_dict(), ensure_ascii=False, sort_keys=True)
+
+
 def default_selected_schools(
     schools: Sequence[str],
     *,

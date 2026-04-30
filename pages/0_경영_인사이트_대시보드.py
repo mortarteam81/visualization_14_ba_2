@@ -9,7 +9,11 @@ import streamlit as st
 
 from utils.ai_providers import LMStudioError
 from utils.auth import require_authenticated_user
-from utils.comparison_profile import MAX_COMPARISON_SCHOOLS, current_comparison_profile_store
+from utils.comparison_profile import (
+    MAX_COMPARISON_SCHOOLS,
+    comparison_profile_signature,
+    current_comparison_profile_store,
+)
 from utils.config import APP_ICON, APP_TITLE
 from utils.management_ai import (
     analyze_management_insight_with_lmstudio,
@@ -611,8 +615,20 @@ with st.sidebar:
     year_frame = dataset.long[dataset.long["year"] == selected_year]
     school_options = sorted(year_frame["school_name"].dropna().unique())
     comparison_profile = current_comparison_profile_store().load(school_options)
+    profile_signature = comparison_profile_signature(comparison_profile)
     default_school = comparison_profile.base_school if comparison_profile.base_school in school_options else school_options[0]
     focus_school_key = "management_focus_school"
+    comparison_schools_key = "management_comparison_schools"
+    profile_stamp_key = "management_comparison_profile_signature"
+    if st.session_state.get(profile_stamp_key) != profile_signature:
+        st.session_state.pop(focus_school_key, None)
+        st.session_state.pop(comparison_schools_key, None)
+        st.session_state[profile_stamp_key] = profile_signature
+    st.caption("저장된 기본 비교군을 기준으로 시작하며, 여기서 바꾼 선택은 현재 화면에만 적용됩니다.")
+    if st.button("기본 비교군 다시 적용", key="management_reset_comparison_profile"):
+        st.session_state.pop(focus_school_key, None)
+        st.session_state.pop(comparison_schools_key, None)
+        st.rerun()
     if st.session_state.get(focus_school_key) in school_options:
         focus_school = st.selectbox("기준 대학", school_options, key=focus_school_key)
     else:
@@ -629,7 +645,6 @@ with st.sidebar:
         for school in comparison_profile.comparison_schools
         if school in comparison_options
     ][:MAX_COMPARISON_SCHOOLS]
-    comparison_schools_key = "management_comparison_schools"
     if comparison_schools_key not in st.session_state:
         st.session_state[comparison_schools_key] = comparison_defaults
     else:

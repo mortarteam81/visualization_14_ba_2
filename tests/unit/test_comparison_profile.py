@@ -11,6 +11,7 @@ from utils.comparison_profile import (
     MAX_COMPARISON_GROUPS,
     MAX_COMPARISON_SCHOOLS,
     comparison_group_definitions,
+    comparison_profile_signature,
     default_comparison_profile,
     default_selected_schools,
     normalize_comparison_profile,
@@ -128,6 +129,19 @@ def test_selected_schools_from_profile_returns_base_then_comparisons() -> None:
     selected = selected_schools_from_profile(profile, SCHOOLS)
 
     assert selected == ["성신여자대학교", "숙명여자대학교", "덕성여자대학교"]
+
+
+def test_comparison_profile_signature_changes_when_defaults_change() -> None:
+    profile = _profile("성신여자대학교", ("숙명여자대학교",))
+    changed_comparisons = _profile("성신여자대학교", ("덕성여자대학교",))
+    changed_groups = _profile(
+        "성신여자대학교",
+        ("숙명여자대학교",),
+        (ComparisonGroup("여대 비교군", ("성신여자대학교", "숙명여자대학교")),),
+    )
+
+    assert comparison_profile_signature(profile) != comparison_profile_signature(changed_comparisons)
+    assert comparison_profile_signature(profile) != comparison_profile_signature(changed_groups)
 
 
 def test_normalize_profile_limits_comparison_groups_and_filters_schools() -> None:

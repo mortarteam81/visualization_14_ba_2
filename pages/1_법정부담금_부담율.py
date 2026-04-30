@@ -18,10 +18,10 @@ from utils.ai_analysis import analyze_budam_with_lmstudio, build_budam_analysis_
 from utils.ai_providers import LMStudioError
 from utils.auth import require_authenticated_user
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
-from utils.comparison_charts import apply_right_label_xaxis_padding
+from utils.comparison_charts import apply_right_label_xaxis_padding, build_chart_frame as build_shared_chart_frame
 from utils.comparison_sidebar import build_group_definitions as build_shared_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
-from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
+from utils.grouping import AVERAGE_LINE_SUFFIX
 from utils.query import get_dataset
 from utils.theme import (
     apply_app_theme,
@@ -168,25 +168,14 @@ def build_chart_frame(
     selected_schools: list[str],
     group_definitions: dict[str, list[str]],
 ) -> pd.DataFrame:
-    grouped_schools = sorted(
-        {
-            school
-            for schools_in_group in group_definitions.values()
-            for school in schools_in_group
-        }
-    )
-    visible_schools = sorted(set(selected_schools) | set(grouped_schools))
-    selected_df = df[df[SCHOOL_COL].isin(visible_schools)].copy()
-    group_average_df = build_group_average_frame(
+    return build_shared_chart_frame(
         df,
         year_col=YEAR_COL,
         school_col=SCHOOL_COL,
         value_col=VALUE_COL,
-        groups=group_definitions,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
     )
-    if group_average_df.empty:
-        return selected_df
-    return pd.concat([selected_df, group_average_df], ignore_index=True)
 
 
 def build_chart_styler(selected_schools: list[str], group_definitions: dict[str, list[str]]):
@@ -823,6 +812,7 @@ def main() -> None:
 
     sidebar_values = render_school_sidebar(
         schools=schools,
+        key_prefix=PAGE.id,
         default_schools=[PAGE.default_school] if PAGE.default_school in schools else schools[:1],
         config=SidebarConfig(
             header="필터",

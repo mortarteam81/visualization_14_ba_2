@@ -2,18 +2,59 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from typing import Any, Sequence
 
 import streamlit as st
 
-from utils.comparison_profile import default_selected_schools
+from utils.comparison_profile import (
+    comparison_profile_signature,
+    current_comparison_profile_store,
+    default_selected_schools,
+    selected_schools_from_profile,
+)
 
 from .models import SidebarConfig
+
+
+def _normalize_school_selection(value: object, schools: Sequence[str]) -> list[str]:
+    if isinstance(value, str):
+        candidates = [value]
+    else:
+        try:
+            candidates = list(value or [])
+        except TypeError:
+            candidates = []
+    allowed = set(schools)
+    return [school for school in candidates if school in allowed]
+
+
+def _profile_defaults(
+    schools: Sequence[str],
+    fallback_selection: Sequence[str],
+) -> tuple[list[str], str]:
+    try:
+        profile = current_comparison_profile_store().load(schools)
+        selected = selected_schools_from_profile(profile, schools)
+        signature = comparison_profile_signature(profile)
+    except Exception:
+        selected = []
+        signature = "comparison-profile-unavailable"
+
+    if selected:
+        return selected, signature
+    return default_selected_schools(schools, fallback=fallback_selection), signature
+
+
+def _comparison_school_label(label: str) -> str:
+    if label.strip() in {"학교 선택", "비교 학교", "비교 학교 선택"}:
+        return "현재 화면에 표시할 학교"
+    return label
 
 
 def render_school_sidebar(
     *,
     schools: Sequence[str],
+    key_prefix: str | None = None,
     default_schools: Sequence[str] | None = None,
     config: SidebarConfig | None = None,
 ) -> dict[str, Any]:
@@ -21,12 +62,32 @@ def render_school_sidebar(
 
     sidebar_config = config or SidebarConfig()
     fallback_selection = list(default_schools or schools[:1])
-    default_selection = default_selected_schools(schools, fallback=fallback_selection)
+    default_selection, profile_signature = _profile_defaults(schools, fallback_selection)
     school_help = sidebar_config.school_help or f"Choose from {len(schools)} schools."
+    school_label = _comparison_school_label(sidebar_config.school_label)
+    selection_key = f"{key_prefix}_selected_schools" if key_prefix else None
+    profile_stamp_key = f"{key_prefix}_comparison_profile_signature" if key_prefix else None
+    reset_key = f"{key_prefix}_reset_comparison_profile" if key_prefix else None
     values: dict[str, Any] = {}
+
+    if selection_key and profile_stamp_key:
+        if st.session_state.get(profile_stamp_key) != profile_signature:
+            st.session_state.pop(selection_key, None)
+            st.session_state[profile_stamp_key] = profile_signature
+        if selection_key not in st.session_state:
+            st.session_state[selection_key] = list(default_selection)
+        else:
+            st.session_state[selection_key] = _normalize_school_selection(
+                st.session_state[selection_key],
+                schools,
+            )
 
     with st.sidebar:
         st.header(sidebar_config.header)
+        if sidebar_config.show_profile_controls:
+            st.caption(sidebar_config.profile_notice)
+            if selection_key and reset_key and st.button(sidebar_config.profile_reset_label, key=reset_key):
+                st.session_state[selection_key] = list(default_selection)
 
         for toggle in sidebar_config.toggles:
             values[toggle.key] = st.toggle(
@@ -44,12 +105,20 @@ def render_school_sidebar(
                 horizontal=radio.horizontal,
             )
 
-        values["selected_schools"] = st.multiselect(
-            sidebar_config.school_label,
-            list(schools),
-            default=default_selection,
-            help=school_help,
-        )
+        if selection_key:
+            values["selected_schools"] = st.multiselect(
+                school_label,
+                list(schools),
+                key=selection_key,
+                help=school_help,
+            )
+        else:
+            values["selected_schools"] = st.multiselect(
+                school_label,
+                list(schools),
+                default=default_selection,
+                help=school_help,
+            )
 
         if sidebar_config.divider_after_controls and sidebar_config.meta_lines:
             st.divider()
