@@ -1,0 +1,22 @@
+{
+  "dataset_key": "library_material_purchase_per_student",
+  "metric_ids": ["library_material_purchase"],
+  "title": "재학생 1인당 연간 자료구입비(결산)",
+  "current_asset": "data/processed/library_material_purchase_per_student/library_material_purchase_per_student_2008_2025_v2_utf8.csv",
+  "source_data_scope": "national_processed",
+  "verification_status": "partial",
+  "default_analysis_scope": "2008-2025 processed national school-level values",
+  "metadata_files": {
+    "source": "data/metadata/library_material_purchase_per_student_v2.source.json",
+    "schema": "data/metadata/library_material_purchase_per_student_v2_schema.md",
+    "report": null,
+    "guide": null
+  },
+  "quality_flags": [
+    "processed_national_dataset",
+    "schema_metadata_available"
+  ],
+  "backlog": [
+    "Add processing report metadata before promoting to verified."
+  ]
+}

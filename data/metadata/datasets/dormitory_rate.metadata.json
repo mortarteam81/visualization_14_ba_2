@@ -1,0 +1,22 @@
+{
+  "dataset_key": "dormitory_rate",
+  "metric_ids": ["dormitory_rate"],
+  "title": "기숙사 수용률",
+  "current_asset": "data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv",
+  "source_data_scope": "national_processed",
+  "verification_status": "partial",
+  "default_analysis_scope": "processed national school-level values",
+  "metadata_files": {
+    "source": "data/metadata/dormitory_accommodation_status_v2.source.json",
+    "schema": null,
+    "report": null,
+    "guide": null
+  },
+  "quality_flags": [
+    "processed_national_dataset",
+    "partial_metadata"
+  ],
+  "backlog": [
+    "Add schema/report metadata when the source audit is completed."
+  ]
+}

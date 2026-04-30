@@ -1,0 +1,22 @@
+{
+  "dataset_key": "library_staff_per_1000_students",
+  "metric_ids": ["library_staff"],
+  "title": "재학생 1,000명당 도서관 직원수",
+  "current_asset": "data/processed/library_staff_per_1000_students/library_staff_per_1000_students_2008_2025_v6_utf8.csv",
+  "source_data_scope": "national_processed",
+  "verification_status": "partial",
+  "default_analysis_scope": "2008-2025 processed national school-level values",
+  "metadata_files": {
+    "source": "data/metadata/library_staff_per_1000_students_v6.source.json",
+    "schema": "data/metadata/library_staff_per_1000_students_v6_schema.md",
+    "report": null,
+    "guide": "data/metadata/library_staff_per_1000_students_v6.processing_guide.md"
+  },
+  "quality_flags": [
+    "processed_national_dataset",
+    "schema_metadata_available"
+  ],
+  "backlog": [
+    "Add processing report metadata before promoting to verified."
+  ]
+}

@@ -7,6 +7,7 @@ from ui import SidebarMeta
 import streamlit as st
 
 from utils.comparison_profile import current_comparison_profile_store
+from utils.source_display import format_source_caption
 
 
 DEFAULT_CUSTOM_PRESET_LABEL = "직접 구성"
@@ -63,10 +64,16 @@ def build_standard_sidebar_meta(
     year_max: int | str,
     unit: str,
     data_source: str | None = None,
+    source: object | None = None,
+    manifest: object | None = None,
 ) -> tuple[SidebarMeta, ...]:
     meta_lines: list[SidebarMeta] = []
-    if data_source:
-        source_label = "data.go.kr API" if data_source == "api" else "로컬 CSV"
+    source_manifest = manifest or source
+    if source_manifest is not None:
+        source_text = format_source_caption(source_manifest).split(" | ", maxsplit=1)[0]
+        meta_lines.append(SidebarMeta(text=source_text.replace("데이터 출처", "데이터 소스", 1)))
+    elif data_source:
+        source_label = _format_data_source_label(data_source)
         meta_lines.append(SidebarMeta(text=f"데이터 소스: {source_label}"))
     meta_lines.extend(
         [
@@ -77,6 +84,15 @@ def build_standard_sidebar_meta(
         ]
     )
     return tuple(meta_lines)
+
+
+def _format_data_source_label(data_source: str) -> str:
+    normalized = data_source.strip().lower()
+    if normalized == "api":
+        return "data.go.kr API"
+    if normalized in {"csv", "local", "local_csv"}:
+        return "로컬 CSV"
+    return data_source
 
 
 def _normalize_group_school_selection(value: object, schools: Sequence[str]) -> list[str]:

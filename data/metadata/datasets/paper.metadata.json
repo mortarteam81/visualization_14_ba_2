@@ -1,0 +1,22 @@
+{
+  "dataset_key": "paper",
+  "metric_ids": ["paper"],
+  "title": "전임교원 1인당 논문실적",
+  "current_asset": "data/전임교원 논문실적.csv",
+  "source_data_scope": "seoul_subset_legacy",
+  "verification_status": "legacy_schema_missing",
+  "default_analysis_scope": "legacy Seoul private university subset",
+  "metadata_files": {
+    "source": null,
+    "schema": null,
+    "report": null,
+    "guide": null
+  },
+  "quality_flags": [
+    "legacy_seoul_subset",
+    "schema_metadata_missing"
+  ],
+  "backlog": [
+    "Recover source/schema provenance for the legacy CSV."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "dataset_key": "education_return",
+  "metric_ids": ["education_return"],
+  "title": "교육비 환원율",
+  "current_asset": "data/processed/education_cost_return_rate/education_cost_return_rate_2020_2025_v2_schema_utf8.csv",
+  "source_data_scope": "national_processed",
+  "verification_status": "partial",
+  "default_analysis_scope": "2020-2025 processed national school-level values",
+  "metadata_files": {
+    "source": "data/metadata/education_cost_return_rate.source.json",
+    "schema": null,
+    "report": null,
+    "guide": null
+  },
+  "quality_flags": [
+    "processed_national_dataset",
+    "partial_metadata"
+  ],
+  "backlog": [
+    "Add standalone schema/report metadata before promoting to verified."
+  ]
+}

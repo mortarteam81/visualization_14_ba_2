@@ -18,7 +18,14 @@ from utils.comparison_charts import (
 from utils.comparison_sidebar import build_group_definitions
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.query import get_dataset
+from utils.source_display import render_source_caption
 from utils.theme import apply_app_theme
+
+try:
+    from utils.analysis_scope import apply_default_analysis_scope
+except ImportError:
+    def apply_default_analysis_scope(df: pd.DataFrame, metric_or_manifest: object) -> pd.DataFrame:
+        return df
 
 
 PAGE = get_metric("education_return")
@@ -101,6 +108,7 @@ def main() -> None:
     st.caption(APP_SUBTITLE)
 
     df = get_dataset(PAGE.dataset_key)
+    df = apply_default_analysis_scope(df, PAGE)
     schools = sorted(df[SCHOOL_COL].dropna().unique())
     years = sorted(df[YEAR_COL].dropna().unique())
     latest_year = max(years)
@@ -231,7 +239,7 @@ def main() -> None:
     )
 
     st.markdown("---")
-    st.caption(f"데이터 출처: 교육비 환원율 가공 CSV | 업데이트: {DATA_UPDATED}")
+    render_source_caption(PAGE)
 
 
 main()
