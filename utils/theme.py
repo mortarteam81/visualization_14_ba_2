@@ -436,6 +436,7 @@ def get_plotly_chart_config() -> dict[str, object]:
                 "displayModeBar": False,
                 "doubleClick": False,
                 "scrollZoom": False,
+                "staticPlot": True,
             }
         )
     return config
