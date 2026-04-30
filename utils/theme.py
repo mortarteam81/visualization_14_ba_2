@@ -385,17 +385,17 @@ def _prepare_mobile_compact_widget(widget_key: str) -> None:
 def render_mobile_compact_toggle(*, placement: str = "sidebar") -> None:
     """Render a shared mobile compact layout toggle."""
 
+    body = "스마트폰에서는 아래 스위치를 켜면 표·차트·AI 분석이 읽기 쉬운 세로형으로 바뀝니다."
+
     if placement == "inline":
         widget_key = MOBILE_COMPACT_INLINE_TOGGLE_KEY
         callout_modifier = " mobile-compact-callout--inline"
         title = "📱 모바일 화면 설정"
-        body = "스마트폰에서는 아래 스위치를 켜면 표·차트·AI 분석이 읽기 쉬운 세로형으로 바뀝니다."
         target = st.container()
     else:
         widget_key = MOBILE_COMPACT_SIDEBAR_TOGGLE_KEY
         callout_modifier = ""
         title = "📱 모바일 화면 설정"
-        body = "스마트폰에서는 아래 스위치를 켜면 표·차트·AI 분석이 읽기 쉬운 세로형으로 바뀝니다."
         target = st.sidebar
 
     _prepare_mobile_compact_widget(widget_key)
