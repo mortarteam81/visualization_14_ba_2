@@ -245,6 +245,10 @@ a {
     margin: 0.6rem 0 0.75rem;
 }
 
+.mobile-compact-top-spacer {
+    display: none;
+}
+
 .mobile-compact-callout--inline {
     border-color: rgba(251, 191, 36, 0.9);
     background:
@@ -282,6 +286,15 @@ a {
     .block-container {
         max-width: 100%;
         padding: 1rem 0.75rem 2rem;
+    }
+
+    .mobile-compact-top-spacer {
+        display: block;
+        height: 2.75rem;
+    }
+
+    .mobile-compact-callout--inline {
+        margin-top: 0;
     }
 
     h1 {
@@ -397,6 +410,8 @@ def render_mobile_compact_toggle(*, placement: str = "sidebar") -> None:
     _prepare_mobile_compact_widget(widget_key)
 
     with target:
+        if placement == "inline":
+            st.markdown('<div class="mobile-compact-top-spacer"></div>', unsafe_allow_html=True)
         st.markdown(
             f"""
             <div class="mobile-compact-callout{callout_modifier}">
