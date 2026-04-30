@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 import streamlit as st
 
-from utils.analysis_scope import filter_default_analysis_school_options
+from utils.analysis_scope import load_default_analysis_scope
 from utils.app_db import (
     AppDatabaseError,
     AppUserStore,
@@ -58,7 +58,18 @@ def _group_schools_key(prefix: str, slot: int) -> str:
 
 def _load_school_options() -> list[str]:
     dataset = build_management_insight_dataset()
-    return filter_default_analysis_school_options(dataset.long["school_name"].dropna().unique())
+    return _filter_default_scope_school_options(dataset.long["school_name"].dropna().unique())
+
+
+def _filter_default_scope_school_options(available_schools: list[str]) -> list[str]:
+    available = {str(school).strip() for school in available_schools if str(school).strip()}
+    scoped_schools = [
+        str(school.get("school_name", "")).strip()
+        for school in load_default_analysis_scope().get("schools", [])
+        if isinstance(school, dict)
+    ]
+    scoped_options = [school for school in scoped_schools if school and school in available]
+    return sorted(scoped_options or available)
 
 
 def _clean_group_state(prefix: str, slot: int, school_options: list[str]) -> None:
