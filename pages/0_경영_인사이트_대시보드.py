@@ -38,7 +38,13 @@ from utils.management_insights import (
     metric_map,
     pending_metric_roadmap_frame,
 )
-from utils.theme import apply_app_theme, is_mobile_compact_mode, render_mobile_compact_toggle
+from utils.theme import (
+    apply_app_theme,
+    disable_mobile_plotly_zoom,
+    get_plotly_chart_config,
+    is_mobile_compact_mode,
+    render_mobile_compact_toggle,
+)
 
 
 st.set_page_config(
@@ -55,11 +61,8 @@ def load_dashboard_data():
     return build_management_insight_dataset()
 
 
-def _plotly_config() -> dict:
-    config = {"responsive": True}
-    if is_mobile_compact_mode():
-        config["displayModeBar"] = False
-    return config
+def _plotly_config() -> dict[str, object]:
+    return get_plotly_chart_config()
 
 
 def render_profile_chart(profile: pd.DataFrame) -> None:
@@ -103,6 +106,7 @@ def render_profile_chart(profile: pd.DataFrame) -> None:
     )
     fig.update_xaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
     fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.04)")
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
@@ -235,6 +239,7 @@ def render_quadrant_chart(
         },
         margin={"l": 48, "r": 32, "t": 36, "b": 132},
     )
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
@@ -306,6 +311,7 @@ def render_quadrant_path_chart(
     )
     fig.update_xaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
     fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
@@ -352,6 +358,7 @@ def render_comparison_gap_trend_chart(frame: pd.DataFrame, *, metrics_by_key: di
     fig.update_xaxes(dtick=1, gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
     fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.12)", zeroline=False)
     st.caption("조정 격차가 0보다 크면 지표 방향을 고려했을 때 기준 대학이 비교대학 평균보다 우위입니다.")
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
@@ -392,6 +399,7 @@ def render_correlation_heatmap(
         margin={"l": 120, "r": 32, "t": 32, "b": 120},
     )
     fig.update_xaxes(tickangle=35)
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 

@@ -23,7 +23,12 @@ from utils.comparison_sidebar import build_group_definitions as build_shared_gro
 from utils.config import APP_SUBTITLE, DATA_UPDATED
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
 from utils.query import get_dataset
-from utils.theme import apply_app_theme, is_mobile_compact_mode
+from utils.theme import (
+    apply_app_theme,
+    disable_mobile_plotly_zoom,
+    get_plotly_chart_config,
+    is_mobile_compact_mode,
+)
 
 
 PAGE = get_metric("budam")
@@ -66,11 +71,8 @@ AI_RESULT_KEY = "budam_ai_analysis_result"
 AI_ERROR_KEY = "budam_ai_analysis_error"
 
 
-def _plotly_config() -> dict:
-    config = {"responsive": True}
-    if is_mobile_compact_mode():
-        config["displayModeBar"] = False
-    return config
+def _plotly_config() -> dict[str, object]:
+    return get_plotly_chart_config()
 
 
 def _resolve_column_name(df: pd.DataFrame, preferred: str, aliases: list[str]) -> str:
@@ -461,6 +463,7 @@ def render_comparison_heatmap(
         tickfont={"size": 12, "color": "#E7EEF8"},
         autorange="reversed",
     )
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
@@ -646,6 +649,7 @@ def render_bump_chart(
         gridcolor="rgba(148, 163, 184, 0.10)",
         zeroline=False,
     )
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 
@@ -681,6 +685,7 @@ def render_low_range_chart(
         )
     chart_styler(fig)
     fig.update_yaxes(range=[0, LOW_RANGE_MAX])
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
 

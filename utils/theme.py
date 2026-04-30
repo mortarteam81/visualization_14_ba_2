@@ -426,13 +426,30 @@ def render_mobile_compact_toggle(*, placement: str = "sidebar") -> None:
             st.caption("PC 기본 화면은 이 스위치를 끈 상태로 유지됩니다.")
 
 
-def get_plotly_chart_config() -> dict[str, bool]:
+def get_plotly_chart_config() -> dict[str, object]:
     """Return the shared Plotly config for responsive Streamlit charts."""
 
     config = {"responsive": True}
     if is_mobile_compact_mode():
-        config["displayModeBar"] = False
+        config.update(
+            {
+                "displayModeBar": False,
+                "doubleClick": False,
+                "scrollZoom": False,
+            }
+        )
     return config
+
+
+def disable_mobile_plotly_zoom(fig) -> None:
+    """Prevent accidental Plotly zoom gestures in mobile compact mode."""
+
+    if not is_mobile_compact_mode():
+        return
+
+    fig.update_layout(dragmode=False)
+    fig.update_xaxes(fixedrange=True)
+    fig.update_yaxes(fixedrange=True)
 
 
 def apply_mobile_plotly_layout(fig, *, height: int = 360, legend_y: float = -0.36) -> None:
@@ -440,6 +457,8 @@ def apply_mobile_plotly_layout(fig, *, height: int = 360, legend_y: float = -0.3
 
     if not is_mobile_compact_mode():
         return
+
+    disable_mobile_plotly_zoom(fig)
 
     fig.update_layout(
         height=height,

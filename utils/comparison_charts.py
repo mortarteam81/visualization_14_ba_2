@@ -11,7 +11,12 @@ import streamlit as st
 from ui import MetricSpec
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
 from utils.grouping import AVERAGE_LINE_SUFFIX, build_group_average_frame
-from utils.theme import apply_mobile_plotly_layout, get_plotly_chart_config, is_mobile_compact_mode
+from utils.theme import (
+    apply_mobile_plotly_layout,
+    disable_mobile_plotly_zoom,
+    get_plotly_chart_config,
+    is_mobile_compact_mode,
+)
 
 
 ChartStyler = Callable[[go.Figure], None]
@@ -536,6 +541,7 @@ def render_comparison_heatmap(
         autorange="reversed",
     )
     if is_mobile_compact_mode():
+        disable_mobile_plotly_zoom(fig)
         fig.update_layout(
             height=min(height, 520),
             margin={"l": 24, "r": 12, "t": 52, "b": 32},
@@ -720,6 +726,7 @@ def render_bump_chart(
         zeroline=False,
     )
     if is_mobile_compact_mode():
+        disable_mobile_plotly_zoom(fig)
         fig.update_layout(
             height=min(max(360, 32 * len(row_order) + 96), 560),
             margin={"l": 32, "r": 16, "t": 52, "b": 96},

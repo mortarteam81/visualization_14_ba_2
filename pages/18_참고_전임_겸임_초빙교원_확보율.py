@@ -27,7 +27,12 @@ from utils.comparison_charts import (
 from utils.comparison_sidebar import build_default_group_preset_config, build_group_definitions, build_standard_sidebar_meta
 from utils.config import DATA_UPDATED
 from utils.query import get_dataset
-from utils.theme import apply_app_theme, is_mobile_compact_mode
+from utils.theme import (
+    apply_app_theme,
+    disable_mobile_plotly_zoom,
+    get_plotly_chart_config,
+    is_mobile_compact_mode,
+)
 
 
 PAGE = get_metric("faculty_securing_reference")
@@ -115,11 +120,8 @@ def _build_cumulative_long_frame(
     return pd.concat(pieces, ignore_index=True)
 
 
-def _plotly_config() -> dict:
-    config = {"responsive": True}
-    if is_mobile_compact_mode():
-        config["displayModeBar"] = False
-    return config
+def _plotly_config() -> dict[str, object]:
+    return get_plotly_chart_config()
 
 
 def _render_cumulative_comparison_basis(
@@ -143,6 +145,7 @@ def _render_cumulative_comparison_basis(
         label="교원확보율 100%",
         dash="dot",
     )
+    disable_mobile_plotly_zoom(fig)
     st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
     with st.expander(f"{basis} 연도별 데이터", expanded=False):

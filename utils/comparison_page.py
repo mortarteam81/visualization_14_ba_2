@@ -7,23 +7,21 @@ import streamlit as st
 
 from ui import MetricSpec, build_dual_metric_kpis, build_pivot_table, build_yearly_stats, render_kpis, render_pivot_table, render_stats_table
 from utils.chart_utils import add_threshold_hlines, create_multi_metric_line_chart
-from utils.theme import is_mobile_compact_mode
+from utils.theme import disable_mobile_plotly_zoom, get_plotly_chart_config, is_mobile_compact_mode
 
 
 MetricSectionRenderer = Callable[[MetricSpec], None]
 
 
-def _plotly_config() -> dict[str, bool]:
-    config = {"responsive": True}
-    if is_mobile_compact_mode():
-        config["displayModeBar"] = False
-    return config
+def _plotly_config() -> dict[str, object]:
+    return get_plotly_chart_config()
 
 
 def _apply_mobile_chart_layout(fig) -> None:
     if not is_mobile_compact_mode():
         return
 
+    disable_mobile_plotly_zoom(fig)
     fig.update_layout(
         height=360,
         margin=dict(l=8, r=8, t=52, b=32),

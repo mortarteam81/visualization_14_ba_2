@@ -16,7 +16,7 @@ from utils.chart_utils import (
     emphasize_selected_traces,
     style_traces_by_name_contains,
 )
-from utils.theme import is_mobile_compact_mode
+from utils.theme import disable_mobile_plotly_zoom, get_plotly_chart_config, is_mobile_compact_mode
 
 from .kpi import build_dual_metric_kpis, build_single_metric_kpis, render_kpis
 from .models import MetricSpec, OptionSection
@@ -29,17 +29,15 @@ from .tables import (
 )
 
 
-def _plotly_config() -> dict[str, bool]:
-    config = {"responsive": True}
-    if is_mobile_compact_mode():
-        config["displayModeBar"] = False
-    return config
+def _plotly_config() -> dict[str, object]:
+    return get_plotly_chart_config()
 
 
 def _apply_mobile_chart_layout(fig: go.Figure) -> None:
     if not is_mobile_compact_mode():
         return
 
+    disable_mobile_plotly_zoom(fig)
     fig.update_layout(
         height=360,
         margin=dict(l=8, r=8, t=52, b=32),
