@@ -18,6 +18,7 @@ from utils.app_db import (
     normalize_role,
     streamlit_session_scope,
 )
+from utils.theme import render_mobile_compact_toggle
 
 
 AUTH_SESSION_KEY = "authenticated_user"
@@ -235,6 +236,7 @@ def require_authenticated_user() -> AuthenticatedUser:
     )
     st.session_state[AUTH_SESSION_KEY] = authenticated_user
     st.session_state[AUTH_EMAIL_SESSION_KEY] = authenticated_user.email
+    render_mobile_compact_toggle()
     _render_account_controls(authenticated_user)
     return authenticated_user
 

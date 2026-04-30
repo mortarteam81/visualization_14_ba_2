@@ -232,6 +232,36 @@ a {
     color: var(--text-secondary) !important;
 }
 
+.mobile-compact-callout {
+    border: 1px solid rgba(45, 212, 191, 0.72);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(20, 184, 166, 0.28), rgba(245, 158, 11, 0.18)),
+        rgba(15, 23, 42, 0.92);
+    box-shadow: 0 10px 22px rgba(20, 184, 166, 0.12);
+    padding: 0.85rem 0.9rem;
+    margin: 0.6rem 0 0.75rem;
+}
+
+.mobile-compact-callout__title {
+    color: #5EEAD4 !important;
+    font-weight: 800;
+    font-size: 0.98rem;
+    margin: 0 0 0.28rem;
+}
+
+.mobile-compact-callout__body {
+    color: #F8FBFF !important;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    margin: 0;
+}
+
+[data-testid="stSidebar"] [data-testid="stToggle"] label p {
+    color: #FDE68A !important;
+    font-weight: 800 !important;
+}
+
 @media (max-width: 768px) {
     .block-container {
         max-width: 100%;
@@ -326,8 +356,19 @@ def render_mobile_compact_toggle() -> None:
     """Render the shared mobile compact layout toggle in the sidebar."""
 
     with st.sidebar:
+        st.markdown(
+            """
+            <div class="mobile-compact-callout">
+                <p class="mobile-compact-callout__title">📱 모바일 화면 설정</p>
+                <p class="mobile-compact-callout__body">
+                    스마트폰에서는 아래 스위치를 켜면 표·차트·AI 분석이 읽기 쉬운 세로형으로 바뀝니다.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         st.toggle(
-            "모바일 간편보기",
+            "📱 모바일 간편보기",
             value=False,
             key=MOBILE_COMPACT_MODE_KEY,
             help=(
@@ -335,6 +376,10 @@ def render_mobile_compact_toggle() -> None:
                 "PC 기본 화면은 토글을 끄면 그대로 유지됩니다."
             ),
         )
+        if is_mobile_compact_mode():
+            st.success("모바일 간편보기가 켜져 있습니다.")
+        else:
+            st.caption("PC 기본 화면은 이 스위치를 끈 상태로 유지됩니다.")
 
 
 def get_plotly_chart_config() -> dict[str, bool]:
@@ -371,4 +416,3 @@ def apply_app_theme() -> None:
     """Inject the shared dark theme CSS once per page render."""
 
     st.markdown(DARK_THEME_CSS, unsafe_allow_html=True)
-    render_mobile_compact_toggle()
