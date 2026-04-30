@@ -5,7 +5,7 @@ import streamlit as st
 from registry import APP_METADATA, list_metrics
 from utils.auth import require_authenticated_user
 from utils.config import APP_ICON, APP_SUBTITLE, APP_TITLE, DATA_UPDATED
-from utils.theme import apply_app_theme
+from utils.theme import apply_app_theme, render_mobile_compact_toggle
 
 st.set_page_config(
     page_title=APP_TITLE,
@@ -18,6 +18,7 @@ apply_app_theme()
 st.title(f"{APP_ICON} {APP_TITLE}")
 st.caption(APP_SUBTITLE)
 st.markdown(APP_METADATA["catalog_intro"])
+render_mobile_compact_toggle(placement="inline")
 st.divider()
 
 st.markdown(f"#### {APP_METADATA['catalog_heading']}")
