@@ -6,6 +6,8 @@ import streamlit as st
 
 
 MOBILE_COMPACT_MODE_KEY = "mobile_compact_mode"
+MOBILE_COMPACT_INLINE_TOGGLE_KEY = "mobile_compact_mode_inline_toggle"
+MOBILE_COMPACT_SIDEBAR_TOGGLE_KEY = "mobile_compact_mode_sidebar_toggle"
 
 
 DARK_THEME_CSS = """
@@ -243,6 +245,15 @@ a {
     margin: 0.6rem 0 0.75rem;
 }
 
+.mobile-compact-callout--inline {
+    border-color: rgba(251, 191, 36, 0.9);
+    background:
+        linear-gradient(135deg, rgba(20, 184, 166, 0.34), rgba(245, 158, 11, 0.24)),
+        rgba(15, 23, 42, 0.96);
+    box-shadow: 0 16px 32px rgba(245, 158, 11, 0.14);
+    margin: 0 0 0.85rem;
+}
+
 .mobile-compact-callout__title {
     color: #5EEAD4 !important;
     font-weight: 800;
@@ -258,6 +269,11 @@ a {
 }
 
 [data-testid="stSidebar"] [data-testid="stToggle"] label p {
+    color: #FDE68A !important;
+    font-weight: 800 !important;
+}
+
+[data-testid="stAppViewContainer"] [data-testid="stToggle"] label p {
     color: #FDE68A !important;
     font-weight: 800 !important;
 }
@@ -352,25 +368,49 @@ def is_mobile_compact_mode() -> bool:
     return bool(st.session_state.get(MOBILE_COMPACT_MODE_KEY, False))
 
 
-def render_mobile_compact_toggle() -> None:
-    """Render the shared mobile compact layout toggle in the sidebar."""
+def _sync_mobile_compact_mode(widget_key: str) -> None:
+    st.session_state[MOBILE_COMPACT_MODE_KEY] = bool(st.session_state.get(widget_key, False))
 
-    with st.sidebar:
+
+def _prepare_mobile_compact_widget(widget_key: str) -> None:
+    canonical_value = is_mobile_compact_mode()
+    if st.session_state.get(widget_key) != canonical_value:
+        st.session_state[widget_key] = canonical_value
+
+
+def render_mobile_compact_toggle(*, placement: str = "sidebar") -> None:
+    """Render a shared mobile compact layout toggle."""
+
+    if placement == "inline":
+        widget_key = MOBILE_COMPACT_INLINE_TOGGLE_KEY
+        callout_modifier = " mobile-compact-callout--inline"
+        title = "📱 모바일 화면 설정"
+        body = "스마트폰에서는 아래 스위치를 켜면 표·차트·AI 분석이 읽기 쉬운 세로형으로 바뀝니다."
+        target = st.container()
+    else:
+        widget_key = MOBILE_COMPACT_SIDEBAR_TOGGLE_KEY
+        callout_modifier = ""
+        title = "📱 모바일 화면 설정"
+        body = "스마트폰에서는 아래 스위치를 켜면 표·차트·AI 분석이 읽기 쉬운 세로형으로 바뀝니다."
+        target = st.sidebar
+
+    _prepare_mobile_compact_widget(widget_key)
+
+    with target:
         st.markdown(
-            """
-            <div class="mobile-compact-callout">
-                <p class="mobile-compact-callout__title">📱 모바일 화면 설정</p>
-                <p class="mobile-compact-callout__body">
-                    스마트폰에서는 아래 스위치를 켜면 표·차트·AI 분석이 읽기 쉬운 세로형으로 바뀝니다.
-                </p>
+            f"""
+            <div class="mobile-compact-callout{callout_modifier}">
+                <p class="mobile-compact-callout__title">{title}</p>
+                <p class="mobile-compact-callout__body">{body}</p>
             </div>
             """,
             unsafe_allow_html=True,
         )
         st.toggle(
             "📱 모바일 간편보기",
-            value=False,
-            key=MOBILE_COMPACT_MODE_KEY,
+            key=widget_key,
+            on_change=_sync_mobile_compact_mode,
+            args=(widget_key,),
             help=(
                 "스마트폰에서 KPI, 탭, 표, AI 분석 영역을 세로형으로 단순화합니다. "
                 "PC 기본 화면은 토글을 끄면 그대로 유지됩니다."
@@ -416,3 +456,4 @@ def apply_app_theme() -> None:
     """Inject the shared dark theme CSS once per page render."""
 
     st.markdown(DARK_THEME_CSS, unsafe_allow_html=True)
+    render_mobile_compact_toggle(placement="inline")
