@@ -366,6 +366,17 @@ a {
 """
 
 
+MOBILE_COMPACT_ACTIVE_CSS = """
+<style>
+[data-testid="stPlotlyChart"],
+[data-testid="stPlotlyChart"] * {
+    pointer-events: none !important;
+    touch-action: pan-y !important;
+}
+</style>
+"""
+
+
 def is_mobile_compact_mode() -> bool:
     """Return whether the user enabled the mobile-friendly compact layout."""
 
@@ -480,3 +491,5 @@ def apply_app_theme() -> None:
     """Inject the shared dark theme CSS once per page render."""
 
     st.markdown(DARK_THEME_CSS, unsafe_allow_html=True)
+    if is_mobile_compact_mode():
+        st.markdown(MOBILE_COMPACT_ACTIVE_CSS, unsafe_allow_html=True)
