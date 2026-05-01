@@ -7,6 +7,8 @@ from typing import Any
 
 import pandas as pd
 
+from utils.school_normalization import canonicalize_school_name, resolve_school_name
+
 
 DEFAULT_SCOPE_ID = "seoul_private_four_year_universities"
 DEFAULT_SCOPE_DIR = Path(__file__).resolve().parents[1] / "data" / "metadata" / "analysis_scopes"
@@ -110,7 +112,11 @@ def filter_default_analysis_school_options(
 ) -> list[str]:
     """Return available schools limited to the default analysis scope."""
 
-    available = {str(school).strip() for school in available_schools if str(school).strip()}
+    available: set[str] = set()
+    for school in available_schools:
+        name = canonicalize_school_name(school)
+        if name:
+            available.add(name)
     scoped = [school for school in default_analysis_school_names(manifest_or_scope) if school in available]
     return sorted(scoped or available)
 
@@ -227,6 +233,9 @@ def _name_in_scope(row: pd.Series, columns: pd.Index, manifest: Mapping[str, Any
     name = _value(row, columns, SCHOOL_NAME_COLUMNS)
     if _is_missing(name):
         return False
+
+    if resolve_school_name(name) is not None:
+        return True
 
     scoped_names = {_norm(school["school_name"]) for school in manifest.get("schools", [])}
     for alias_group in manifest.get("alias_groups", []):

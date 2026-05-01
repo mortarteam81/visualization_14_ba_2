@@ -80,12 +80,24 @@ def test_annotate_default_analysis_flags_prefers_column_filters() -> None:
 
 
 def test_annotate_default_analysis_flags_falls_back_to_names_and_aliases() -> None:
-    frame = pd.DataFrame({"학교명": ["그리스도대학교", "케이씨대학교", "한영신학대학교", "서울대학교"]})
+    frame = pd.DataFrame(
+        {
+            "학교명": [
+                "그리스도대학교",
+                "케이씨대학교",
+                "한영신학대학교",
+                "성신여자대학교 본교",
+                "건국대학교(글로컬)",
+                "서울대학교",
+            ]
+        }
+    )
 
     annotated = annotate_default_analysis_flags(frame)
 
-    assert annotated["default_analysis_excluded"].tolist() == [False, False, False, True]
-    assert annotated.loc[3, "exclusion_reasons"] == ["not_in_default_scope"]
+    assert annotated["default_analysis_excluded"].tolist() == [False, False, False, False, True, True]
+    assert annotated.loc[4, "exclusion_reasons"] == ["not_in_default_scope"]
+    assert annotated.loc[5, "exclusion_reasons"] == ["not_in_default_scope"]
 
 
 def test_annotate_default_analysis_flags_does_not_mutate_source_frame() -> None:

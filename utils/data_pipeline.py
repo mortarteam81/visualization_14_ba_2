@@ -67,6 +67,7 @@ from utils.config import (
     STAFF_PER_STUDENT_CSV,
     STAFF_PER_STUDENT_CSV_ENCODING,
 )
+from utils.school_normalization import canonicalize_school_name_column
 
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -145,7 +146,16 @@ def _normalize_school_frame(
                 frame.loc[mask, "학교명"] + " (" + frame.loc[mask, "본분교명"] + ")"
             )
 
+    frame = canonicalize_school_name_column(frame)
     return frame.sort_values(["기준년도", "학교명"]).reset_index(drop=True)
+
+
+def _canonicalize_dashboard_scope(frame: pd.DataFrame, *, restrict: bool = True) -> pd.DataFrame:
+    return canonicalize_school_name_column(
+        frame,
+        school_col="학교명",
+        restrict_to_default_scope=restrict,
+    )
 
 
 def prepare_budam_frame(df: pd.DataFrame) -> pd.DataFrame:
@@ -157,6 +167,7 @@ def prepare_budam_frame(df: pd.DataFrame) -> pd.DataFrame:
     frame["기준년도"] = pd.to_numeric(frame["기준년도"], errors="coerce")
     frame = frame.dropna(subset=["기준년도", "부담율"])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=False)
     return frame.sort_values(["기준년도", "학교명"]).reset_index(drop=True)
 
 
@@ -313,6 +324,7 @@ def prepare_gyeolsan_frame(df: pd.DataFrame) -> pd.DataFrame:
     frame = frame[frame["운영수입"] > 0].copy()
     frame["등록금비율"] = (frame["등록금수입"] / frame["운영수입"] * 100).round(2)
     frame["기부금비율"] = (frame["기부금수입"] / frame["운영수입"] * 100).round(2)
+    frame = _canonicalize_dashboard_scope(frame, restrict=True)
     keep_columns = [
         "기준년도",
         "학교명",
@@ -371,6 +383,7 @@ def prepare_education_return_frame(df: pd.DataFrame) -> pd.DataFrame:
 
     frame = frame.dropna(subset=["기준년도", "학교명", EDUCATION_RETURN_COL])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=True)
 
     keep_columns = [
         "기준년도",
@@ -441,6 +454,7 @@ def prepare_dormitory_frame(df: pd.DataFrame) -> pd.DataFrame:
 
     frame = frame.dropna(subset=["기준년도", "학교명", DORMITORY_COL])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=True)
 
     keep_columns = [
         "기준년도",
@@ -533,6 +547,7 @@ def prepare_lecturer_pay_frame(df: pd.DataFrame) -> pd.DataFrame:
     grouped[LECTURER_PAY_COL] = (grouped["강의료가중합"] / grouped["총강의시간수"]).round(0)
     grouped["연도별기준값"] = grouped["기준년도"].map(LECTURER_PAY_THRESHOLDS)
     grouped["기준충족"] = grouped[LECTURER_PAY_COL] >= grouped["연도별기준값"]
+    grouped = _canonicalize_dashboard_scope(grouped, restrict=True)
 
     keep_columns = [
         "기준년도",
@@ -596,6 +611,7 @@ def prepare_library_material_purchase_frame(df: pd.DataFrame) -> pd.DataFrame:
 
     frame = frame.dropna(subset=["기준년도", "학교명", LIBRARY_MATERIAL_PURCHASE_COL])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=True)
     frame["기준충족"] = frame[LIBRARY_MATERIAL_PURCHASE_COL] >= 54_000.0
 
     keep_columns = [
@@ -681,6 +697,7 @@ def prepare_library_staff_frame(df: pd.DataFrame) -> pd.DataFrame:
     )
     frame = frame.dropna(subset=["기준년도", "학교명", LIBRARY_STAFF_COL])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=True)
     frame["기준충족"] = frame[LIBRARY_STAFF_COL] >= 1.0
 
     keep_columns = [
@@ -769,6 +786,7 @@ def prepare_kcue_metric_frame(
     frame[value_column] = frame["재계산지표값"].combine_first(frame["통합지표값"])
     frame = frame.dropna(subset=["기준년도", "학교명", value_column])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=False)
 
     keep_columns = [
         "기준년도",
@@ -838,6 +856,7 @@ def prepare_adjunct_faculty_frame(df: pd.DataFrame, *, private_only: bool = True
 
     frame = frame.dropna(subset=["기준년도", "학교명"])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=False)
     keep_columns = [
         "기준년도",
         "학교명",
@@ -924,6 +943,7 @@ def prepare_fulltime_adjunct_faculty_frame(
 
     frame = frame.dropna(subset=["기준년도", "학교명"])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=False)
     keep_columns = [
         "기준년도",
         "학교명",
@@ -1005,6 +1025,7 @@ def prepare_faculty_securing_reference_frame(
 
     frame = frame.dropna(subset=["기준년도", "학교명"])
     frame["기준년도"] = frame["기준년도"].astype(int)
+    frame = _canonicalize_dashboard_scope(frame, restrict=False)
     keep_columns = [
         "기준년도",
         "학교명",
