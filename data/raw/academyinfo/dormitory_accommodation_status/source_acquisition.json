@@ -1,0 +1,44 @@
+{
+  "dataset_id": "dormitory_accommodation_status",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_menu": "공시데이터 추이",
+  "search_keyword": "기숙사",
+  "academic_system": "대학",
+  "item_name": "14-마-1. 기숙사 수용 현황_대학",
+  "original_file_name": "14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+  "local_raw_path": "data/raw/academyinfo/dormitory_accommodation_status/original/14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+  "downloaded_at": "2026-05-02T11:23:22+09:00",
+  "acquired_at": "2026-05-02",
+  "file_size_bytes": 458311,
+  "sha256": "742ceb8fdabf83b0df0fe729002d18da772aab1267b243505464abacecc2128c",
+  "workbook_profile": {
+    "readable": true,
+    "sheet_names": [
+      "Sheet 1"
+    ],
+    "data_shape": {
+      "rows": 4145,
+      "columns": 22
+    },
+    "required_columns_observed": [
+      "공시연도",
+      "대표학교코드",
+      "학교코드",
+      "학교명",
+      "본분교명",
+      "기준년도",
+      "재학생수",
+      "수용가능인원",
+      "기숙사수용률"
+    ]
+  },
+  "download_reason_popup_required": true,
+  "popup_personal_fields_stored": false,
+  "acquisition_method": "academyinfo-trend-download skill workflow; file was already present in the user's Downloads folder and was preserved into the project raw directory without modifying the workbook.",
+  "notes": [
+    "Popup fields such as user name, download purpose, and detail text are intentionally not stored.",
+    "This record documents raw-source acquisition only; converter and processed/current asset promotion are separate steps."
+  ]
+}

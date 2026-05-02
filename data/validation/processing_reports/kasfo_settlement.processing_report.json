@@ -1,0 +1,97 @@
+{
+  "dataset": "kasfo_settlement",
+  "created_at": "2026-05-01T10:33:54.988580+00:00",
+  "inputs": {
+    "data/raw/pending_manual/finance/kasfo_private_university_tuition_nontuition_settlement_db_5yr_20250113.xlsx": {
+      "sha256": "2f121bd449d9e6e1647ff2e62cadf7086470d4c796693a4331318c42dec71576"
+    },
+    "data/결산(22,23,24).csv": {
+      "sha256": "93c57a935c221f16a067f76987299d836e2865d5bf20675ffa1f8c61e460cfb1"
+    }
+  },
+  "outputs": [
+    "data/conversion_outputs/kasfo/settlement/kasfo_settlement_raw_2020_2024_candidate.csv",
+    "data/conversion_outputs/kasfo/settlement/kasfo_settlement_processed_2022_2024_restated_candidate.csv",
+    "data/validation/mismatch_reports/kasfo_settlement_processed_vs_raw_sample.csv",
+    "data/validation/mismatch_reports/kasfo_settlement_alias_risk.csv",
+    "data/conversion_outputs/kasfo/settlement/kasfo_settlement_candidate.metadata.json",
+    "data/validation/processing_reports/kasfo_settlement.processing_report.json"
+  ],
+  "raw_candidate": {
+    "rows": 3334,
+    "columns": 343,
+    "coverage": {
+      "comparison_11": {
+        "expected_count": 11,
+        "present_count": 11,
+        "missing": []
+      },
+      "risk_school_sample": {
+        "expected_count": 16,
+        "present_count": 9,
+        "present": [
+          "가톨릭대학교",
+          "건국대학교",
+          "고려대학교",
+          "동국대학교",
+          "연세대학교",
+          "한양대학교",
+          "강서대학교",
+          "케이씨대학교",
+          "서울한영대학교"
+        ],
+        "missing": [
+          "건국대학교(글로컬)",
+          "고려대학교(세종)",
+          "동국대학교(WISE)",
+          "연세대학교(미래)",
+          "한양대학교(ERICA)",
+          "그리스도대학교",
+          "한영신학대학교"
+        ]
+      }
+    }
+  },
+  "processed_candidate": {
+    "rows": 1870,
+    "columns": 341,
+    "coverage": {
+      "comparison_11": {
+        "expected_count": 11,
+        "present_count": 11,
+        "missing": []
+      },
+      "risk_school_sample": {
+        "expected_count": 16,
+        "present_count": 8,
+        "present": [
+          "가톨릭대학교",
+          "건국대학교",
+          "고려대학교",
+          "동국대학교",
+          "연세대학교",
+          "한양대학교",
+          "강서대학교",
+          "서울한영대학교"
+        ],
+        "missing": [
+          "건국대학교(글로컬)",
+          "고려대학교(세종)",
+          "동국대학교(WISE)",
+          "연세대학교(미래)",
+          "한양대학교(ERICA)",
+          "케이씨대학교",
+          "그리스도대학교",
+          "한영신학대학교"
+        ]
+      }
+    }
+  },
+  "mismatch_rows": 1203,
+  "known_limitations": [
+    "Raw 5-year workbook headers differ from legacy data/결산(22,23,24).csv headers, so comparison report is sample/exact-header based, not full semantic mapping.",
+    "2022 기타국고지원[1514], 미사용전기/차기 이월자금 sign differences remain flagged for manual audit.",
+    "No school code exists in the settlement raw/legacy processed rows; joins must avoid name-only promotion without a separate school-code crosswalk.",
+    "KASFO 법인전입금 is a finance account amount and is conceptually separate from KCUE 법인전입금 비율."
+  ]
+}

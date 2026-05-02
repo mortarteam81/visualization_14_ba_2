@@ -1,0 +1,2 @@
+﻿severity,field,school_name,year,processed_value,raw_value,reason,source_path
+medium,raw_source_file,,,,,expected original AcademyInfo XLSX is not preserved locally; converter performed processed-to-candidate re-standardization only,data/raw/lecturer_pay/lecturer_pay_2023_2025_original.xlsx

@@ -1,0 +1,8 @@
+﻿severity,field,school_name,year,processed_value,raw_value,reason,source_path
+medium,재학생수,성균관대학교,2024,25549.0,25323.0,Current dashboard asset value differs from raw-XLSX candidate value.,data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv
+medium,기숙사수용률,성균관대학교,2024,20.4,20.6,Current dashboard asset value differs from raw-XLSX candidate value.,data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv
+medium,재학생수,성균관대학교,2025,26134.0,25782.0,Current dashboard asset value differs from raw-XLSX candidate value.,data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv
+medium,기숙사수용률,성균관대학교,2025,20.0,20.2,Current dashboard asset value differs from raw-XLSX candidate value.,data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv
+medium,기숙사실수,홍익대학교,2025,689.0,679.0,Current dashboard asset value differs from raw-XLSX candidate value.,data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv
+medium,기숙사수용인원,홍익대학교,2025,1380.0,1354.0,Current dashboard asset value differs from raw-XLSX candidate value.,data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv
+medium,기숙사수용률,홍익대학교,2025,9.8,9.6,Current dashboard asset value differs from raw-XLSX candidate value.,data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv

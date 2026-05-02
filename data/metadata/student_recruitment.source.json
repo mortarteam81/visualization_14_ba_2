@@ -1,0 +1,33 @@
+{
+  "dataset_id": "student_recruitment",
+  "dataset_name_ko": "학생 충원 성과 후보",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이",
+  "processed_at": "2026-05-01T10:11:55.110263+00:00",
+  "raw_files": [
+    {
+      "metric_part": "freshman_fill",
+      "source_section": "4-다. 신입생 충원 현황",
+      "path": "data/raw/pending_manual/academyinfo/academyinfo_2025_27_freshman_fill_school.xlsx",
+      "sha256": "615d758f6bff808e901479ccfc9177178908ac9d87099cfef7f8a2b2c9c3b720"
+    },
+    {
+      "metric_part": "student_fill",
+      "source_section": "4-라-1. 재학생 충원율",
+      "path": "data/raw/pending_manual/academyinfo/academyinfo_2025_29_student_fill_school.xlsx",
+      "sha256": "76e8fe6d3602d5976ba0aabfa27bd8e5d934a6878a6293b9db99e08b4b31e4bd"
+    },
+    {
+      "metric_part": "enrolled_students",
+      "source_section": "4-마. 재적 학생 현황",
+      "path": "data/raw/pending_manual/academyinfo/academyinfo_2025_31_enrolled_students_school.xlsx",
+      "sha256": "c1a88d176f7ee751194bbeb58b52927067f74df8752d92b8a0ea0d9c593ea35e"
+    }
+  ],
+  "notes": [
+    "v2 candidate merges AcademyInfo raw item 29 to fill 재학생충원율.",
+    "Raw files are local manually acquired XLSX files; no automatic mass download was performed."
+  ]
+}

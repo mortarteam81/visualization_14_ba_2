@@ -1,0 +1,36 @@
+{
+  "dataset_id": "dormitory_accommodation_status",
+  "dataset_name_ko": "기숙사 수용 현황",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 14-마-1. 기숙사 수용 현황_대학",
+  "processed_at": "2026-05-02T02:55:16.911342+00:00",
+  "source_preservation_status": "raw_preserved",
+  "source_input_kind": "raw_xlsx",
+  "source_input_file": "data/raw/academyinfo/dormitory_accommodation_status/original/14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+  "files": [
+    {
+      "path": "data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv",
+      "exists": true,
+      "sha256": "ce39f2a8c191acf4c79d5c455b22e9dc6f48906de6ef52080eecd5c4b5e53279",
+      "kind": "processed_input"
+    },
+    {
+      "path": "data/raw/academyinfo/dormitory_accommodation_status/original/14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+      "exists": true,
+      "sha256": "742ceb8fdabf83b0df0fe729002d18da772aab1267b243505464abacecc2128c",
+      "kind": "expected_raw_source"
+    },
+    {
+      "path": "data/metadata/dormitory_accommodation_status_v2.source.json",
+      "exists": true,
+      "sha256": "dd31a7d17b3f7275cf629d631f3c209d6a9d64353c73364f8712d6b92d650a6d",
+      "kind": "source_metadata"
+    }
+  ],
+  "notes": [
+    "No official-site mass download was performed.",
+    "Existing processed/current assets were not overwritten or promoted."
+  ]
+}

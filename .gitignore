@@ -38,6 +38,7 @@ test_app.py
 # 원자료 확보 중 생성된 세션/로그 산출물
 data/raw/pending_manual/logs/
 data/raw/**/*cookies*.txt
+data/validation/review_decisions/*.review.json
 
 # 원본 파일명이 긴 CSV (data/ 로 이전 완료)
 14-ba-*.csv

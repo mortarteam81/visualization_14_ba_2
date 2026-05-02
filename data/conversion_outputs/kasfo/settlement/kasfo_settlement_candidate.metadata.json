@@ -1,0 +1,15 @@
+{
+  "dataset": "kasfo_settlement",
+  "candidate_only": true,
+  "do_not_promote_current_asset": true,
+  "amount_parse_rule": "trim, comma removal, '-' to null, negative sign preserved",
+  "unit": "천원 in KASFO source files unless source states otherwise",
+  "source_files": {
+    "data/raw/pending_manual/finance/kasfo_private_university_tuition_nontuition_settlement_db_5yr_20250113.xlsx": {
+      "sha256": "2f121bd449d9e6e1647ff2e62cadf7086470d4c796693a4331318c42dec71576"
+    },
+    "data/결산(22,23,24).csv": {
+      "sha256": "93c57a935c221f16a067f76987299d836e2865d5bf20675ffa1f8c61e460cfb1"
+    }
+  }
+}

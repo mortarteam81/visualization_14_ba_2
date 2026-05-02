@@ -1,0 +1,236 @@
+"""Shared renderer for the dormitory accommodation rate page."""
+
+from __future__ import annotations
+
+import pandas as pd
+import streamlit as st
+
+from registry import get_metric, get_series
+from ui import MetricSpec, SidebarConfig, SidebarMeta, ThresholdSpec, render_school_sidebar, render_single_metric_page
+from utils.ai_panel import render_metric_ai_analysis_panel
+from utils.comparison_charts import (
+    build_chart_frame,
+    build_chart_styler,
+    render_bump_chart,
+    render_comparison_heatmap,
+    render_focus_range_chart,
+    resolve_threshold_focus_range,
+)
+from utils.comparison_sidebar import build_group_definitions
+from utils.config import DATA_UPDATED
+
+
+PAGE = get_metric("dormitory_rate")
+SERIES = get_series("dormitory_accommodation_rate")
+
+YEAR_COL = "기준년도"
+SCHOOL_COL = "학교명"
+
+CUSTOM_PRESET = "직접 구성"
+DEFAULT_SLOT_PRESETS = {
+    1: "서울 여자 대학",
+    2: "주요 경쟁 대학",
+    3: CUSTOM_PRESET,
+}
+GROUP_PRESETS = {
+    "서울 여자 대학": [
+        "덕성여자대학교",
+        "동덕여자대학교",
+        "서울여자대학교",
+        "성신여자대학교",
+        "숙명여자대학교",
+        "이화여자대학교",
+    ],
+    "주요 경쟁 대학": [
+        "건국대학교",
+        "경희대학교",
+        "고려대학교",
+        "국민대학교",
+        "광운대학교",
+        "서강대학교",
+        "성균관대학교",
+        "중앙대학교",
+        "한양대학교",
+    ],
+    CUSTOM_PRESET: [],
+}
+
+
+def build_dormitory_metric() -> MetricSpec:
+    return MetricSpec(
+        key=SERIES.id,
+        label=SERIES.label,
+        value_col=SERIES.column,
+        y_axis_label=f"{SERIES.label} ({SERIES.unit})",
+        precision=SERIES.decimals,
+        threshold=ThresholdSpec(
+            value=SERIES.threshold or 11.0,
+            label=SERIES.threshold_label or "기준값",
+            color="#F59E0B",
+            dash="dot",
+        ),
+        higher_is_better=True,
+        chart_title=f"{PAGE.title} 비교 추이",
+    )
+
+
+def _focus_range(series: pd.Series, metric: MetricSpec) -> tuple[float, float] | None:
+    if series.empty:
+        return None
+    threshold = metric.threshold.value if metric.threshold else 11.0
+    return resolve_threshold_focus_range(
+        series,
+        metric,
+        lower_offset=threshold,
+        upper_offset=8.0,
+    )
+
+
+def render_dormitory_metric_page(
+    df: pd.DataFrame,
+    *,
+    key_prefix: str = PAGE.id,
+    source_label: str = "기숙사 수용 현황 가공 CSV",
+    source_notice: str | None = None,
+    show_ai_panel: bool = True,
+) -> None:
+    """Render the dormitory dashboard with caller-provided data."""
+
+    if source_notice:
+        st.info(source_notice)
+
+    schools = sorted(df[SCHOOL_COL].dropna().unique())
+    years = sorted(df[YEAR_COL].dropna().unique())
+    latest_year = max(years)
+
+    sidebar_values = render_school_sidebar(
+        schools=schools,
+        key_prefix=key_prefix,
+        default_schools=[PAGE.default_school] if PAGE.default_school in schools else schools[:1],
+        config=SidebarConfig(
+            header="학교 선택",
+            school_label="비교 학교",
+            school_help=f"총 {len(schools)}개 학교 가운데 비교할 학교를 선택합니다.",
+            meta_lines=(
+                SidebarMeta(text=f"업데이트: {DATA_UPDATED}"),
+                SidebarMeta(text=f"데이터 소스: {source_label}"),
+                SidebarMeta(text=f"대상 학교 수: {len(schools)}개"),
+                SidebarMeta(text=f"기준년도 범위: {min(years)} ~ {latest_year}"),
+                SidebarMeta(text="단위: %"),
+            ),
+        ),
+    )
+    selected_schools = sidebar_values["selected_schools"]
+    group_definitions = build_group_definitions(
+        schools,
+        key_prefix=key_prefix,
+        title="비교 대상 그룹",
+        caption="선택 학교와 함께 비교할 그룹 평균선을 만들 수 있습니다.",
+        group_presets=GROUP_PRESETS,
+        default_slot_presets=DEFAULT_SLOT_PRESETS,
+        custom_preset_label=CUSTOM_PRESET,
+        group_name_help="차트에 표시할 그룹 이름입니다.",
+        group_schools_help="각 그룹에 포함할 학교를 선택합니다.",
+        default_group_name_template="비교 그룹 {slot}",
+    )
+
+    if not selected_schools:
+        st.info("비교할 학교를 하나 이상 선택해 주세요.")
+        st.stop()
+
+    filtered_df = df[df[SCHOOL_COL].isin(selected_schools)].copy()
+    if filtered_df.empty:
+        st.error("선택한 학교에 해당하는 데이터가 없습니다.")
+        st.stop()
+
+    metric = build_dormitory_metric()
+    chart_df = build_chart_frame(
+        df,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        value_col=metric.value_col,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+    )
+    chart_styler = build_chart_styler(selected_schools, group_definitions)
+    active_groups = [name for name, school_list in group_definitions.items() if name and school_list]
+
+    if active_groups:
+        st.info("현재 차트에는 선택 학교와 함께 다음 비교 그룹 평균이 표시됩니다: " + ", ".join(active_groups))
+    else:
+        st.caption("활성화된 비교 그룹이 없어 현재는 선택 학교 추이만 표시됩니다.")
+
+    render_single_metric_page(
+        df=filtered_df,
+        chart_df=chart_df,
+        metric=metric,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        latest_year=latest_year,
+        chart_title=f"{PAGE.title} 비교 추이",
+        selected_schools=selected_schools,
+        definition_rows={
+            "지표명": "재학생 대비 기숙사 수용 가능 수준을 보여주는 학생 지원 지표입니다.",
+            "화면 표시값": "기숙사 수용률을 기준 지표로 사용합니다.",
+            "산식": "기숙사 수용인원 ÷ 재학생수 × 100 (%)",
+            "해석 방향": "값이 높을수록 재학생이 기숙사를 이용할 수 있는 여건이 상대적으로 좋은 것으로 볼 수 있습니다.",
+            "기준값": PAGE.threshold_note,
+            "비교 대상 그룹": "선택 학교와 비교 그룹 평균선을 함께 보여줘 상대적 위치를 확인할 수 있습니다.",
+            "업데이트": DATA_UPDATED,
+            "데이터 소스": source_label,
+        },
+        kpi_threshold_suffix=f"{SERIES.threshold:.1f}% 이상",
+        chart_styler=chart_styler,
+    )
+
+    render_focus_range_chart(
+        chart_df,
+        metric=metric,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        chart_title=f"{metric.label} 기준값 인근 비교",
+        chart_styler=chart_styler,
+        title="기준값 인근 보기",
+        caption="11% 기준값 주변 구간을 확대해 학교 간 차이를 더 쉽게 비교할 수 있습니다.",
+        range_resolver=_focus_range,
+    )
+
+    render_comparison_heatmap(
+        chart_df,
+        metric=metric,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+        title="학교별 기숙사 수용률 히트맵",
+        caption="연도별 기숙사 수용률 강도를 색으로 보여줘 어느 학교가 높고 낮은지 빠르게 비교할 수 있습니다.",
+        hover_value_label="기숙사 수용률(%)",
+    )
+
+    render_bump_chart(
+        chart_df,
+        metric=metric,
+        year_col=YEAR_COL,
+        school_col=SCHOOL_COL,
+        selected_schools=selected_schools,
+        group_definitions=group_definitions,
+        title="학교별 순위 변화 범프 차트",
+        caption="기숙사 수용률 순위 변화를 통해 선택 학교와 비교 그룹 평균의 상대적 흐름을 볼 수 있습니다.",
+        toggle_key=f"{key_prefix}_bump_selected_only",
+    )
+
+    if show_ai_panel:
+        st.divider()
+        render_metric_ai_analysis_panel(
+            page_key=key_prefix,
+            df=df,
+            year_col=YEAR_COL,
+            school_col=SCHOOL_COL,
+            latest_year=latest_year,
+            metrics=[metric],
+            selected_schools=selected_schools,
+            group_definitions=group_definitions,
+        )
+
+    st.markdown("---")
+    st.caption(f"데이터 출처: {source_label} | 업데이트: {DATA_UPDATED}")

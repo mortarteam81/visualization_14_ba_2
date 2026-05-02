@@ -1,0 +1,59 @@
+{
+  "dataset": "kasfo_legal_burden",
+  "created_at": "2026-05-01T10:34:46.418951+00:00",
+  "inputs": {
+    "14-ba-2.-beobjeongbudamgeum-budam-hyeonhwang_daehag_beobjeongbudamgeum-budamryul-20260309-seoul-sojae-saribdaehag.csv": {
+      "sha256": "0523f9ccbb9a3f293135e8da6d605e9d7f23db254a7676b08e956831b84df4ef"
+    },
+    "data/법정부담금_부담율.csv": {
+      "sha256": "88cce52fcf56340da6677152453034415686d299c56541cad02d58d911ddcf16"
+    }
+  },
+  "outputs": [
+    "data/conversion_outputs/kasfo/legal_burden/kasfo_legal_burden_2025_restated_candidate.csv",
+    "data/validation/mismatch_reports/kasfo_legal_burden_original_vs_processed.csv",
+    "data/validation/mismatch_reports/kasfo_legal_burden_school_code_risk.csv",
+    "data/conversion_outputs/kasfo/legal_burden/kasfo_legal_burden_candidate.metadata.json",
+    "data/validation/processing_reports/kasfo_legal_burden.processing_report.json"
+  ],
+  "candidate": {
+    "rows": 475,
+    "columns": 20,
+    "coverage": {
+      "comparison_11": {
+        "expected_count": 11,
+        "present_count": 11,
+        "missing": []
+      },
+      "risk_school_sample": {
+        "expected_count": 16,
+        "present_count": 10,
+        "present": [
+          "건국대학교",
+          "고려대학교",
+          "동국대학교",
+          "연세대학교",
+          "한양대학교",
+          "강서대학교",
+          "케이씨대학교",
+          "그리스도대학교",
+          "서울한영대학교",
+          "한영신학대학교"
+        ],
+        "missing": [
+          "가톨릭대학교",
+          "건국대학교(글로컬)",
+          "고려대학교(세종)",
+          "동국대학교(WISE)",
+          "연세대학교(미래)",
+          "한양대학교(ERICA)"
+        ]
+      }
+    }
+  },
+  "mismatch_rows": 0,
+  "known_limitations": [
+    "Root CSV is treated as local original-like source; no official-site download performed.",
+    "Legacy CSV had school-code leading-zero loss risk; candidate normalizes 대표학교코드/학교코드 to 7 digits."
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "dataset_id": "student_recruitment",
+  "version": "v2_candidate",
+  "processed_at": "2026-05-01T10:11:55.110263+00:00",
+  "source_files": [
+    "data/raw/pending_manual/academyinfo/academyinfo_2025_27_freshman_fill_school.xlsx",
+    "data/raw/pending_manual/academyinfo/academyinfo_2025_29_student_fill_school.xlsx",
+    "data/raw/pending_manual/academyinfo/academyinfo_2025_31_enrolled_students_school.xlsx",
+    "data/processed/student_recruitment/student_recruitment_2026_candidate.csv"
+  ],
+  "output_file": "data/processed/student_recruitment/student_recruitment_2026_candidate_v2.csv",
+  "row_counts": {
+    "existing_candidate": 489,
+    "freshman_raw_2025": 244,
+    "student_fill_raw_2025_first_half": 248,
+    "enrolled_raw_2025": 246,
+    "processed_candidate_v2": 489
+  },
+  "coverage": {
+    "student_fill_non_null_rows": 248,
+    "student_fill_null_rows": 241,
+    "comparison_11_rows": 11,
+    "comparison_11_student_fill_non_null": 11,
+    "default_scope_34_rows": 34,
+    "default_scope_34_student_fill_non_null": 34
+  },
+  "mismatch_summary": {
+    "total": 241,
+    "high": 0,
+    "medium": 241
+  },
+  "comparison_11_student_fill_rates": [
+    {
+      "학교명": "광운대학교",
+      "본분교명": "본교",
+      "재학생충원율": 119.6
+    },
+    {
+      "학교명": "덕성여자대학교",
+      "본분교명": "본교",
+      "재학생충원율": 120.2
+    },
+    {
+      "학교명": "동덕여자대학교",
+      "본분교명": "본교",
+      "재학생충원율": 101.3
+    },
+    {
+      "학교명": "서경대학교",
+      "본분교명": "본교",
+      "재학생충원율": 132.1
+    },
+    {
+      "학교명": "서울여자대학교",
+      "본분교명": "본교",
+      "재학생충원율": 117.2
+    },
+    {
+      "학교명": "성신여자대학교",
+      "본분교명": "본교",
+      "재학생충원율": 110.0
+    },
+    {
+      "학교명": "세종대학교",
+      "본분교명": "본교",
+      "재학생충원율": 133.4
+    },
+    {
+      "학교명": "숙명여자대학교",
+      "본분교명": "본교",
+      "재학생충원율": 117.0
+    },
+    {
+      "학교명": "숭실대학교",
+      "본분교명": "본교",
+      "재학생충원율": 136.8
+    },
+    {
+      "학교명": "이화여자대학교",
+      "본분교명": "본교",
+      "재학생충원율": 127.2
+    },
+    {
+      "학교명": "한성대학교",
+      "본분교명": "본교",
+      "재학생충원율": 118.6
+    }
+  ],
+  "known_limitations": [
+    "This is a candidate asset and does not replace the current student_recruitment file automatically.",
+    "AcademyInfo raw XLSX files do not contain school_id; merge uses normalized school name plus campus label against the 2026 key-indicator candidate.",
+    "Official site re-download/hash verification was not performed in this converter run."
+  ]
+}

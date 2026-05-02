@@ -1,0 +1,922 @@
+{
+  "report_id": "conversion_system_qa_report",
+  "generated_at": "2026-05-02T04:35:02.002996+00:00",
+  "project_root": "/Users/mortarteam81/Documents/Codex/2026-04-25/users-mortarteam81-visualization-14-ba-2/visualization_14_ba_2",
+  "summary": {
+    "candidate_batch_count": 8,
+    "blocker_count": 3,
+    "warning_count": 4,
+    "comparison_11_count": 11,
+    "default_scope_34_count": 34,
+    "status": "fail"
+  },
+  "policy_checks": [
+    {
+      "check": "comparison_11_definition",
+      "passed": true,
+      "details": {
+        "count": 11,
+        "schools": [
+          "성신여자대학교",
+          "숙명여자대학교",
+          "덕성여자대학교",
+          "서울여자대학교",
+          "동덕여자대학교",
+          "이화여자대학교",
+          "한성대학교",
+          "서경대학교",
+          "광운대학교",
+          "세종대학교",
+          "숭실대학교"
+        ]
+      }
+    },
+    {
+      "check": "default_scope_34_definition",
+      "passed": true,
+      "details": {
+        "count": 34
+      }
+    },
+    {
+      "check": "comparison_11_subset_of_default_scope_34",
+      "passed": true,
+      "details": {
+        "missing_from_scope": []
+      }
+    }
+  ],
+  "candidate_batches": [
+    {
+      "dataset_id": "dormitory_accommodation_status",
+      "root": "data/conversion_outputs/academyinfo/dormitory_accommodation_status",
+      "file_count": 2,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status.source.json",
+              "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status_2025_candidate.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status.source.json",
+              "data/metadata/dormitory_accommodation_status_v2.source.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status.processing_report.json",
+              "data/validation/processing_reports/academyinfo_dormitory_accommodation_status.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/mismatch_reports/academyinfo_dormitory_accommodation_status.mismatch.csv"
+            ]
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 1,
+            "findings": []
+          }
+        },
+        {
+          "check": "comparison_11_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status_2025_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        },
+        {
+          "check": "default_scope_34_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status_2025_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "dataset_id": "lecturer_pay",
+      "root": "data/conversion_outputs/academyinfo/lecturer_pay",
+      "file_count": 2,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay.source.json",
+              "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay_2023_2025_candidate.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay.source.json",
+              "data/metadata/lecturer_pay_v2_1.source.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay.processing_report.json",
+              "data/validation/processing_reports/academyinfo_lecturer_pay.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/mismatch_reports/academyinfo_lecturer_pay.mismatch.csv"
+            ]
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 1,
+            "findings": []
+          }
+        },
+        {
+          "check": "comparison_11_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 33,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay_2023_2025_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 33,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": [
+                  "감리교신학대학교"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "check": "default_scope_34_coverage",
+          "passed": false,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 33,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay_2023_2025_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 33,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": [
+                  "감리교신학대학교"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "dataset_id": "education_return",
+      "root": "data/conversion_outputs/kasfo/education_return",
+      "file_count": 1,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/kasfo/education_return/kasfo_education_return_2020_2025_restated_candidate.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/kasfo/education_return/kasfo_education_return_candidate.metadata.json",
+              "data/metadata/datasets/education_return.metadata.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/processing_reports/kasfo_education_return.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/mismatch_reports/kasfo_education_return_formula_mismatch.csv"
+            ]
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 1,
+            "findings": []
+          }
+        }
+      ]
+    },
+    {
+      "dataset_id": "legal_burden",
+      "root": "data/conversion_outputs/kasfo/legal_burden",
+      "file_count": 1,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/kasfo/legal_burden/kasfo_legal_burden_2025_restated_candidate.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/kasfo/legal_burden/kasfo_legal_burden_candidate.metadata.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/processing_reports/kasfo_legal_burden.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": false,
+          "details": {
+            "matched_files": []
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 1,
+            "findings": []
+          }
+        },
+        {
+          "check": "comparison_11_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/kasfo/legal_burden/kasfo_legal_burden_2025_restated_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        },
+        {
+          "check": "default_scope_34_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/kasfo/legal_burden/kasfo_legal_burden_2025_restated_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "dataset_id": "settlement",
+      "root": "data/conversion_outputs/kasfo/settlement",
+      "file_count": 2,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/kasfo/settlement/kasfo_settlement_processed_2022_2024_restated_candidate.csv",
+              "data/conversion_outputs/kasfo/settlement/kasfo_settlement_raw_2020_2024_candidate.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/kasfo/settlement/kasfo_settlement_candidate.metadata.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/processing_reports/kasfo_settlement.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": false,
+          "details": {
+            "matched_files": []
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 2,
+            "findings": []
+          }
+        },
+        {
+          "check": "comparison_11_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 2,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/kasfo/settlement/kasfo_settlement_processed_2022_2024_restated_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              },
+              {
+                "file": "data/conversion_outputs/kasfo/settlement/kasfo_settlement_raw_2020_2024_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        },
+        {
+          "check": "default_scope_34_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 2,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/kasfo/settlement/kasfo_settlement_processed_2022_2024_restated_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              },
+              {
+                "file": "data/conversion_outputs/kasfo/settlement/kasfo_settlement_raw_2020_2024_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "dataset_id": "kcue",
+      "root": "data/conversion_outputs/kcue",
+      "file_count": 3,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/kcue/kcue_university_indicators_2015_2025_v1_candidate_utf8.csv",
+              "data/conversion_outputs/kcue/kcue_university_indicators_v1_candidate.source.json",
+              "data/conversion_outputs/kcue/kcue_university_metric_values_2015_2025_v1_candidate_utf8.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/kcue/kcue_university_indicators_v1_candidate.source.json",
+              "data/metadata/kcue_university_indicators_v1.source.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/processing_reports/kcue_university_indicators_v1_candidate.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/mismatch_reports/kcue_university_indicators_v1_candidate.mismatch.csv"
+            ]
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 2,
+            "findings": []
+          }
+        }
+      ]
+    },
+    {
+      "dataset_id": "library_staff",
+      "root": "data/conversion_outputs/rinfo/library_staff",
+      "file_count": 2,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/rinfo/library_staff/library_staff_per_1000_students_2008_2025_candidate_all_no_inf.csv",
+              "data/conversion_outputs/rinfo/library_staff/library_staff_per_1000_students_2008_2025_candidate_scope34_no_inf.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/metadata/library_staff_per_1000_students_v6.source.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/processing_reports/rinfo_library_staff.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/mismatch_reports/rinfo_library_staff_formula_mismatch.csv"
+            ]
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 2,
+            "findings": []
+          }
+        }
+      ]
+    },
+    {
+      "dataset_id": "material_purchase",
+      "root": "data/conversion_outputs/rinfo/material_purchase",
+      "file_count": 2,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/rinfo/material_purchase/library_material_purchase_per_student_2008_2025_candidate_all_no_inf.csv",
+              "data/conversion_outputs/rinfo/material_purchase/library_material_purchase_per_student_2008_2025_candidate_scope34_no_inf.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/metadata/library_material_purchase_per_student_v2.source.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/processing_reports/rinfo_material_purchase.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/mismatch_reports/rinfo_material_purchase_formula_mismatch.csv"
+            ]
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 2,
+            "findings": []
+          }
+        }
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "check": "default_scope_34_coverage",
+      "severity": "blocker",
+      "dataset_id": "lecturer_pay",
+      "root": "data/conversion_outputs/academyinfo/lecturer_pay",
+      "details": {
+        "files_with_school_names": 1,
+        "best_comparison_11_count": 11,
+        "best_default_scope_34_count": 33,
+        "per_file": [
+          {
+            "file": "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay_2023_2025_candidate.csv",
+            "school_column": "학교명",
+            "comparison_11_count": 11,
+            "default_scope_34_count": 33,
+            "missing_comparison_11": [],
+            "missing_default_scope_34": [
+              "감리교신학대학교"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "check": "mismatch_report_exists",
+      "severity": "blocker",
+      "dataset_id": "legal_burden",
+      "root": "data/conversion_outputs/kasfo/legal_burden",
+      "details": {
+        "matched_files": []
+      }
+    },
+    {
+      "check": "mismatch_report_exists",
+      "severity": "blocker",
+      "dataset_id": "settlement",
+      "root": "data/conversion_outputs/kasfo/settlement",
+      "details": {
+        "matched_files": []
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "check": "scope_coverage",
+      "severity": "info",
+      "dataset_id": "education_return",
+      "message": "No tabular candidate with a recognizable school-name column was found."
+    },
+    {
+      "check": "scope_coverage",
+      "severity": "info",
+      "dataset_id": "kcue",
+      "message": "No tabular candidate with a recognizable school-name column was found."
+    },
+    {
+      "check": "scope_coverage",
+      "severity": "info",
+      "dataset_id": "library_staff",
+      "message": "No tabular candidate with a recognizable school-name column was found."
+    },
+    {
+      "check": "scope_coverage",
+      "severity": "info",
+      "dataset_id": "material_purchase",
+      "message": "No tabular candidate with a recognizable school-name column was found."
+    }
+  ],
+  "known_limitations": [
+    "When no source-agent candidate outputs exist yet, this script validates shared scope/policy definitions and records candidate checks as skipped.",
+    "raw-readonly is enforced here by path/symlink isolation checks; filesystem permission hardening is outside this script's scope.",
+    "no-current-overwrite is checked by ensuring candidate outputs remain under data/conversion_outputs and do not symlink to data/processed/current-like assets."
+  ]
+}

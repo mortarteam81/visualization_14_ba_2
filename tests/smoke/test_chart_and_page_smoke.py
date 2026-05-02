@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from utils.auth import AuthenticatedUser, ROLE_ADMIN
+from utils.auth import AuthenticatedUser, ROLE_ADMIN, ROLE_VIEWER
 from utils.chart_utils import add_threshold_hline, create_trend_line_chart
 
 
@@ -30,6 +30,15 @@ def _fake_authenticated_user() -> AuthenticatedUser:
         name="QA",
         role=ROLE_ADMIN,
         is_admin=True,
+    )
+
+
+def _fake_viewer_user() -> AuthenticatedUser:
+    return AuthenticatedUser(
+        email="viewer@example.com",
+        name="Viewer",
+        role=ROLE_VIEWER,
+        is_admin=False,
     )
 
 
@@ -168,6 +177,8 @@ class TestPageSmoke:
             "utils.ai_prompts.management",
             "utils.management_ai",
             "utils.management_insights",
+            "utils.data_validation_modes",
+            "utils.dormitory_page",
             "utils.ui.kpi",
             "utils.ui.renderers",
             "utils.ui.tables",
@@ -240,3 +251,29 @@ class TestPageSmoke:
             for caption in app.caption
         )
         assert len(app.dataframe) >= 1
+
+    def test_data_validation_page_runs_for_admin(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_authenticated_user)
+        app = AppTest.from_file(str(PAGE_DIR / "01_데이터_검증.py"), default_timeout=20)
+
+        app.run()
+
+        assert [exception.message for exception in app.exception] == []
+        assert any("데이터 검증" in title.value for title in app.title)
+        assert any("운영자 전용" in caption.value for caption in app.caption)
+        assert [multiselect.label for multiselect in app.multiselect] == []
+        assert any("자동 점검" in tab.label for tab in app.tabs)
+        assert any("차이 검토" in tab.label for tab in app.tabs)
+
+    def test_data_validation_page_blocks_viewer(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_viewer_user)
+        app = AppTest.from_file(str(PAGE_DIR / "01_데이터_검증.py"), default_timeout=20)
+
+        app.run()
+
+        assert [exception.message for exception in app.exception] == []
+        assert any("운영자만 접근" in error.value for error in app.error)

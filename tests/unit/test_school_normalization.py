@@ -21,10 +21,19 @@ def test_resolve_school_name_handles_exact_aliases_and_main_campus_suffixes() ->
 
 def test_resolve_school_name_does_not_merge_branch_campuses() -> None:
     assert resolve_school_name("건국대학교(글로컬)") is None
+    assert resolve_school_name("건국대학교(글로컬)_분교") is None
     assert resolve_school_name("고려대학교 세종캠퍼스") is None
     assert resolve_school_name("동국대학교(WISE)") is None
     assert resolve_school_name("연세대학교(미래)") is None
     assert resolve_school_name("한양대학교(ERICA)") is None
+
+
+def test_resolve_school_name_does_not_use_partial_matching() -> None:
+    assert resolve_school_name("가톨릭대학교") is None
+    assert resolve_school_name("대전가톨릭대학교") is None
+    assert resolve_school_name("부산가톨릭대학교") is None
+    assert resolve_school_name("건국대학교(글로컬)") != "건국대학교"
+    assert resolve_school_name("고려대학교(세종)") != "고려대학교"
 
 
 def test_canonicalize_school_name_can_preserve_unknown_names() -> None:

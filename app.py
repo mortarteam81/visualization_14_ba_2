@@ -12,13 +12,19 @@ st.set_page_config(
     page_icon=APP_ICON,
     layout="wide",
 )
-require_authenticated_user()
+auth_user = require_authenticated_user()
 apply_app_theme()
 
 st.title(f"{APP_ICON} {APP_TITLE}")
 st.caption(APP_SUBTITLE)
 st.markdown(APP_METADATA["catalog_intro"])
 render_mobile_compact_toggle(placement="inline")
+if auth_user.is_admin:
+    st.page_link(
+        "pages/01_데이터_검증.py",
+        label="데이터 검증 모드 열기",
+        icon="🧪",
+    )
 st.divider()
 
 st.markdown(f"#### {APP_METADATA['catalog_heading']}")

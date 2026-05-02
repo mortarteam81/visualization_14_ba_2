@@ -1,0 +1,36 @@
+{
+  "dataset_id": "lecturer_pay",
+  "dataset_name_ko": "강사 강의료",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시데이터 다운로드 > 공시항목 > 14-차. 강사 강의료",
+  "processed_at": "2026-05-02T02:56:19.592564+00:00",
+  "source_preservation_status": "gap_original_xlsx_missing",
+  "source_input_kind": "processed_csv",
+  "source_input_file": "data/processed/lecturer_pay/lecturer_pay_2023_2025_v2_1_utf8.csv",
+  "files": [
+    {
+      "path": "data/processed/lecturer_pay/lecturer_pay_2023_2025_v2_1_utf8.csv",
+      "exists": true,
+      "sha256": "e29a2a11b8d7a6ec7094f41f0b702b3fb3089ceb241cc948abc499f23c6099ef",
+      "kind": "processed_input"
+    },
+    {
+      "path": "data/raw/lecturer_pay/lecturer_pay_2023_2025_original.xlsx",
+      "exists": false,
+      "sha256": null,
+      "kind": "expected_raw_source"
+    },
+    {
+      "path": "data/metadata/lecturer_pay_v2_1.source.json",
+      "exists": true,
+      "sha256": "b02af64e97f1d38e8ec55f362b53149fb9b2bcd9cf29b8626d70e4b973a797ec",
+      "kind": "source_metadata"
+    }
+  ],
+  "notes": [
+    "No official-site mass download was performed.",
+    "Existing processed/current assets were not overwritten or promoted."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "dataset_key": "student_recruitment",
+  "metric_ids": [
+    "student_recruitment"
+  ],
+  "title": "학생 충원 성과 후보",
+  "candidate_asset": "data/processed/student_recruitment/student_recruitment_2026_candidate_v2.csv",
+  "source_data_scope": "national_processed_candidate",
+  "verification_status": "candidate_partial",
+  "default_analysis_scope": "candidate national school-level values; promotion requires explicit approval",
+  "metadata_files": {
+    "source": "data/metadata/student_recruitment.source.json",
+    "schema": null,
+    "report": "data/validation/processing_reports/student_recruitment_2026_v2.processing_report.json",
+    "guide": null
+  },
+  "quality_flags": [
+    "candidate_asset",
+    "academyinfo_raw_27_29_31_merged",
+    "student_fill_rate_populated_from_raw29"
+  ],
+  "backlog": [
+    "Promote to data/metadata/datasets only when the student_recruitment metric is implemented/current.",
+    "Add a full schema document before verified promotion."
+  ]
+}

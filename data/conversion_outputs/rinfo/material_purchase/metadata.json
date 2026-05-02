@@ -1,0 +1,78 @@
+{
+  "dataset_id": "material_purchase",
+  "status": "partial_source_gap_candidate_generated",
+  "generated_at": "2026-05-01T10:33:40.363897+00:00",
+  "input": {
+    "processed_csv": "data/processed/library_material_purchase_per_student/library_material_purchase_per_student_2008_2025_v2_utf8.csv",
+    "processed_sha256": "32f1d220b0376621534a550c59a470709cfa65dd264c145b444110cff954965d",
+    "raw_source_profile": {
+      "raw_dir": "data/raw/library_material_purchase_per_student",
+      "raw_dir_exists": true,
+      "file_count": 1,
+      "files": [
+        "data/raw/library_material_purchase_per_student/README.md"
+      ],
+      "xls_xlsx_csv_count": 0,
+      "xls_xlsx_csv_files": [],
+      "source_preservation_status": "gap",
+      "limitation": "RINFO 원본 xls/xlsx가 repo에 보존되어 있지 않거나 README 수준이므로 원자료 직접 대조는 수행하지 않았다. 이 산출물은 processed CSV를 입력으로 한 candidate 재표준화/산식검증/no-inf/scope 검증 결과다."
+    }
+  },
+  "outputs": {
+    "all_candidate": "data/conversion_outputs/rinfo/material_purchase/library_material_purchase_per_student_2008_2025_candidate_all_no_inf.csv",
+    "scope34_candidate": "data/conversion_outputs/rinfo/material_purchase/library_material_purchase_per_student_2008_2025_candidate_scope34_no_inf.csv"
+  },
+  "limitations": [
+    "RINFO 원본 xls/xlsx 부재로 원자료 직접 대조 불가.",
+    "other_electronic_resources_expense == total_material_purchase_expense for all rows; RINFO detail-column mapping is suspect and requires raw XLS/XLSX re-check."
+  ],
+  "row_counts": {
+    "processed_input_rows": 8226,
+    "candidate_all_rows": 8226,
+    "candidate_scope34_rows": 612,
+    "candidate_scope34_school_count": 34
+  },
+  "year_range": {
+    "min": 2008,
+    "max": 2025
+  },
+  "no_inf_policy": {
+    "metric_column": "material_purchase_expense_per_student",
+    "zero_or_invalid_denominator_column": "enrolled_students_current_year",
+    "policy": "replace +/-inf with null metric value and flag metric_calc_status",
+    "remaining_inf_count": 0,
+    "not_calculable_or_missing_count": 930
+  },
+  "scope_validation": {
+    "scope_manifest": "data/metadata/analysis_scopes/seoul_private_four_year_universities.json",
+    "scope_manifest_school_count": 34,
+    "scope34_missing_schools": [],
+    "simple_filter_extra_schools_excluded_by_exact_scope": [
+      "고려사이버대학교",
+      "디지털서울문화예술대학교",
+      "명지대학교",
+      "서울디지털대학교",
+      "서울사이버대학교",
+      "숭실사이버대학교",
+      "태재대학교",
+      "한국열린사이버대학교"
+    ],
+    "comparison11_present_count": 11
+  },
+  "formula_mismatch_count": 81,
+  "mismatch_report": "data/validation/mismatch_reports/rinfo_material_purchase_formula_mismatch.csv",
+  "coverage_report": "data/validation/mismatch_reports/rinfo_material_purchase_coverage.csv",
+  "detail_column_mapping_diagnostics": {
+    "status": "mapping_suspect",
+    "other_electronic_resources_expense_equals_total_all_rows": true,
+    "other_electronic_resources_expense_equals_total_count": 8226,
+    "row_count": 8226,
+    "detail_sum_equals_total_count": 1122,
+    "limitation": "other_electronic_resources_expense == total_material_purchase_expense for all rows; RINFO detail-column mapping is suspect and requires raw XLS/XLSX re-check."
+  },
+  "formula_validation": {
+    "status": "partial_processed_internal_check_only",
+    "rule": "total_material_purchase_expense / enrolled_students_current_year must match processed per-student metric within 0.11 unless denominator is zero",
+    "raw_verification": "not_performed_source_xls_xlsx_absent"
+  }
+}

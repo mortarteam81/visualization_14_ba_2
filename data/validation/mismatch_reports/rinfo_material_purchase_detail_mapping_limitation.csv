@@ -1,0 +1,2 @@
+﻿status,other_electronic_resources_expense_equals_total_all_rows,other_electronic_resources_expense_equals_total_count,row_count,detail_sum_equals_total_count,limitation
+mapping_suspect,True,8226,8226,1122,other_electronic_resources_expense == total_material_purchase_expense for all rows; RINFO detail-column mapping is suspect and requires raw XLS/XLSX re-check.

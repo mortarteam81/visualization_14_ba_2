@@ -1,0 +1,685 @@
+{
+  "dataset_id": "kcue_university_indicators",
+  "version": "v1_candidate",
+  "processed_at": "2026-05-01T10:33:33.941575+00:00",
+  "raw_input_directory": "data/raw/kcue_university_indicators/original",
+  "raw_file_count": 11,
+  "candidate_outputs": {
+    "wide": "data/conversion_outputs/kcue/kcue_university_indicators_2015_2025_v1_candidate_utf8.csv",
+    "long": "data/conversion_outputs/kcue/kcue_university_metric_values_2015_2025_v1_candidate_utf8.csv",
+    "source_metadata": "data/conversion_outputs/kcue/kcue_university_indicators_v1_candidate.source.json",
+    "candidate_metadata": "data/conversion_outputs/kcue/kcue_university_indicators_v1_candidate.metadata.json",
+    "processing_report": "data/validation/processing_reports/kcue_university_indicators_v1_candidate.processing_report.json",
+    "mismatch_report": "data/validation/mismatch_reports/kcue_university_indicators_v1_candidate.mismatch.csv"
+  },
+  "current_assets_compared": {
+    "wide": "data/processed/kcue_university_indicators/kcue_university_indicators_2015_2025_v1_utf8.csv",
+    "long": "data/processed/kcue_university_indicators/kcue_university_metric_values_2015_2025_v1_utf8.csv"
+  },
+  "row_counts": {
+    "wide_candidate": 2054,
+    "long_candidate": 43184,
+    "wide_current": 2054,
+    "long_current": 43184
+  },
+  "year_counts": {
+    "2015": 190,
+    "2016": 187,
+    "2017": 187,
+    "2018": 187,
+    "2019": 187,
+    "2020": 187,
+    "2021": 187,
+    "2022": 187,
+    "2023": 187,
+    "2024": 184,
+    "2025": 184
+  },
+  "metric_counts": {
+    "adjunct_faculty_rate": 184,
+    "books_per_faculty": 2054,
+    "building_facility_rate": 1870,
+    "corporate_finance_transfer_ratio": 155,
+    "corporate_transfer_ratio": 1717,
+    "domestic_papers_per_faculty": 2054,
+    "donation_ratio": 2029,
+    "dormitory_accommodation_rate": 2054,
+    "dormitory_domestic_accommodation_rate": 184,
+    "education_cost_return_rate": 2016,
+    "employment_rate": 1870,
+    "external_research_per_faculty": 2054,
+    "faculty_combined_rate": 184,
+    "freshman_fill_rate": 1870,
+    "full_time_faculty_rate": 2050,
+    "graduate_career_performance": 184,
+    "internal_research_per_faculty": 2054,
+    "lecturer_hourly_pay": 2054,
+    "legal_burden_rate": 155,
+    "library_material_purchase_per_student": 2054,
+    "library_staff_per_1000_students": 2054,
+    "research_performance_vs_standard": 2049,
+    "scholarship_ratio": 2044,
+    "sci_papers_per_faculty": 2054,
+    "student_fill_rate": 1870,
+    "student_recruitment_performance": 184,
+    "students_per_staff": 2054,
+    "tuition_revenue_ratio": 2029
+  },
+  "coverage": {
+    "comparison_11": {
+      "expected_school_count": 11,
+      "present_school_count": 11,
+      "missing_schools": [],
+      "rows": 121,
+      "years_by_school": {
+        "광운대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "덕성여자대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "동덕여자대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "서경대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "서울여자대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "성신여자대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "세종대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "숙명여자대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "숭실대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "이화여자대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "한성대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ]
+      }
+    },
+    "risk_schools": {
+      "expected_school_count": 16,
+      "present_school_count": 13,
+      "missing_schools": [
+        "케이씨대학교",
+        "그리스도대학교",
+        "한영신학대학교"
+      ],
+      "rows": 143,
+      "years_by_school": {
+        "가톨릭대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "강서대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "건국대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "건국대학교(글로컬)": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "고려대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "고려대학교(세종)": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "동국대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "동국대학교(WISE)": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "서울한영대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "연세대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "연세대학교(미래)": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "한양대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "한양대학교(ERICA)": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ]
+      }
+    },
+    "outlier_schools": {
+      "expected_school_count": 5,
+      "present_school_count": 5,
+      "missing_schools": [],
+      "rows": 55,
+      "years_by_school": {
+        "감리교신학대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "대전가톨릭대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "서울기독대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "영산선학대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "칼빈대학교": [
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ]
+      }
+    }
+  },
+  "source_value_only_4th_cycle": [
+    {
+      "metric_id": "adjunct_faculty_rate",
+      "metric_label_ko": "겸임교원 확보율",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    },
+    {
+      "metric_id": "faculty_combined_rate",
+      "metric_label_ko": "전임교원 및 겸임교원 확보율",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    },
+    {
+      "metric_id": "full_time_faculty_rate",
+      "metric_label_ko": "전임교원 확보율",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    },
+    {
+      "metric_id": "research_performance_vs_standard",
+      "metric_label_ko": "연구성과 기준값 대비 실적",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    },
+    {
+      "metric_id": "student_recruitment_performance",
+      "metric_label_ko": "학생 충원 성과",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    }
+  ],
+  "formula_validation": {
+    "tolerance": 0.05,
+    "formula_checks": [
+      {
+        "metric_id": "full_time_faculty_rate",
+        "compared_rows": 1866,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "building_facility_rate",
+        "compared_rows": 1864,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "freshman_fill_rate",
+        "compared_rows": 1865,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "student_fill_rate",
+        "compared_rows": 1866,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "education_cost_return_rate",
+        "compared_rows": 1996,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "scholarship_ratio",
+        "compared_rows": 2027,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "tuition_revenue_ratio",
+        "compared_rows": 2019,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "donation_ratio",
+        "compared_rows": 2019,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "corporate_transfer_ratio",
+        "compared_rows": 1702,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "legal_burden_rate",
+        "compared_rows": 155,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "corporate_finance_transfer_ratio",
+        "compared_rows": 155,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "lecturer_hourly_pay",
+        "compared_rows": 2023,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "internal_research_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "students_per_staff",
+        "compared_rows": 2048,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "dormitory_accommodation_rate",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "dormitory_domestic_accommodation_rate",
+        "compared_rows": 183,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "library_material_purchase_per_student",
+        "compared_rows": 2050,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "library_staff_per_1000_students",
+        "compared_rows": 2050,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "domestic_papers_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "sci_papers_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "books_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "external_research_per_faculty",
+        "compared_rows": 2047,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "employment_rate",
+        "compared_rows": 1782,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      },
+      {
+        "metric_id": "graduate_career_performance",
+        "compared_rows": 184,
+        "mismatch_rows_over_0_05": 0,
+        "max_abs_diff": 1e-05
+      }
+    ]
+  },
+  "mismatch_summary": {
+    "total": 0,
+    "high": 0
+  },
+  "known_limitations": [
+    "Candidate outputs are review-only and are not promoted to data/processed/current assets by this converter.",
+    "KCUE XLSX files do not include stable school IDs; coverage is school-name based.",
+    "No official-site re-download was performed; this run verifies local raw XLSX files against existing processed outputs."
+  ]
+}

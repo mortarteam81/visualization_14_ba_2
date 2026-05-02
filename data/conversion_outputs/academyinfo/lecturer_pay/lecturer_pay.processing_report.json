@@ -1,0 +1,51 @@
+{
+  "dataset_id": "lecturer_pay",
+  "dataset_name_ko": "강사 강의료",
+  "version": "academyinfo_candidate_processed_restandardized",
+  "processed_at": "2026-05-02T02:56:19.592564+00:00",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시데이터 다운로드 > 공시항목 > 14-차. 강사 강의료",
+  "source_preservation_status": "gap_original_xlsx_missing",
+  "source_input_kind": "processed_csv",
+  "input_file": "data/processed/lecturer_pay/lecturer_pay_2023_2025_v2_1_utf8.csv",
+  "output_file": "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay_2023_2025_candidate.csv",
+  "metadata_file": "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay.source.json",
+  "mismatch_report": "data/validation/mismatch_reports/academyinfo_lecturer_pay.mismatch.csv",
+  "row_counts": {
+    "source_input_rows": 2713,
+    "candidate_rows": 99,
+    "mismatch_rows": 1
+  },
+  "coverage": {
+    "comparison_11_expected": 11,
+    "comparison_11_present_any_year": 11,
+    "comparison_11_missing_any_year": [],
+    "default_scope_34_expected": 34,
+    "default_scope_34_present_any_year": 33,
+    "default_scope_34_missing_any_year": [
+      "감리교신학대학교"
+    ],
+    "years": [
+      2023,
+      2024,
+      2025
+    ],
+    "latest_year": 2025,
+    "comparison_11_present_latest_year": 11,
+    "comparison_11_missing_latest_year": [],
+    "default_scope_34_present_latest_year": 33,
+    "default_scope_34_missing_latest_year": [
+      "감리교신학대학교"
+    ]
+  },
+  "mismatch_summary": {
+    "total": 1,
+    "high": 0,
+    "medium": 1
+  },
+  "known_limitations": [
+    "Original AcademyInfo XLSX was not available under data/raw for this dataset; source-value parity cannot be declared.",
+    "This run only re-standardizes and validates the existing processed local asset into a separate candidate output path.",
+    "Promotion to current dashboard assets requires explicit review/approval."
+  ]
+}

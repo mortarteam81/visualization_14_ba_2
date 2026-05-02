@@ -9,11 +9,32 @@
   "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 14-마-1. 기숙사 수용 현황_대학",
   "download_method": "웹사이트에서 xlsx 파일 다운로드 후 csv로 변환",
   "original_file_name": "14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+  "raw_source_files": [
+    {
+      "path": "data/raw/academyinfo/dormitory_accommodation_status/original/14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+      "sha256": "742ceb8fdabf83b0df0fe729002d18da772aab1267b243505464abacecc2128c",
+      "file_size_bytes": 458311,
+      "downloaded_at": "2026-05-02T11:23:22+09:00",
+      "source_menu": "공시데이터 추이",
+      "search_keyword": "기숙사",
+      "academic_system": "대학",
+      "download_reason_popup_required": true,
+      "popup_personal_fields_stored": false
+    }
+  ],
+  "candidate_conversion": {
+    "script": "scripts/converters/academyinfo_dormitory.py",
+    "output_file": "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status_2025_candidate.csv",
+    "processing_report": "data/validation/processing_reports/academyinfo_dormitory_accommodation_status.processing_report.json",
+    "mismatch_report": "data/validation/mismatch_reports/academyinfo_dormitory_accommodation_status.mismatch.csv",
+    "source_preservation_status": "raw_preserved"
+  },
   "processed_output_files": [
     "data/processed/dormitory_accommodation_status/dormitory_accommodation_status_v2_utf8.csv"
   ],
   "notes": [
-    "사용자 제공 CSV를 기준으로 v2 표준 영문 스키마로 변환함",
-    "원본 한글 컬럼명을 전부 영문 snake_case로 정규화함"
+    "2026-05-02부터 대학알리미 공시데이터 추이 XLSX 원자료를 보존함",
+    "원본 한글 컬럼명을 전부 영문 snake_case로 정규화함",
+    "개인정보성 다운로드 사유 팝업 입력값은 저장하지 않음"
   ]
 }

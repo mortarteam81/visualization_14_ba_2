@@ -1,0 +1,12 @@
+{
+  "dataset": "kasfo_education_return",
+  "candidate_only": true,
+  "raw_verification_status": "blocked_raw_xlsx_absent",
+  "formula": "(tuition_account_total + industry_account_total) / tuition_revenue * 100, rounded to 1 decimal",
+  "amount_parse_rule": "trim, comma removal, '-' to null, negative sign preserved",
+  "source_files": {
+    "data/processed/education_cost_return_rate/education_cost_return_rate_2020_2025_v2_schema_utf8.csv": {
+      "sha256": "b3666aeb028e346e5454d8ee794749fb65032a2cefcdf92ace39ce138926bf3b"
+    }
+  }
+}

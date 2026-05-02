@@ -1,0 +1,14 @@
+{
+  "dataset": "kasfo_legal_burden",
+  "candidate_only": true,
+  "school_code_rule": "대표학교코드/학교코드 are zfilled to 7 digits",
+  "amount_parse_rule": "trim, comma removal, '-' to null, negative sign preserved",
+  "source_files": {
+    "14-ba-2.-beobjeongbudamgeum-budam-hyeonhwang_daehag_beobjeongbudamgeum-budamryul-20260309-seoul-sojae-saribdaehag.csv": {
+      "sha256": "0523f9ccbb9a3f293135e8da6d605e9d7f23db254a7676b08e956831b84df4ef"
+    },
+    "data/법정부담금_부담율.csv": {
+      "sha256": "88cce52fcf56340da6677152453034415686d299c56541cad02d58d911ddcf16"
+    }
+  }
+}

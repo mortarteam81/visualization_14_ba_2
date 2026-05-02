@@ -1,0 +1,69 @@
+{
+  "dataset_id": "library_staff",
+  "status": "partial_source_gap_candidate_generated",
+  "generated_at": "2026-05-01T10:33:39.985480+00:00",
+  "input": {
+    "processed_csv": "data/processed/library_staff_per_1000_students/library_staff_per_1000_students_2008_2025_v6_utf8.csv",
+    "processed_sha256": "6f568e9cfbd9dfd477ad809e2e1cbdaa2e9a9af79281437933c8abd2c157b3ed",
+    "raw_source_profile": {
+      "raw_dir": "data/raw/library_staff_per_1000_students",
+      "raw_dir_exists": true,
+      "file_count": 1,
+      "files": [
+        "data/raw/library_staff_per_1000_students/library_staff_per_1000_students_raw_README_v6.md"
+      ],
+      "xls_xlsx_csv_count": 0,
+      "xls_xlsx_csv_files": [],
+      "source_preservation_status": "gap",
+      "limitation": "RINFO 원본 xls/xlsx가 repo에 보존되어 있지 않거나 README 수준이므로 원자료 직접 대조는 수행하지 않았다. 이 산출물은 processed CSV를 입력으로 한 candidate 재표준화/산식검증/no-inf/scope 검증 결과다."
+    }
+  },
+  "outputs": {
+    "all_candidate": "data/conversion_outputs/rinfo/library_staff/library_staff_per_1000_students_2008_2025_candidate_all_no_inf.csv",
+    "scope34_candidate": "data/conversion_outputs/rinfo/library_staff/library_staff_per_1000_students_2008_2025_candidate_scope34_no_inf.csv"
+  },
+  "limitations": [
+    "RINFO 원본 xls/xlsx가 repo에 보존되어 있지 않거나 README 수준이므로 원자료 직접 대조는 수행하지 않았다. 이 산출물은 processed CSV를 입력으로 한 candidate 재표준화/산식검증/no-inf/scope 검증 결과다."
+  ],
+  "row_counts": {
+    "processed_input_rows": 8215,
+    "candidate_all_rows": 8215,
+    "candidate_scope34_rows": 612,
+    "candidate_scope34_school_count": 34
+  },
+  "year_range": {
+    "min": 2008,
+    "max": 2025
+  },
+  "no_inf_policy": {
+    "metric_column": "library_staff_per_1000_students_recalculated",
+    "zero_or_invalid_denominator_column": "enrolled_students",
+    "policy": "replace +/-inf with null metric value and flag metric_calc_status",
+    "remaining_inf_count": 0,
+    "not_calculable_or_missing_count": 923
+  },
+  "scope_validation": {
+    "scope_manifest": "data/metadata/analysis_scopes/seoul_private_four_year_universities.json",
+    "scope_manifest_school_count": 34,
+    "scope34_missing_schools": [],
+    "simple_filter_extra_schools_excluded_by_exact_scope": [
+      "고려사이버대학교",
+      "디지털서울문화예술대학교",
+      "명지대학교",
+      "서울디지털대학교",
+      "서울사이버대학교",
+      "숭실사이버대학교",
+      "태재대학교",
+      "한국열린사이버대학교"
+    ],
+    "comparison11_present_count": 11
+  },
+  "formula_mismatch_count": 1087,
+  "mismatch_report": "data/validation/mismatch_reports/rinfo_library_staff_formula_mismatch.csv",
+  "coverage_report": "data/validation/mismatch_reports/rinfo_library_staff_coverage.csv",
+  "formula_validation": {
+    "status": "partial_processed_internal_check_only",
+    "rule": "compare processed original metric and processed recalculated metric within 0.05; zero denominator is not calculable",
+    "raw_verification": "not_performed_source_xls_xlsx_absent"
+  }
+}

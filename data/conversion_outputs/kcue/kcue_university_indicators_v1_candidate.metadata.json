@@ -1,0 +1,74 @@
+{
+  "dataset_key": "kcue_university_indicators",
+  "version": "v1_candidate",
+  "title": "KCUE university indicators candidate conversion",
+  "candidate_assets": {
+    "wide": "data/conversion_outputs/kcue/kcue_university_indicators_2015_2025_v1_candidate_utf8.csv",
+    "long": "data/conversion_outputs/kcue/kcue_university_metric_values_2015_2025_v1_candidate_utf8.csv"
+  },
+  "verification_status": "candidate_verified_against_current",
+  "promotion_policy": "Do not promote automatically; current assets remain untouched until explicit approval.",
+  "metadata_files": {
+    "source": "data/conversion_outputs/kcue/kcue_university_indicators_v1_candidate.source.json",
+    "processing_report": "data/validation/processing_reports/kcue_university_indicators_v1_candidate.processing_report.json",
+    "mismatch_report": "data/validation/mismatch_reports/kcue_university_indicators_v1_candidate.mismatch.csv"
+  },
+  "quality_flags": [
+    "raw_read_only",
+    "candidate_output_only",
+    "processed_assets_not_modified",
+    "compared_to_current_wide_long"
+  ],
+  "source_value_only_4th_cycle": [
+    {
+      "metric_id": "adjunct_faculty_rate",
+      "metric_label_ko": "겸임교원 확보율",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    },
+    {
+      "metric_id": "faculty_combined_rate",
+      "metric_label_ko": "전임교원 및 겸임교원 확보율",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    },
+    {
+      "metric_id": "full_time_faculty_rate",
+      "metric_label_ko": "전임교원 확보율",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    },
+    {
+      "metric_id": "research_performance_vs_standard",
+      "metric_label_ko": "연구성과 기준값 대비 실적",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    },
+    {
+      "metric_id": "student_recruitment_performance",
+      "metric_label_ko": "학생 충원 성과",
+      "reference_years": [
+        2025
+      ],
+      "rows": 184,
+      "status": "source_value_only",
+      "reason": "4주기 원자료에 분자/분모 또는 재계산값 없이 지표값만 제공됨"
+    }
+  ]
+}
