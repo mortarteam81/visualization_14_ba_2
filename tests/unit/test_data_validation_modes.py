@@ -10,16 +10,19 @@ from utils.data_validation_modes import (
     DECISION_NEEDS_CHECK,
     DECISION_PENDING,
     ReviewDecision,
+    build_gyowon_validation_status,
     build_mismatch_review_frame,
     build_mismatch_review_id,
     build_research_validation_status,
     build_review_completion_status,
     build_student_recruitment_validation_status,
     load_dormitory_review_decisions,
+    load_gyowon_review_decisions,
     load_research_review_decisions,
     load_student_recruitment_review_decisions,
     review_decisions_from_frame,
     save_dormitory_review_decisions,
+    save_gyowon_review_decisions,
     save_research_review_decisions,
     save_student_recruitment_review_decisions,
 )
@@ -162,6 +165,23 @@ def test_student_recruitment_status_uses_preserved_raw_sources() -> None:
     assert status.mismatch_rows >= status.medium_mismatches
 
 
+def test_gyowon_status_uses_preserved_raw_source_and_reports_mismatch() -> None:
+    status = build_gyowon_validation_status()
+
+    assert status.dataset_id == "gyowon"
+    assert status.raw_preserved is True
+    assert status.candidate_exists is True
+    assert status.report_exists is True
+    assert status.source_input_kind == "raw_xlsx"
+    assert status.source_input_rows == 4563
+    assert status.candidate_rows == 3106
+    assert status.mismatch_rows == 1
+    assert status.high_mismatches == 0
+    assert status.medium_mismatches == 1
+    assert status.ready_for_preview is True
+    assert status.ready_for_promotion is False
+
+
 def test_research_status_uses_preserved_raw_source_and_zero_mismatches() -> None:
     status = build_research_validation_status()
 
@@ -205,6 +225,37 @@ def test_student_recruitment_review_decision_save_and_load_roundtrip(tmp_path) -
     loaded = load_student_recruitment_review_decisions(path)
 
     assert loaded[review_id].dataset_id == "student_recruitment"
+    assert loaded[review_id].decision == DECISION_ACCEPT_RAW
+
+
+def test_gyowon_review_decision_save_and_load_roundtrip(tmp_path) -> None:
+    review_id = build_mismatch_review_id(
+        dataset_id="gyowon",
+        school_name="성균관대학교",
+        year=2024,
+        field="전임교원 확보율(재학생 기준)",
+    )
+    path = tmp_path / "gyowon_review.json"
+
+    save_gyowon_review_decisions(
+        {
+            review_id: ReviewDecision(
+                review_id=review_id,
+                dataset_id="gyowon",
+                school_name="성균관대학교",
+                year=2024,
+                field="전임교원 확보율(재학생 기준)",
+                decision=DECISION_ACCEPT_RAW,
+                note="전임교원 확보율 원자료 기준 확인",
+                updated_at="2026-05-02T00:00:00+00:00",
+            )
+        },
+        path=path,
+    )
+
+    loaded = load_gyowon_review_decisions(path)
+
+    assert loaded[review_id].dataset_id == "gyowon"
     assert loaded[review_id].decision == DECISION_ACCEPT_RAW
 
 

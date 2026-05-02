@@ -1,0 +1,2 @@
+﻿severity,field,school_name,year,processed_value,raw_value,reason,source_path
+medium,전임교원 확보율(재학생 기준),성균관대학교,2024,106.62,106.7,Current dashboard asset value differs from raw-XLSX candidate value.,data/전임교원_확보율.csv

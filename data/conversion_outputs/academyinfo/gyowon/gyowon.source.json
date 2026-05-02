@@ -1,0 +1,42 @@
+{
+  "dataset_id": "gyowon",
+  "dataset_name_ko": "전임교원 확보율",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학",
+  "processed_at": "2026-05-02T05:43:33.367182+00:00",
+  "source_preservation_status": "raw_preserved",
+  "source_input_kind": "raw_xlsx",
+  "source_input_file": "data/raw/academyinfo/gyowon/original/6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준).xlsx",
+  "files": [
+    {
+      "path": "data/전임교원_확보율.csv",
+      "exists": true,
+      "sha256": "51ee3730de4fd922c66d817bcc1dbb1c8593dce376ccca525630443995072017",
+      "kind": "processed_input"
+    },
+    {
+      "path": "data/raw/academyinfo/gyowon/original/6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준).xlsx",
+      "exists": true,
+      "sha256": "8755f3e2b793f37d7a5052db7f27cd97edcdbfa0b98c56b99d047e8b213cbd5a",
+      "kind": "expected_raw_source"
+    },
+    {
+      "path": "data/raw/academyinfo/gyowon/original/6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준)_의학계열제외.xlsx",
+      "exists": true,
+      "sha256": "b56b9167c37ec11bc9fec03c4789867b0ff26d346027dfe02ab606efe242dd2d",
+      "kind": "expected_raw_source"
+    },
+    {
+      "path": "data/metadata/gyowon_v1.source.json",
+      "exists": true,
+      "sha256": "5300ca58de796328f2efb6f280d8ddc911c5e08adb8408029e14db8def8c0948",
+      "kind": "source_metadata"
+    }
+  ],
+  "notes": [
+    "No official-site mass download was performed.",
+    "Existing processed/current assets were not overwritten or promoted."
+  ]
+}

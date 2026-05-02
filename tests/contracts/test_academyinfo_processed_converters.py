@@ -8,12 +8,15 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DORMITORY_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status_2025_candidate.csv"
+GYOWON_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/gyowon/gyowon_2008_2025_candidate.csv"
 LECTURER_PAY_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay_2023_2025_candidate.csv"
 RESEARCH_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/research/research_2007_2024_candidate.csv"
 DORMITORY_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_dormitory_accommodation_status.processing_report.json"
+GYOWON_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_gyowon.processing_report.json"
 LECTURER_PAY_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_lecturer_pay.processing_report.json"
 RESEARCH_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_research.processing_report.json"
 DORMITORY_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_dormitory_accommodation_status.mismatch.csv"
+GYOWON_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_gyowon.mismatch.csv"
 LECTURER_PAY_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_lecturer_pay.mismatch.csv"
 RESEARCH_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_research.mismatch.csv"
 
@@ -59,6 +62,26 @@ def test_academyinfo_lecturer_pay_candidate_outputs_are_separate_and_gap_reporte
     assert set(frame.columns) >= {"기준년도", "학교명", "강사강의료"}
 
 
+def test_academyinfo_gyowon_candidate_outputs_are_raw_backed_and_national() -> None:
+    assert GYOWON_CANDIDATE.exists()
+    assert GYOWON_MISMATCH.exists()
+    frame = pd.read_csv(GYOWON_CANDIDATE)
+    mismatch = pd.read_csv(GYOWON_MISMATCH)
+    report = _load_report(GYOWON_REPORT)
+
+    assert str(GYOWON_CANDIDATE.relative_to(PROJECT_ROOT)) == report["output_file"]
+    assert report["version"] == "academyinfo_gyowon_raw_xlsx_candidate_v1"
+    assert report["source_input_kind"] == "raw_xlsx"
+    assert report["source_preservation_status"] == "raw_preserved"
+    assert report["row_counts"]["source_input_rows"] == 4563
+    assert report["row_counts"]["candidate_rows"] == len(frame) == 3106
+    assert report["row_counts"]["mismatch_rows"] == len(mismatch) == 1
+    assert report["coverage"]["comparison_11_present_latest_year"] == 11
+    assert report["coverage"]["default_scope_34_present_latest_year"] == 34
+    assert set(frame.columns) >= {"기준년도", "학교명", "전임교원 확보율(학생정원 기준)", "전임교원 확보율(재학생 기준)"}
+    assert frame["학교명"].eq("성신여자대학교").any()
+
+
 def test_academyinfo_research_candidate_outputs_are_raw_backed_and_national() -> None:
     assert RESEARCH_CANDIDATE.exists()
     assert RESEARCH_MISMATCH.exists()
@@ -86,6 +109,18 @@ def test_academyinfo_dormitory_mismatch_report_captures_current_asset_drift() ->
     assert len(frame) == 7
     assert {"성균관대학교", "홍익대학교"}.issubset(set(frame["school_name"]))
     assert "Current dashboard asset value differs from raw-XLSX candidate value." in set(frame["reason"])
+
+
+def test_academyinfo_gyowon_mismatch_report_captures_single_current_asset_drift() -> None:
+    frame = pd.read_csv(GYOWON_MISMATCH)
+
+    assert len(frame) == 1
+    row = frame.iloc[0]
+    assert row["severity"] == "medium"
+    assert row["school_name"] == "성균관대학교"
+    assert int(row["year"]) == 2024
+    assert row["field"] == "전임교원 확보율(재학생 기준)"
+    assert row["reason"] == "Current dashboard asset value differs from raw-XLSX candidate value."
 
 
 def test_academyinfo_lecturer_pay_gap_mismatch_report_is_nonempty_and_medium_severity() -> None:

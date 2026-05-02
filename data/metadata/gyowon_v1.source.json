@@ -1,0 +1,65 @@
+{
+  "dataset_id": "gyowon",
+  "dataset_name_ko": "전임교원 확보율",
+  "dataset_name_en": "Full-Time Faculty Securing Rate",
+  "schema_version": "v1",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학",
+  "download_method": "공시데이터 추이 XLSX 원자료 다운로드 후 candidate CSV로 변환",
+  "primary_original_file_name": "6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준).xlsx",
+  "raw_source_files": [
+    {
+      "path": "data/raw/academyinfo/gyowon/original/6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준).xlsx",
+      "sha256": "8755f3e2b793f37d7a5052db7f27cd97edcdbfa0b98c56b99d047e8b213cbd5a",
+      "file_size_bytes": 508113,
+      "downloaded_at": "2026-05-02T14:40:16+09:00",
+      "source_menu": "공시데이터 추이",
+      "search_keyword": "전임교원 확보율",
+      "academic_system": "대학",
+      "std_dta_div_cd": "043",
+      "download_reason_popup_required": false,
+      "popup_personal_fields_stored": false
+    },
+    {
+      "path": "data/raw/academyinfo/gyowon/original/6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준)_의학계열제외.xlsx",
+      "sha256": "b56b9167c37ec11bc9fec03c4789867b0ff26d346027dfe02ab606efe242dd2d",
+      "file_size_bytes": 489965,
+      "downloaded_at": "2026-05-02T14:40:16+09:00",
+      "source_menu": "공시데이터 추이",
+      "search_keyword": "전임교원 확보율",
+      "academic_system": "대학",
+      "std_dta_div_cd": "045",
+      "download_reason_popup_required": false,
+      "popup_personal_fields_stored": false
+    }
+  ],
+  "candidate_conversion": {
+    "script": "scripts/converters/academyinfo_gyowon.py",
+    "output_file": "data/conversion_outputs/academyinfo/gyowon/gyowon_2008_2025_candidate.csv",
+    "processing_report": "data/validation/processing_reports/academyinfo_gyowon.processing_report.json",
+    "mismatch_report": "data/validation/mismatch_reports/academyinfo_gyowon.mismatch.csv",
+    "source_preservation_status": "raw_preserved"
+  },
+  "current_dashboard_asset": {
+    "path": "data/전임교원_확보율.csv",
+    "scope": "서울 소재 사립 일반대학 중심의 legacy subset",
+    "promotion_status": "candidate_not_promoted"
+  },
+  "formula_checks": [
+    {
+      "field": "전임교원 확보율(학생정원 기준)",
+      "formula": "전임교원(학생정원 기준) / 교원법정정원(학생정원 기준) * 100, 소수점 2자리 half-up 반올림"
+    },
+    {
+      "field": "전임교원 확보율(재학생 기준)",
+      "formula": "전임교원(재학생 기준) / 교원법정정원(재학생기준) * 100, 소수점 2자리 half-up 반올림"
+    }
+  ],
+  "notes": [
+    "운영 CSV는 변경하지 않았고, 전국 단위 후보 CSV만 별도 경로에 생성한다.",
+    "의학계열제외 파일은 raw 보존 및 감사 추적 대상이며, 현재 운영 지표 candidate 산출에는 사용하지 않는다.",
+    "현재 운영 CSV의 본교 기준 34개교, 2008~2025년 행은 raw-XLSX 후보값과 mismatch report로 비교한다."
+  ]
+}

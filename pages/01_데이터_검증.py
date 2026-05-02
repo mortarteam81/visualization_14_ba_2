@@ -14,6 +14,7 @@ from utils.data_validation_modes import (
     DECISION_PENDING,
     REVIEW_DECISIONS,
     build_dormitory_shadow_status,
+    build_gyowon_validation_status,
     build_mismatch_review_frame,
     build_research_validation_status,
     build_review_completion_status,
@@ -23,6 +24,11 @@ from utils.data_validation_modes import (
     load_dormitory_processing_report,
     load_dormitory_review_decisions,
     load_dormitory_source_acquisition,
+    load_gyowon_candidate_frame,
+    load_gyowon_mismatch_frame,
+    load_gyowon_processing_report,
+    load_gyowon_review_decisions,
+    load_gyowon_source_acquisition,
     load_research_candidate_frame,
     load_research_mismatch_frame,
     load_research_processing_report,
@@ -36,6 +42,7 @@ from utils.data_validation_modes import (
     load_student_recruitment_source_metadata,
     review_decisions_from_frame,
     save_dormitory_review_decisions,
+    save_gyowon_review_decisions,
     save_research_review_decisions,
     save_student_recruitment_review_decisions,
 )
@@ -44,10 +51,13 @@ from utils.theme import apply_app_theme
 
 
 DORMITORY_PAGE = get_metric("dormitory_rate")
+GYOWON_PAGE = get_metric("gyowon")
 RESEARCH_PAGE = get_metric("research")
 YEAR_COL = "기준년도"
 SCHOOL_COL = "학교명"
 RATE_COL = "기숙사수용률"
+GYOWON_QUOTA_COL = "전임교원 확보율(학생정원 기준)"
+GYOWON_ENROLLED_COL = "전임교원 확보율(재학생 기준)"
 RESEARCH_IN_COL = "전임교원 1인당 연구비(교내)"
 RESEARCH_OUT_COL = "전임교원 1인당 연구비(교외)"
 STUDENT_YEAR_COL = "공시연도"
@@ -55,6 +65,33 @@ STUDENT_VALUE_COL = "재학생충원율"
 
 
 def _target_config(target_key: str) -> dict[str, object]:
+    if target_key == "gyowon":
+        return {
+            "target_key": "gyowon",
+            "title": "전임교원 확보율",
+            "pilot_note": "대학알리미 원자료에서 재가공한 전임교원 확보율 후보 데이터입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.",
+            "goal_text": "이 화면은 전임교원 확보율 후보 데이터가 운영 화면에 반영 가능한지 판단하기 위한 운영자용 검증 콘솔입니다.",
+            "status_loader": build_gyowon_validation_status,
+            "mismatch_loader": load_gyowon_mismatch_frame,
+            "decisions_loader": load_gyowon_review_decisions,
+            "decisions_saver": save_gyowon_review_decisions,
+            "report_loader": load_gyowon_processing_report,
+            "source_loader": load_gyowon_source_acquisition,
+            "operating_loader": lambda: get_dataset(GYOWON_PAGE.dataset_key),
+            "candidate_loader": load_gyowon_candidate_frame,
+            "year_col": YEAR_COL,
+            "school_col": SCHOOL_COL,
+            "value_col": GYOWON_QUOTA_COL,
+            "value_options": {
+                "학생정원 기준": GYOWON_QUOTA_COL,
+                "재학생 기준": GYOWON_ENROLLED_COL,
+            },
+            "value_label": "전임교원 확보율(%)",
+            "chart_title": "운영 CSV와 Candidate CSV 비교",
+            "promotion_button_label": "운영 CSV로 승격",
+            "current_label": "운영 CSV",
+            "candidate_label": "Candidate CSV",
+        }
     if target_key == "research":
         return {
             "target_key": "research",
@@ -474,11 +511,12 @@ def main() -> None:
     st.caption(f"{APP_SUBTITLE} | 운영자 전용")
     target_label = st.selectbox(
         "검증 대상",
-        ["기숙사 수용률", "연구비 수혜 실적", "학생 충원 성과"],
+        ["기숙사 수용률", "전임교원 확보율", "연구비 수혜 실적", "학생 충원 성과"],
         key="data_validation_target_label",
     )
     target_key_map = {
         "기숙사 수용률": "dormitory_accommodation_status",
+        "전임교원 확보율": "gyowon",
         "연구비 수혜 실적": "research",
         "학생 충원 성과": "student_recruitment",
     }

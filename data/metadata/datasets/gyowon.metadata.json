@@ -4,19 +4,22 @@
   "title": "전임교원 확보율",
   "current_asset": "data/전임교원_확보율.csv",
   "source_data_scope": "seoul_subset_legacy",
-  "verification_status": "legacy_schema_missing",
+  "verification_status": "partial",
   "default_analysis_scope": "legacy Seoul private university subset",
   "metadata_files": {
-    "source": null,
-    "schema": null,
-    "report": null,
+    "source": "data/metadata/gyowon_v1.source.json",
+    "schema": "data/metadata/gyowon_v1_schema.md",
+    "report": "data/validation/processing_reports/academyinfo_gyowon.processing_report.json",
     "guide": null
   },
   "quality_flags": [
     "legacy_seoul_subset",
-    "schema_metadata_missing"
+    "academyinfo_raw_preserved",
+    "national_candidate_available",
+    "promotion_pending"
   ],
   "backlog": [
-    "Recover source/schema provenance for the legacy CSV."
+    "Review national candidate output and decide whether to promote it to the operating dashboard asset.",
+    "Decide whether the medical-department-excluded variant should become a separate dashboard metric."
   ]
 }
