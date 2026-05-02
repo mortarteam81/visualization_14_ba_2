@@ -16,13 +16,21 @@ from utils.data_validation_modes import (
     build_dormitory_shadow_status,
     build_mismatch_review_frame,
     build_review_completion_status,
+    build_student_recruitment_validation_status,
     load_dormitory_candidate_frame,
     load_dormitory_mismatch_frame,
     load_dormitory_processing_report,
     load_dormitory_review_decisions,
     load_dormitory_source_acquisition,
+    load_student_recruitment_candidate_frame,
+    load_student_recruitment_current_frame,
+    load_student_recruitment_mismatch_frame,
+    load_student_recruitment_processing_report,
+    load_student_recruitment_review_decisions,
+    load_student_recruitment_source_metadata,
     review_decisions_from_frame,
     save_dormitory_review_decisions,
+    save_student_recruitment_review_decisions,
 )
 from utils.query import get_dataset
 from utils.theme import apply_app_theme
@@ -32,12 +40,63 @@ DORMITORY_PAGE = get_metric("dormitory_rate")
 YEAR_COL = "기준년도"
 SCHOOL_COL = "학교명"
 RATE_COL = "기숙사수용률"
+STUDENT_YEAR_COL = "공시연도"
+STUDENT_VALUE_COL = "재학생충원율"
 
 
-def _build_context() -> dict[str, object]:
-    status = build_dormitory_shadow_status()
-    mismatch = load_dormitory_mismatch_frame()
-    decisions = load_dormitory_review_decisions()
+def _target_config(target_key: str) -> dict[str, object]:
+    if target_key == "student_recruitment":
+        return {
+            "target_key": "student_recruitment",
+            "title": "학생 충원 성과",
+            "pilot_note": "대학알리미 원자료 3종을 병합한 학생 충원 후보 데이터입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.",
+            "goal_text": "이 화면은 학생 충원 성과 후보 데이터가 다음 검증 단계로 넘어갈 수 있는지 판단하기 위한 운영자용 검증 콘솔입니다.",
+            "status_loader": build_student_recruitment_validation_status,
+            "mismatch_loader": load_student_recruitment_mismatch_frame,
+            "decisions_loader": load_student_recruitment_review_decisions,
+            "decisions_saver": save_student_recruitment_review_decisions,
+            "report_loader": load_student_recruitment_processing_report,
+            "source_loader": load_student_recruitment_source_metadata,
+            "operating_loader": load_student_recruitment_current_frame,
+            "candidate_loader": load_student_recruitment_candidate_frame,
+            "year_col": STUDENT_YEAR_COL,
+            "school_col": SCHOOL_COL,
+            "value_col": STUDENT_VALUE_COL,
+            "value_label": "재학생 충원율(%)",
+            "chart_title": "기존 후보 CSV와 원자료 병합 Candidate CSV 비교",
+            "promotion_button_label": "다음 단계로 승격",
+            "current_label": "기존 후보 CSV",
+            "candidate_label": "Candidate CSV",
+        }
+    return {
+        "target_key": "dormitory_accommodation_status",
+        "title": "기숙사 수용률",
+        "pilot_note": "현재 파일럿 대상은 기숙사 수용률입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.",
+        "goal_text": "이 화면은 기숙사 수용률 후보 데이터가 운영 화면에 반영 가능한지 판단하기 위한 운영자용 검증 콘솔입니다.",
+        "status_loader": build_dormitory_shadow_status,
+        "mismatch_loader": load_dormitory_mismatch_frame,
+        "decisions_loader": load_dormitory_review_decisions,
+        "decisions_saver": save_dormitory_review_decisions,
+        "report_loader": load_dormitory_processing_report,
+        "source_loader": load_dormitory_source_acquisition,
+        "operating_loader": lambda: get_dataset(DORMITORY_PAGE.dataset_key),
+        "candidate_loader": load_dormitory_candidate_frame,
+        "year_col": YEAR_COL,
+        "school_col": SCHOOL_COL,
+        "value_col": RATE_COL,
+        "value_label": "기숙사 수용률(%)",
+        "chart_title": "운영 CSV와 Candidate CSV 비교",
+        "promotion_button_label": "운영 CSV로 승격",
+        "current_label": "운영 CSV",
+        "candidate_label": "Candidate CSV",
+    }
+
+
+def _build_context(target_key: str) -> dict[str, object]:
+    config = _target_config(target_key)
+    status = config["status_loader"]()
+    mismatch = config["mismatch_loader"]()
+    decisions = config["decisions_loader"]()
     review_status = build_review_completion_status(
         mismatch,
         decisions,
@@ -46,6 +105,7 @@ def _build_context() -> dict[str, object]:
         dataset_id=status.dataset_id,
     )
     return {
+        "config": config,
         "status": status,
         "mismatch": mismatch,
         "decisions": decisions,
@@ -53,11 +113,10 @@ def _build_context() -> dict[str, object]:
     }
 
 
-def _render_goal() -> None:
+def _render_goal(context: dict[str, object]) -> None:
+    config = context["config"]
     st.markdown("#### 이번 검증의 목표")
-    st.write(
-        "이 화면은 기숙사 수용률 후보 데이터가 운영 화면에 반영 가능한지 판단하기 위한 운영자용 검증 콘솔입니다."
-    )
+    st.write(config["goal_text"])
     st.markdown(
         "- 원자료가 보존되어 있는지 확인합니다.\n"
         "- 원자료 기반 후보 데이터가 생성되었는지 확인합니다.\n"
@@ -88,12 +147,13 @@ def _render_review_summary(review_status: object) -> None:
 
 
 def _render_auto_check(context: dict[str, object]) -> None:
+    config = context["config"]
     status = context["status"]
     review_status = context["review_status"]
-    report = load_dormitory_processing_report()
-    acquisition = load_dormitory_source_acquisition()
+    report = config["report_loader"]()
+    acquisition = config["source_loader"]()
 
-    _render_goal()
+    _render_goal(context)
     _render_status_cards(status, review_status)
 
     st.markdown("#### 자동 점검 결과")
@@ -118,6 +178,7 @@ def _render_auto_check(context: dict[str, object]) -> None:
 
 
 def _render_review_mode(context: dict[str, object]) -> None:
+    config = context["config"]
     status = context["status"]
     mismatch = context["mismatch"]
     decisions = context["decisions"]
@@ -160,14 +221,13 @@ def _render_review_mode(context: dict[str, object]) -> None:
                 help="운영값 유지 또는 추가 확인 필요 판단의 근거를 적습니다.",
             ),
         },
-        key="dormitory_review_editor",
+        key=f"{config['target_key']}_review_editor",
     )
 
     st.caption(f"`{DECISION_KEEP_CURRENT}`는 메모가 있어야 검토 완료로 인정됩니다.")
-    if st.button("검토 결과 저장", type="primary", key="save_dormitory_review_decisions"):
-        save_dormitory_review_decisions(
+    if st.button("검토 결과 저장", type="primary", key=f"save_{config['target_key']}_review_decisions"):
+        config["decisions_saver"](
             review_decisions_from_frame(edited, dataset_id=status.dataset_id),
-            dataset_id=status.dataset_id,
         )
         st.success("검토 결과를 저장했습니다. 상단 상태는 페이지 새로고침 후 최신 기준으로 다시 계산됩니다.")
 
@@ -183,60 +243,102 @@ def _mismatch_scope(mismatch: pd.DataFrame) -> tuple[set[str], set[int]]:
     return schools, years
 
 
-def _filter_preview_frame(frame: pd.DataFrame, mismatch: pd.DataFrame) -> pd.DataFrame:
+def _filter_preview_frame(
+    frame: pd.DataFrame,
+    mismatch: pd.DataFrame,
+    *,
+    school_col: str,
+    year_col: str,
+) -> pd.DataFrame:
     if frame.empty:
         return frame.copy()
     schools, years = _mismatch_scope(mismatch)
+    if school_col not in frame.columns:
+        return frame.copy()
     if schools and years:
-        return frame[frame[SCHOOL_COL].isin(schools) & frame[YEAR_COL].isin(years)].copy()
-    latest_year = int(frame[YEAR_COL].max())
-    return frame[frame[YEAR_COL] == latest_year].copy()
+        if year_col not in frame.columns:
+            return frame[frame[school_col].isin(schools)].copy()
+        return frame[frame[school_col].isin(schools) & frame[year_col].isin(years)].copy()
+    if schools:
+        return frame[frame[school_col].isin(schools)].copy()
+    if year_col not in frame.columns:
+        return frame.head(50).copy()
+    latest_year = int(frame[year_col].max())
+    return frame[frame[year_col] == latest_year].copy()
 
 
-def _build_rate_chart_frame(operating: pd.DataFrame, candidate: pd.DataFrame, mismatch: pd.DataFrame) -> pd.DataFrame:
+def _build_value_chart_frame(
+    operating: pd.DataFrame,
+    candidate: pd.DataFrame,
+    mismatch: pd.DataFrame,
+    *,
+    school_col: str,
+    year_col: str,
+    value_col: str,
+    current_label: str,
+    candidate_label: str,
+) -> pd.DataFrame:
     schools, years = _mismatch_scope(mismatch)
     if not schools:
-        schools = set(operating[SCHOOL_COL].dropna().astype(str).head(5))
+        schools = set(operating[school_col].dropna().astype(str).head(5))
     if not years:
-        years = set(operating[YEAR_COL].dropna().astype(int).tail(3))
+        years = set(operating[year_col].dropna().astype(int).tail(3)) if year_col in operating.columns else set()
 
     chart_frames: list[pd.DataFrame] = []
-    for label, frame in (("운영 CSV", operating), ("Candidate CSV", candidate)):
-        subset = frame[frame[SCHOOL_COL].isin(schools)].copy()
-        if years:
+    for label, frame in ((current_label, operating), (candidate_label, candidate)):
+        required = {school_col, value_col}
+        if not required.issubset(frame.columns):
+            continue
+        subset = frame[frame[school_col].isin(schools)].copy()
+        if years and year_col in subset.columns:
             min_year = min(years) - 1
             max_year = max(years)
-            subset = subset[(subset[YEAR_COL] >= min_year) & (subset[YEAR_COL] <= max_year)].copy()
+            subset = subset[(subset[year_col] >= min_year) & (subset[year_col] <= max_year)].copy()
         if subset.empty:
             continue
         subset["데이터 구분"] = label
-        chart_frames.append(subset[[YEAR_COL, SCHOOL_COL, RATE_COL, "데이터 구분"]])
+        keep_columns = [school_col, value_col, "데이터 구분"]
+        if year_col in subset.columns:
+            keep_columns.insert(0, year_col)
+        chart_frames.append(subset[keep_columns])
 
     if not chart_frames:
-        return pd.DataFrame(columns=[YEAR_COL, SCHOOL_COL, RATE_COL, "데이터 구분"])
+        return pd.DataFrame(columns=[year_col, school_col, value_col, "데이터 구분"])
     return pd.concat(chart_frames, ignore_index=True)
 
 
 def _render_preview_mode(context: dict[str, object]) -> None:
+    config = context["config"]
     mismatch = context["mismatch"]
-    operating = get_dataset(DORMITORY_PAGE.dataset_key)
-    candidate = load_dormitory_candidate_frame()
+    operating = config["operating_loader"]()
+    candidate = config["candidate_loader"]()
+    school_col = str(config["school_col"])
+    year_col = str(config["year_col"])
+    value_col = str(config["value_col"])
 
     st.markdown("#### 화면 미리보기")
     st.write("운영 데이터와 후보 데이터를 전체 지표 화면에 반영하기 전에 필요한 범위만 단순 비교합니다.")
     source = st.radio(
         "미리보기 방식",
-        ["운영 CSV", "Candidate CSV", "차이 발생 항목만 비교"],
+        [str(config["current_label"]), str(config["candidate_label"]), "차이 발생 항목만 비교"],
         horizontal=True,
-        key="dormitory_validation_preview_source",
+        key=f"{config['target_key']}_validation_preview_source",
     )
 
-    if source == "운영 CSV":
-        st.caption("현재 운영 화면에서 사용하는 데이터 중 차이가 발생한 학교와 연도만 보여줍니다.")
-        st.dataframe(_filter_preview_frame(operating, mismatch), use_container_width=True, hide_index=True)
-    elif source == "Candidate CSV":
+    if source == config["current_label"]:
+        st.caption("현재 기준 데이터 중 차이가 발생한 학교와 연도만 보여줍니다.")
+        st.dataframe(
+            _filter_preview_frame(operating, mismatch, school_col=school_col, year_col=year_col),
+            use_container_width=True,
+            hide_index=True,
+        )
+    elif source == config["candidate_label"]:
         st.caption("원자료에서 재가공한 후보 데이터 중 차이가 발생한 학교와 연도만 보여줍니다.")
-        st.dataframe(_filter_preview_frame(candidate, mismatch), use_container_width=True, hide_index=True)
+        st.dataframe(
+            _filter_preview_frame(candidate, mismatch, school_col=school_col, year_col=year_col),
+            use_container_width=True,
+            hide_index=True,
+        )
     else:
         review_frame = build_mismatch_review_frame(mismatch, context["decisions"], dataset_id=context["status"].dataset_id)
         st.dataframe(
@@ -245,26 +347,36 @@ def _render_preview_mode(context: dict[str, object]) -> None:
             hide_index=True,
         )
 
-    chart_frame = _build_rate_chart_frame(operating, candidate, mismatch)
+    chart_frame = _build_value_chart_frame(
+        operating,
+        candidate,
+        mismatch,
+        school_col=school_col,
+        year_col=year_col,
+        value_col=value_col,
+        current_label=str(config["current_label"]),
+        candidate_label=str(config["candidate_label"]),
+    )
     if chart_frame.empty:
         st.info("미리보기 차트를 만들 데이터가 없습니다.")
         return
 
-    st.markdown("#### 기숙사 수용률 추이 비교")
+    st.markdown(f"#### {config['title']} 추이 비교")
     figure = px.line(
         chart_frame,
-        x=YEAR_COL,
-        y=RATE_COL,
-        color=SCHOOL_COL,
+        x=year_col if year_col in chart_frame.columns else "데이터 구분",
+        y=value_col,
+        color=school_col,
         line_dash="데이터 구분",
         markers=True,
-        title="운영 CSV와 Candidate CSV 비교",
+        title=str(config["chart_title"]),
     )
-    figure.update_layout(legend_title_text="", yaxis_title="기숙사 수용률(%)", xaxis_title="기준년도")
+    figure.update_layout(legend_title_text="", yaxis_title=str(config["value_label"]), xaxis_title=year_col)
     st.plotly_chart(figure, use_container_width=True)
 
 
 def _render_promotion_readiness(context: dict[str, object]) -> None:
+    config = context["config"]
     status = context["status"]
     review_status = context["review_status"]
 
@@ -290,7 +402,7 @@ def _render_promotion_readiness(context: dict[str, object]) -> None:
         _render_review_summary(review_status)
 
     st.button(
-        "운영 CSV로 승격",
+        str(config["promotion_button_label"]),
         disabled=True,
         help="현재 단계에서는 실수 방지를 위해 운영 CSV 자동 교체 기능을 제공하지 않습니다.",
     )
@@ -312,11 +424,16 @@ def main() -> None:
         st.error("데이터 검증 모드는 운영자만 접근할 수 있습니다.")
         st.stop()
 
-    context = _build_context()
-
     st.title("데이터 검증")
     st.caption(f"{APP_SUBTITLE} | 운영자 전용")
-    st.info("현재 파일럿 대상은 기숙사 수용률입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.")
+    target_label = st.selectbox(
+        "검증 대상",
+        ["기숙사 수용률", "학생 충원 성과"],
+        key="data_validation_target_label",
+    )
+    target_key = "student_recruitment" if target_label == "학생 충원 성과" else "dormitory_accommodation_status"
+    context = _build_context(target_key)
+    st.info(str(context["config"]["pilot_note"]))
     _render_status_cards(context["status"], context["review_status"])
 
     tab_check, tab_review, tab_preview, tab_promotion = st.tabs(

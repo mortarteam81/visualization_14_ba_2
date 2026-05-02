@@ -267,6 +267,18 @@ class TestPageSmoke:
         assert any("자동 점검" in tab.label for tab in app.tabs)
         assert any("차이 검토" in tab.label for tab in app.tabs)
 
+    def test_data_validation_page_can_select_student_recruitment(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_authenticated_user)
+        app = AppTest.from_file(str(PAGE_DIR / "01_데이터_검증.py"), default_timeout=20)
+
+        app.run()
+        app.selectbox[0].select("학생 충원 성과").run()
+
+        assert [exception.message for exception in app.exception] == []
+        assert any("학생 충원 후보 데이터" in info.value for info in app.info)
+
     def test_data_validation_page_blocks_viewer(self, monkeypatch: pytest.MonkeyPatch) -> None:
         import utils.auth as auth
 

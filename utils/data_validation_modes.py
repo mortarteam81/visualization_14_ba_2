@@ -49,8 +49,45 @@ DORMITORY_REVIEW_DECISIONS_PATH = (
     / "review_decisions"
     / "academyinfo_dormitory_accommodation_status.review.json"
 )
+STUDENT_RECRUITMENT_CURRENT_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "processed"
+    / "student_recruitment"
+    / "student_recruitment_2026_candidate.csv"
+)
+STUDENT_RECRUITMENT_CANDIDATE_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "processed"
+    / "student_recruitment"
+    / "student_recruitment_2026_candidate_v2.csv"
+)
+STUDENT_RECRUITMENT_REPORT_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "processing_reports"
+    / "student_recruitment_2026_v2.processing_report.json"
+)
+STUDENT_RECRUITMENT_MISMATCH_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "mismatch_reports"
+    / "student_recruitment_2026_v2.mismatch.csv"
+)
+STUDENT_RECRUITMENT_SOURCE_PATH = PROJECT_ROOT / "data" / "metadata" / "student_recruitment.source.json"
+STUDENT_RECRUITMENT_REVIEW_DECISIONS_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "review_decisions"
+    / "student_recruitment_2026_v2.review.json"
+)
 
 DORMITORY_DATASET_ID = "dormitory_accommodation_status"
+STUDENT_RECRUITMENT_DATASET_ID = "student_recruitment"
 DECISION_PENDING = "미검토"
 DECISION_ACCEPT_RAW = "원자료값 채택"
 DECISION_KEEP_CURRENT = "운영값 유지"
@@ -216,18 +253,53 @@ def load_dormitory_candidate_frame() -> pd.DataFrame:
     return pd.read_csv(DORMITORY_CANDIDATE_PATH, encoding="utf-8-sig")
 
 
+def load_student_recruitment_current_frame() -> pd.DataFrame:
+    return pd.read_csv(STUDENT_RECRUITMENT_CURRENT_PATH, encoding="utf-8-sig")
+
+
+def load_student_recruitment_candidate_frame() -> pd.DataFrame:
+    return pd.read_csv(STUDENT_RECRUITMENT_CANDIDATE_PATH, encoding="utf-8-sig")
+
+
 def load_dormitory_mismatch_frame() -> pd.DataFrame:
     if not DORMITORY_MISMATCH_PATH.exists():
         return pd.DataFrame()
     return pd.read_csv(DORMITORY_MISMATCH_PATH, encoding="utf-8-sig")
 
 
+def load_student_recruitment_mismatch_frame() -> pd.DataFrame:
+    if not STUDENT_RECRUITMENT_MISMATCH_PATH.exists():
+        return pd.DataFrame()
+    return pd.read_csv(STUDENT_RECRUITMENT_MISMATCH_PATH, encoding="utf-8-sig")
+
+
 def load_dormitory_processing_report() -> dict[str, Any]:
     return _read_json(DORMITORY_REPORT_PATH)
 
 
+def load_student_recruitment_processing_report() -> dict[str, Any]:
+    return _read_json(STUDENT_RECRUITMENT_REPORT_PATH)
+
+
 def load_dormitory_source_acquisition() -> dict[str, Any]:
     return _read_json(DORMITORY_SOURCE_ACQUISITION_PATH)
+
+
+def load_student_recruitment_source_metadata() -> dict[str, Any]:
+    return _read_json(STUDENT_RECRUITMENT_SOURCE_PATH)
+
+
+def _source_raw_files_exist(source_payload: Mapping[str, Any]) -> bool:
+    raw_files = source_payload.get("raw_files", [])
+    if not isinstance(raw_files, list) or not raw_files:
+        return False
+    for item in raw_files:
+        if not isinstance(item, Mapping):
+            return False
+        relative_path = _clean_text(item.get("path"))
+        if not relative_path or not (PROJECT_ROOT / relative_path).exists():
+            return False
+    return True
 
 
 def review_decision_from_dict(payload: Mapping[str, object]) -> ReviewDecision | None:
@@ -273,6 +345,12 @@ def load_dormitory_review_decisions(
     return decisions
 
 
+def load_student_recruitment_review_decisions(
+    path: Path | str = STUDENT_RECRUITMENT_REVIEW_DECISIONS_PATH,
+) -> dict[str, ReviewDecision]:
+    return load_dormitory_review_decisions(path)
+
+
 def save_dormitory_review_decisions(
     decisions: Mapping[str, ReviewDecision],
     path: Path | str = DORMITORY_REVIEW_DECISIONS_PATH,
@@ -290,6 +368,17 @@ def save_dormitory_review_decisions(
     }
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def save_student_recruitment_review_decisions(
+    decisions: Mapping[str, ReviewDecision],
+    path: Path | str = STUDENT_RECRUITMENT_REVIEW_DECISIONS_PATH,
+) -> None:
+    save_dormitory_review_decisions(
+        decisions,
+        path=path,
+        dataset_id=STUDENT_RECRUITMENT_DATASET_ID,
+    )
 
 
 def build_mismatch_review_frame(
@@ -458,5 +547,59 @@ def build_dormitory_shadow_status() -> ValidationModeStatus:
         medium_mismatches=medium_mismatches,
         ready_for_preview=ready_for_preview,
         ready_for_promotion=ready_for_promotion,
+        reason=reason,
+    )
+
+
+def build_student_recruitment_validation_status() -> ValidationModeStatus:
+    report = load_student_recruitment_processing_report()
+    source = load_student_recruitment_source_metadata()
+    candidate_exists = STUDENT_RECRUITMENT_CANDIDATE_PATH.exists()
+    report_exists = STUDENT_RECRUITMENT_REPORT_PATH.exists()
+    mismatch_exists = STUDENT_RECRUITMENT_MISMATCH_PATH.exists()
+    current_exists = STUDENT_RECRUITMENT_CURRENT_PATH.exists()
+    mismatch = load_student_recruitment_mismatch_frame()
+
+    row_counts = report.get("row_counts", {}) if isinstance(report, dict) else {}
+    raw_preserved = _source_raw_files_exist(source)
+    high_mismatches = int((mismatch.get("severity") == "high").sum()) if not mismatch.empty else 0
+    medium_mismatches = int((mismatch.get("severity") == "medium").sum()) if not mismatch.empty else 0
+    mismatch_rows = int(len(mismatch)) if mismatch_exists else int(report.get("mismatch_summary", {}).get("total", 0) or 0)
+    source_input_rows = int(
+        (row_counts.get("freshman_raw_2025", 0) or 0)
+        + (row_counts.get("student_fill_raw_2025_first_half", 0) or 0)
+        + (row_counts.get("enrolled_raw_2025", 0) or 0)
+    )
+    candidate_rows = int(row_counts.get("processed_candidate_v2", 0) or 0)
+    ready_for_preview = current_exists and candidate_exists and report_exists and raw_preserved
+    review_status = build_review_completion_status(
+        mismatch,
+        load_student_recruitment_review_decisions(),
+        base_ready=ready_for_preview,
+        high_mismatches=high_mismatches,
+        dataset_id=STUDENT_RECRUITMENT_DATASET_ID,
+    )
+
+    if not ready_for_preview:
+        reason = "원자료 기반 학생 충원 candidate/report가 아직 완성되지 않았습니다."
+    elif not review_status.ready_for_promotion:
+        reason = "Preview 가능. 단, 원자료 매칭 실패 항목에 대한 운영자 검토가 필요합니다."
+    else:
+        reason = "Preview 가능하며 다음 단계 검토 기준을 충족했습니다."
+
+    return ValidationModeStatus(
+        dataset_id=STUDENT_RECRUITMENT_DATASET_ID,
+        candidate_exists=candidate_exists,
+        report_exists=report_exists,
+        mismatch_exists=mismatch_exists,
+        raw_preserved=raw_preserved,
+        source_input_kind="raw_xlsx" if raw_preserved else None,
+        source_input_rows=source_input_rows,
+        candidate_rows=candidate_rows,
+        mismatch_rows=mismatch_rows,
+        high_mismatches=high_mismatches,
+        medium_mismatches=medium_mismatches,
+        ready_for_preview=ready_for_preview,
+        ready_for_promotion=review_status.ready_for_promotion,
         reason=reason,
     )

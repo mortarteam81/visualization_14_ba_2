@@ -13,9 +13,12 @@ from utils.data_validation_modes import (
     build_mismatch_review_frame,
     build_mismatch_review_id,
     build_review_completion_status,
+    build_student_recruitment_validation_status,
     load_dormitory_review_decisions,
+    load_student_recruitment_review_decisions,
     review_decisions_from_frame,
     save_dormitory_review_decisions,
+    save_student_recruitment_review_decisions,
 )
 
 
@@ -142,3 +145,46 @@ def test_review_completion_allows_reviewed_items_with_required_notes() -> None:
     assert status.ready_for_promotion is True
     assert status.pending == 0
     assert status.reasons == ()
+
+
+def test_student_recruitment_status_uses_preserved_raw_sources() -> None:
+    status = build_student_recruitment_validation_status()
+
+    assert status.dataset_id == "student_recruitment"
+    assert status.raw_preserved is True
+    assert status.candidate_exists is True
+    assert status.report_exists is True
+    assert status.source_input_kind == "raw_xlsx"
+    assert status.candidate_rows > 0
+    assert status.mismatch_rows >= status.medium_mismatches
+
+
+def test_student_recruitment_review_decision_save_and_load_roundtrip(tmp_path) -> None:
+    review_id = build_mismatch_review_id(
+        dataset_id="student_recruitment",
+        school_name="성신여자대학교",
+        year="",
+        field="재학생충원율",
+    )
+    path = tmp_path / "student_review.json"
+
+    save_student_recruitment_review_decisions(
+        {
+            review_id: ReviewDecision(
+                review_id=review_id,
+                dataset_id="student_recruitment",
+                school_name="성신여자대학교",
+                year="",
+                field="재학생충원율",
+                decision=DECISION_ACCEPT_RAW,
+                note="학생 충원 원자료 기준 확인",
+                updated_at="2026-05-02T00:00:00+00:00",
+            )
+        },
+        path=path,
+    )
+
+    loaded = load_student_recruitment_review_decisions(path)
+
+    assert loaded[review_id].dataset_id == "student_recruitment"
+    assert loaded[review_id].decision == DECISION_ACCEPT_RAW
