@@ -1,11 +1,11 @@
 {
   "report_id": "conversion_system_qa_report",
-  "generated_at": "2026-05-02T09:56:39.030694+00:00",
+  "generated_at": "2026-05-02T11:27:39.688161+00:00",
   "project_root": "/Users/mortarteam81/Documents/Codex/2026-04-25/users-mortarteam81-visualization-14-ba-2/visualization_14_ba_2",
   "summary": {
     "candidate_batch_count": 14,
     "blocker_count": 3,
-    "warning_count": 4,
+    "warning_count": 3,
     "comparison_11_count": 11,
     "default_scope_34_count": 34,
     "status": "fail"
@@ -880,14 +880,15 @@
     {
       "dataset_id": "education_return",
       "root": "data/conversion_outputs/kasfo/education_return",
-      "file_count": 1,
+      "file_count": 2,
       "checks": [
         {
           "check": "candidate_files_under_conversion_outputs",
           "passed": true,
           "details": {
             "files": [
-              "data/conversion_outputs/kasfo/education_return/kasfo_education_return_2020_2025_restated_candidate.csv"
+              "data/conversion_outputs/kasfo/education_return/kasfo_education_return_2016_2025_candidate.csv",
+              "data/conversion_outputs/kasfo/education_return/kasfo_education_return_theme_issue_2020_2025_candidate.csv"
             ]
           }
         },
@@ -941,7 +942,7 @@
           "passed": true,
           "details": {
             "matched_files": [
-              "data/validation/mismatch_reports/kasfo_education_return_formula_mismatch.csv"
+              "data/validation/mismatch_reports/kasfo_education_return.mismatch.csv"
             ]
           }
         },
@@ -949,8 +950,46 @@
           "check": "no_inf_or_literal_inf",
           "passed": true,
           "details": {
-            "scanned_files": 1,
+            "scanned_files": 2,
             "findings": []
+          }
+        },
+        {
+          "check": "comparison_11_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/kasfo/education_return/kasfo_education_return_2016_2025_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        },
+        {
+          "check": "default_scope_34_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/kasfo/education_return/kasfo_education_return_2016_2025_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
           }
         }
       ]
@@ -1594,12 +1633,6 @@
     }
   ],
   "warnings": [
-    {
-      "check": "scope_coverage",
-      "severity": "info",
-      "dataset_id": "education_return",
-      "message": "No tabular candidate with a recognizable school-name column was found."
-    },
     {
       "check": "scope_coverage",
       "severity": "info",

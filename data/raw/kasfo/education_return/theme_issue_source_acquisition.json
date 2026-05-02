@@ -1,0 +1,85 @@
+{
+  "source_org": "한국사학진흥재단",
+  "source_name": "대학재정알리미 테마·이슈통계",
+  "downloaded_at": "2026-05-02T11:13:50.767984+00:00",
+  "records": [
+    {
+      "year": 2020,
+      "path": "data/raw/kasfo/education_return/original/theme_issue_education_return_2020.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/view/1?pageIndex=1&putYear=2020&totalCount=0",
+      "download_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/excelDownLoad/1?pageIndex=1&totalCount=0&putYear=2020",
+      "source_menu": "통계현황 > 테마·이슈통계",
+      "issue_id": "1",
+      "original_file_name": "2020년_교육여건_교육비+환원율.xlsx",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      "file_size_bytes": 46056,
+      "sha256": "7d782bc8b9fcd92e620bb0e5fa45a434c392648a2d7cea2fa800fbd78a9695cc",
+      "preservation_action": "overwritten"
+    },
+    {
+      "year": 2021,
+      "path": "data/raw/kasfo/education_return/original/theme_issue_education_return_2021.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/view/1?pageIndex=1&putYear=2021&totalCount=0",
+      "download_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/excelDownLoad/1?pageIndex=1&totalCount=0&putYear=2021",
+      "source_menu": "통계현황 > 테마·이슈통계",
+      "issue_id": "1",
+      "original_file_name": "2021년_교육여건_교육비+환원율.xlsx",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      "file_size_bytes": 48693,
+      "sha256": "fa55f21ea3e76e43aef09da6c7ad07cf6a0739d1495f86ef5b2459ded76a70a5",
+      "preservation_action": "downloaded"
+    },
+    {
+      "year": 2022,
+      "path": "data/raw/kasfo/education_return/original/theme_issue_education_return_2022.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/view/1?pageIndex=1&putYear=2022&totalCount=0",
+      "download_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/excelDownLoad/1?pageIndex=1&totalCount=0&putYear=2022",
+      "source_menu": "통계현황 > 테마·이슈통계",
+      "issue_id": "1",
+      "original_file_name": "2022년_교육여건_교육비+환원율.xlsx",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      "file_size_bytes": 48953,
+      "sha256": "517502cc9c4d4df8122c4dfc23463b56cb3d2e581e2808efe4db93a2bb3b2968",
+      "preservation_action": "downloaded"
+    },
+    {
+      "year": 2023,
+      "path": "data/raw/kasfo/education_return/original/theme_issue_education_return_2023.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/view/1?pageIndex=1&putYear=2023&totalCount=0",
+      "download_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/excelDownLoad/1?pageIndex=1&totalCount=0&putYear=2023",
+      "source_menu": "통계현황 > 테마·이슈통계",
+      "issue_id": "1",
+      "original_file_name": "2023년_교육여건_교육비+환원율.xlsx",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      "file_size_bytes": 48851,
+      "sha256": "97ec7a18a4f0676cfdd3a59d88fbfef63d328618d2d01412af3643df0c6c1c7f",
+      "preservation_action": "downloaded"
+    },
+    {
+      "year": 2024,
+      "path": "data/raw/kasfo/education_return/original/theme_issue_education_return_2024.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/view/1?pageIndex=1&putYear=2024&totalCount=0",
+      "download_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/excelDownLoad/1?pageIndex=1&totalCount=0&putYear=2024",
+      "source_menu": "통계현황 > 테마·이슈통계",
+      "issue_id": "1",
+      "original_file_name": "2024년_교육여건_교육비+환원율.xlsx",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      "file_size_bytes": 49318,
+      "sha256": "90b450081831fa7b0596506a141024b239b0e8b7832071b1bf6e178dd807948e",
+      "preservation_action": "downloaded"
+    },
+    {
+      "year": 2025,
+      "path": "data/raw/kasfo/education_return/original/theme_issue_education_return_2025.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/view/1?pageIndex=1&putYear=2025&totalCount=0",
+      "download_url": "https://uniarlimi.kasfo.or.kr/statistics/themeIssue/excelDownLoad/1?pageIndex=1&totalCount=0&putYear=2025",
+      "source_menu": "통계현황 > 테마·이슈통계",
+      "issue_id": "1",
+      "original_file_name": "2025년_교육여건_교육비+환원율.xlsx",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      "file_size_bytes": 48974,
+      "sha256": "a5d6b801344adc410e22cd9fb24f31e0c225a02d805f9306ce1fd77ee658372d",
+      "preservation_action": "downloaded"
+    }
+  ]
+}

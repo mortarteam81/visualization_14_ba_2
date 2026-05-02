@@ -8,15 +8,20 @@
   "default_analysis_scope": "2020-2025 processed national school-level values",
   "metadata_files": {
     "source": "data/metadata/education_cost_return_rate.source.json",
-    "schema": null,
-    "report": null,
+    "schema": "data/metadata/education_return_kasfo_v1_schema.md",
+    "report": "data/validation/processing_reports/kasfo_education_return.processing_report.json",
     "guide": null
   },
   "quality_flags": [
     "processed_national_dataset",
-    "partial_metadata"
+    "kasfo_raw_candidate_available",
+    "kasfo_theme_issue_official_crosscheck_available",
+    "candidate_not_promoted",
+    "private_accreditation_formula_missing_kosaf_scholarship_component"
   ],
   "backlog": [
-    "Add standalone schema/report metadata before promoting to verified."
+    "Secure 한국장학재단 or evaluation-body source for 국가장학금 I유형 및 다자녀 국가장학금 before claiming full accreditation formula parity.",
+    "Review national school-name changes in the KASFO raw financial candidate vs theme-issue crosscheck before national promotion.",
+    "Review high mismatches in the operator validation console before candidate promotion."
   ]
 }

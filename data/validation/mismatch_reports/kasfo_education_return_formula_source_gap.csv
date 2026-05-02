@@ -1,0 +1,2 @@
+﻿dataset_id,formula_component,required_by,available_in_kasfo_data2room,source_needed,impact
+education_return,국가장학금 I유형 및 다자녀 국가장학금,2026 대학기관평가인증 편람 양식 1.3-6 사립대 교육비 환원율,False,한국장학재단 결산자료 또는 평가원 요청자료,"KASFO 원자료만으로 편람 산식 전체값은 확정할 수 없으며, dashboard 운영값 검증용 산식과 KASFO 가용 구성요소를 분리 보존한다."

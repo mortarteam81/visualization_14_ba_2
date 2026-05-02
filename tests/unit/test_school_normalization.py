@@ -13,10 +13,13 @@ from utils.school_normalization import (
 def test_resolve_school_name_handles_exact_aliases_and_main_campus_suffixes() -> None:
     assert resolve_school_name("성신여자대학교") == "성신여자대학교"
     assert resolve_school_name("성신여자대학교 본교") == "성신여자대학교"
+    assert resolve_school_name("KC대학교") == "강서대학교"
     assert resolve_school_name("케이씨대학교") == "강서대학교"
     assert resolve_school_name("강서대학교(구.케이씨대학교)") == "강서대학교"
     assert resolve_school_name("한영신학대학교") == "서울한영대학교"
     assert resolve_school_name("서울한영대학교(구.한영신학대학교)") == "서울한영대학교"
+    assert resolve_school_name("한영대학교") is None
+    assert resolve_school_name("한영대학") is None
 
 
 def test_resolve_school_name_does_not_merge_branch_campuses() -> None:

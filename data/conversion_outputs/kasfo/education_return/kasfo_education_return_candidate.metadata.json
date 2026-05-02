@@ -1,12 +1,64 @@
 {
   "dataset": "kasfo_education_return",
   "candidate_only": true,
-  "raw_verification_status": "blocked_raw_xlsx_absent",
-  "formula": "(tuition_account_total + industry_account_total) / tuition_revenue * 100, rounded to 1 decimal",
-  "amount_parse_rule": "trim, comma removal, '-' to null, negative sign preserved",
+  "do_not_promote_current_asset": true,
+  "unit": "천원 for source amounts; percent for rate columns",
   "source_files": {
-    "data/processed/education_cost_return_rate/education_cost_return_rate_2020_2025_v2_schema_utf8.csv": {
-      "sha256": "b3666aeb028e346e5454d8ee794749fb65032a2cefcdf92ace39ce138926bf3b"
+    "data/raw/kasfo/education_return/original/tuition_2015_2020.zip": {
+      "sha256": "a428801b9d81e7b9cfa91a7f61e81276ff6873248e5cd1473dd174f755fa0693"
+    },
+    "data/raw/kasfo/education_return/original/tuition_2021.xlsx": {
+      "sha256": "243a34681369898828436a7b1ee4e7cbef86b811a23b7657346ba2eff72f2066"
+    },
+    "data/raw/kasfo/education_return/original/tuition_2022.xlsx": {
+      "sha256": "066e469e3ed247596da765737e783b4d255989f0f7b2b2ca97f1774765138438"
+    },
+    "data/raw/kasfo/education_return/original/tuition_2023.xlsx": {
+      "sha256": "975650b5b4f1f73a430ac0aedf3d4acc28ec8bde15af78d1ad67a2e64516c601"
+    },
+    "data/raw/kasfo/education_return/original/tuition_2024.xlsx": {
+      "sha256": "670c218cc0aef07636e9f974669595d95e0ec8bf9bf32da033168b77cac022e8"
+    },
+    "data/raw/kasfo/education_return/original/industry_2015_2020.zip": {
+      "sha256": "783666bdfb38c2dba83ef7ffd2c0c43b4d4b5eea8924def4d16b67e06c641e8d"
+    },
+    "data/raw/kasfo/education_return/original/industry_2021.xlsx": {
+      "sha256": "8761bacf23b7cdd834f6771bc0a0bdcd9e07cff14bb7bc9c43549581c4cea2f9"
+    },
+    "data/raw/kasfo/education_return/original/industry_2022.xlsx": {
+      "sha256": "f868255c64254942d6215f9011c9d7c116c1c6aa5c75168e6397b84eea4ee184"
+    },
+    "data/raw/kasfo/education_return/original/industry_2023.xlsx": {
+      "sha256": "669d784334839a15daab275f3c31be4125d5f49f90c61fc1b092b196b6822fe7"
+    },
+    "data/raw/kasfo/education_return/original/industry_2024.xlsx": {
+      "sha256": "da58a443be3628b14f9fb9c270770ad2da43a1125b1c9ebff5f2b2676d56ce29"
+    },
+    "data/raw/kasfo/education_return/original/theme_issue_education_return_2020.xlsx": {
+      "sha256": "7d782bc8b9fcd92e620bb0e5fa45a434c392648a2d7cea2fa800fbd78a9695cc"
+    },
+    "data/raw/kasfo/education_return/original/theme_issue_education_return_2021.xlsx": {
+      "sha256": "fa55f21ea3e76e43aef09da6c7ad07cf6a0739d1495f86ef5b2459ded76a70a5"
+    },
+    "data/raw/kasfo/education_return/original/theme_issue_education_return_2022.xlsx": {
+      "sha256": "517502cc9c4d4df8122c4dfc23463b56cb3d2e581e2808efe4db93a2bb3b2968"
+    },
+    "data/raw/kasfo/education_return/original/theme_issue_education_return_2023.xlsx": {
+      "sha256": "97ec7a18a4f0676cfdd3a59d88fbfef63d328618d2d01412af3643df0c6c1c7f"
+    },
+    "data/raw/kasfo/education_return/original/theme_issue_education_return_2024.xlsx": {
+      "sha256": "90b450081831fa7b0596506a141024b239b0e8b7832071b1bf6e178dd807948e"
+    },
+    "data/raw/kasfo/education_return/original/theme_issue_education_return_2025.xlsx": {
+      "sha256": "a5d6b801344adc410e22cd9fb24f31e0c225a02d805f9306ce1fd77ee658372d"
     }
+  },
+  "outputs": {
+    "candidate": "data/conversion_outputs/kasfo/education_return/kasfo_education_return_2016_2025_candidate.csv",
+    "official_theme_issue_candidate": "data/conversion_outputs/kasfo/education_return/kasfo_education_return_theme_issue_2020_2025_candidate.csv",
+    "processing_report": "data/validation/processing_reports/kasfo_education_return.processing_report.json",
+    "mismatch_report": "data/validation/mismatch_reports/kasfo_education_return.mismatch.csv",
+    "formula_gap_report": "data/validation/mismatch_reports/kasfo_education_return_formula_source_gap.csv",
+    "official_theme_issue_crosscheck_report": "data/validation/mismatch_reports/kasfo_education_return_theme_issue_crosscheck.csv"
   }
 }

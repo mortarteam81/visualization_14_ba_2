@@ -1,0 +1,13 @@
+﻿severity,field,school_name,year,processed_value,raw_value,reason
+medium,등록금회계_교육비합계,상명대학교,2024,145479502.0,145487116.684,absolute_difference_gt_5.0
+medium,등록금회계_교육비합계,상명대학교,2025,150704326.0,150716156.385,absolute_difference_gt_5.0
+medium,교육비환원율,상명대학교,2025,186.6,186.7,absolute_difference_gt_0.05
+medium,산학협력단회계_교육비합계,서울한영대학교,2023,9540.0,2997555.462,absolute_difference_gt_5.0
+high,교육비환원율,서울한영대학교,2023,138.7,188.5,absolute_difference_gt_0.05
+medium,등록금회계_교육비합계,중앙대학교,2022,352455619.0,352489189.906,absolute_difference_gt_5.0
+medium,등록금회계_교육비합계,한국외국어대학교,2021,202499493.0,203559493.058,absolute_difference_gt_5.0
+high,교육비환원율,한국외국어대학교,2021,152.6,153.3,absolute_difference_gt_0.05
+medium,등록금회계_교육비합계,한국외국어대학교,2022,203428317.0,204274590.462,absolute_difference_gt_5.0
+high,교육비환원율,한국외국어대학교,2022,159.6,160.2,absolute_difference_gt_0.05
+medium,등록금회계_교육비합계,한국외국어대학교,2023,207360777.0,207866800.363,absolute_difference_gt_5.0
+high,교육비환원율,한국외국어대학교,2023,173.5,173.9,absolute_difference_gt_0.05

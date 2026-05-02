@@ -1,2 +1,0 @@
-﻿dataset,limitation,allowed_scope
-kasfo_education_return,"original XLSX raw source is absent; processed source_file_name is blank/NaN, so direct raw-source equality cannot be declared",processed-to-candidate restandardization and formula validation only

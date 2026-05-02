@@ -11,6 +11,7 @@ from utils.data_validation_modes import (
     DECISION_PENDING,
     ReviewDecision,
     build_budam_validation_status,
+    build_education_return_validation_status,
     build_gyowon_validation_status,
     build_gyeolsan_validation_status,
     build_jirosung_validation_status,
@@ -22,6 +23,8 @@ from utils.data_validation_modes import (
     build_student_recruitment_validation_status,
     load_budam_review_decisions,
     load_dormitory_review_decisions,
+    load_education_return_processing_report,
+    load_education_return_review_decisions,
     load_gyowon_review_decisions,
     load_gyeolsan_review_decisions,
     load_jirosung_review_decisions,
@@ -31,6 +34,7 @@ from utils.data_validation_modes import (
     review_decisions_from_frame,
     save_budam_review_decisions,
     save_dormitory_review_decisions,
+    save_education_return_review_decisions,
     save_gyowon_review_decisions,
     save_gyeolsan_review_decisions,
     save_jirosung_review_decisions,
@@ -269,6 +273,25 @@ def test_gyeolsan_status_uses_preserved_kasfo_raw_source_and_zero_mismatches() -
     assert status.ready_for_promotion is True
 
 
+def test_education_return_status_uses_preserved_kasfo_raw_source_and_reports_mismatch() -> None:
+    status = build_education_return_validation_status()
+    report = load_education_return_processing_report()
+
+    assert status.dataset_id == "education_return"
+    assert status.raw_preserved is True
+    assert status.candidate_exists is True
+    assert status.report_exists is True
+    assert status.source_input_kind == "raw_xlsx_zip"
+    assert status.source_input_rows == 10166
+    assert status.candidate_rows == 1493
+    assert status.mismatch_rows == 12
+    assert status.high_mismatches == 4
+    assert status.ready_for_preview is True
+    assert status.ready_for_promotion is False
+    assert report["row_counts"]["theme_issue_candidate_rows"] == 1975
+    assert report["row_counts"]["theme_issue_operating_mismatch_rows"] == 0
+
+
 def test_student_recruitment_review_decision_save_and_load_roundtrip(tmp_path) -> None:
     review_id = build_mismatch_review_id(
         dataset_id="student_recruitment",
@@ -483,4 +506,35 @@ def test_gyeolsan_review_decision_save_and_load_roundtrip(tmp_path) -> None:
     loaded = load_gyeolsan_review_decisions(path)
 
     assert loaded[review_id].dataset_id == "gyeolsan"
+    assert loaded[review_id].decision == DECISION_ACCEPT_RAW
+
+
+def test_education_return_review_decision_save_and_load_roundtrip(tmp_path) -> None:
+    review_id = build_mismatch_review_id(
+        dataset_id="education_return",
+        school_name="한국외국어대학교",
+        year=2021,
+        field="교육비환원율",
+    )
+    path = tmp_path / "education_return_review.json"
+
+    save_education_return_review_decisions(
+        {
+            review_id: ReviewDecision(
+                review_id=review_id,
+                dataset_id="education_return",
+                school_name="한국외국어대학교",
+                year=2021,
+                field="교육비환원율",
+                decision=DECISION_ACCEPT_RAW,
+                note="사학재정알리미 원자료 기준 확인",
+                updated_at="2026-05-02T00:00:00+00:00",
+            )
+        },
+        path=path,
+    )
+
+    loaded = load_education_return_review_decisions(path)
+
+    assert loaded[review_id].dataset_id == "education_return"
     assert loaded[review_id].decision == DECISION_ACCEPT_RAW
