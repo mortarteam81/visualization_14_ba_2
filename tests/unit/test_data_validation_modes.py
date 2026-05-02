@@ -13,16 +13,19 @@ from utils.data_validation_modes import (
     build_gyowon_validation_status,
     build_mismatch_review_frame,
     build_mismatch_review_id,
+    build_paper_validation_status,
     build_research_validation_status,
     build_review_completion_status,
     build_student_recruitment_validation_status,
     load_dormitory_review_decisions,
     load_gyowon_review_decisions,
+    load_paper_review_decisions,
     load_research_review_decisions,
     load_student_recruitment_review_decisions,
     review_decisions_from_frame,
     save_dormitory_review_decisions,
     save_gyowon_review_decisions,
+    save_paper_review_decisions,
     save_research_review_decisions,
     save_student_recruitment_review_decisions,
 )
@@ -197,6 +200,21 @@ def test_research_status_uses_preserved_raw_source_and_zero_mismatches() -> None
     assert status.ready_for_promotion is True
 
 
+def test_paper_status_uses_preserved_raw_source_and_zero_mismatches() -> None:
+    status = build_paper_validation_status()
+
+    assert status.dataset_id == "paper"
+    assert status.raw_preserved is True
+    assert status.candidate_exists is True
+    assert status.report_exists is True
+    assert status.source_input_kind == "raw_xlsx"
+    assert status.source_input_rows == 4445
+    assert status.candidate_rows == 3108
+    assert status.mismatch_rows == 0
+    assert status.ready_for_preview is True
+    assert status.ready_for_promotion is True
+
+
 def test_student_recruitment_review_decision_save_and_load_roundtrip(tmp_path) -> None:
     review_id = build_mismatch_review_id(
         dataset_id="student_recruitment",
@@ -287,4 +305,35 @@ def test_research_review_decision_save_and_load_roundtrip(tmp_path) -> None:
     loaded = load_research_review_decisions(path)
 
     assert loaded[review_id].dataset_id == "research"
+    assert loaded[review_id].decision == DECISION_ACCEPT_RAW
+
+
+def test_paper_review_decision_save_and_load_roundtrip(tmp_path) -> None:
+    review_id = build_mismatch_review_id(
+        dataset_id="paper",
+        school_name="성신여자대학교",
+        year=2024,
+        field="전임교원1인당논문실적(국내, 연구재단등재지(후보포함))",
+    )
+    path = tmp_path / "paper_review.json"
+
+    save_paper_review_decisions(
+        {
+            review_id: ReviewDecision(
+                review_id=review_id,
+                dataset_id="paper",
+                school_name="성신여자대학교",
+                year=2024,
+                field="전임교원1인당논문실적(국내, 연구재단등재지(후보포함))",
+                decision=DECISION_ACCEPT_RAW,
+                note="논문실적 원자료 기준 확인",
+                updated_at="2026-05-02T00:00:00+00:00",
+            )
+        },
+        path=path,
+    )
+
+    loaded = load_paper_review_decisions(path)
+
+    assert loaded[review_id].dataset_id == "paper"
     assert loaded[review_id].decision == DECISION_ACCEPT_RAW

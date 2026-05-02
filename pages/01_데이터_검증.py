@@ -16,6 +16,7 @@ from utils.data_validation_modes import (
     build_dormitory_shadow_status,
     build_gyowon_validation_status,
     build_mismatch_review_frame,
+    build_paper_validation_status,
     build_research_validation_status,
     build_review_completion_status,
     build_student_recruitment_validation_status,
@@ -29,6 +30,11 @@ from utils.data_validation_modes import (
     load_gyowon_processing_report,
     load_gyowon_review_decisions,
     load_gyowon_source_acquisition,
+    load_paper_candidate_frame,
+    load_paper_mismatch_frame,
+    load_paper_processing_report,
+    load_paper_review_decisions,
+    load_paper_source_acquisition,
     load_research_candidate_frame,
     load_research_mismatch_frame,
     load_research_processing_report,
@@ -43,6 +49,7 @@ from utils.data_validation_modes import (
     review_decisions_from_frame,
     save_dormitory_review_decisions,
     save_gyowon_review_decisions,
+    save_paper_review_decisions,
     save_research_review_decisions,
     save_student_recruitment_review_decisions,
 )
@@ -53,6 +60,7 @@ from utils.theme import apply_app_theme
 DORMITORY_PAGE = get_metric("dormitory_rate")
 GYOWON_PAGE = get_metric("gyowon")
 RESEARCH_PAGE = get_metric("research")
+PAPER_PAGE = get_metric("paper")
 YEAR_COL = "기준년도"
 SCHOOL_COL = "학교명"
 RATE_COL = "기숙사수용률"
@@ -60,6 +68,8 @@ GYOWON_QUOTA_COL = "전임교원 확보율(학생정원 기준)"
 GYOWON_ENROLLED_COL = "전임교원 확보율(재학생 기준)"
 RESEARCH_IN_COL = "전임교원 1인당 연구비(교내)"
 RESEARCH_OUT_COL = "전임교원 1인당 연구비(교외)"
+PAPER_DOMESTIC_COL = "전임교원1인당논문실적(국내, 연구재단등재지(후보포함))"
+PAPER_SCI_COL = "전임교원1인당논문실적(국제, SCI급/SCOPUS학술지)"
 STUDENT_YEAR_COL = "공시연도"
 STUDENT_VALUE_COL = "재학생충원율"
 
@@ -114,6 +124,33 @@ def _target_config(target_key: str) -> dict[str, object]:
                 "교내 연구비": RESEARCH_IN_COL,
             },
             "value_label": "전임교원 1인당 연구비(천원)",
+            "chart_title": "운영 CSV와 Candidate CSV 비교",
+            "promotion_button_label": "운영 CSV로 승격",
+            "current_label": "운영 CSV",
+            "candidate_label": "Candidate CSV",
+        }
+    if target_key == "paper":
+        return {
+            "target_key": "paper",
+            "title": "논문실적",
+            "pilot_note": "대학알리미 원자료에서 재가공한 논문실적 후보 데이터입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.",
+            "goal_text": "이 화면은 논문실적 후보 데이터가 운영 화면에 반영 가능한지 판단하기 위한 운영자용 검증 콘솔입니다.",
+            "status_loader": build_paper_validation_status,
+            "mismatch_loader": load_paper_mismatch_frame,
+            "decisions_loader": load_paper_review_decisions,
+            "decisions_saver": save_paper_review_decisions,
+            "report_loader": load_paper_processing_report,
+            "source_loader": load_paper_source_acquisition,
+            "operating_loader": lambda: get_dataset(PAPER_PAGE.dataset_key),
+            "candidate_loader": load_paper_candidate_frame,
+            "year_col": YEAR_COL,
+            "school_col": SCHOOL_COL,
+            "value_col": PAPER_DOMESTIC_COL,
+            "value_options": {
+                "국내 등재지 논문": PAPER_DOMESTIC_COL,
+                "SCI급·SCOPUS 논문": PAPER_SCI_COL,
+            },
+            "value_label": "전임교원 1인당 논문실적",
             "chart_title": "운영 CSV와 Candidate CSV 비교",
             "promotion_button_label": "운영 CSV로 승격",
             "current_label": "운영 CSV",
@@ -511,13 +548,14 @@ def main() -> None:
     st.caption(f"{APP_SUBTITLE} | 운영자 전용")
     target_label = st.selectbox(
         "검증 대상",
-        ["기숙사 수용률", "전임교원 확보율", "연구비 수혜 실적", "학생 충원 성과"],
+        ["기숙사 수용률", "전임교원 확보율", "연구비 수혜 실적", "논문실적", "학생 충원 성과"],
         key="data_validation_target_label",
     )
     target_key_map = {
         "기숙사 수용률": "dormitory_accommodation_status",
         "전임교원 확보율": "gyowon",
         "연구비 수혜 실적": "research",
+        "논문실적": "paper",
         "학생 충원 성과": "student_recruitment",
     }
     target_key = target_key_map[target_label]

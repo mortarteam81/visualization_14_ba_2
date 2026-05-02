@@ -11,14 +11,17 @@ DORMITORY_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/dormit
 GYOWON_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/gyowon/gyowon_2008_2025_candidate.csv"
 LECTURER_PAY_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay_2023_2025_candidate.csv"
 RESEARCH_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/research/research_2007_2024_candidate.csv"
+PAPER_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/paper/paper_2007_2024_candidate.csv"
 DORMITORY_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_dormitory_accommodation_status.processing_report.json"
 GYOWON_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_gyowon.processing_report.json"
 LECTURER_PAY_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_lecturer_pay.processing_report.json"
 RESEARCH_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_research.processing_report.json"
+PAPER_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_paper.processing_report.json"
 DORMITORY_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_dormitory_accommodation_status.mismatch.csv"
 GYOWON_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_gyowon.mismatch.csv"
 LECTURER_PAY_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_lecturer_pay.mismatch.csv"
 RESEARCH_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_research.mismatch.csv"
+PAPER_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_paper.mismatch.csv"
 
 
 def _load_report(path: Path) -> dict:
@@ -99,6 +102,31 @@ def test_academyinfo_research_candidate_outputs_are_raw_backed_and_national() ->
     assert report["coverage"]["comparison_11_present_latest_year"] == 11
     assert report["coverage"]["default_scope_34_present_latest_year"] == 34
     assert set(frame.columns) >= {"기준년도", "학교명", "전임교원 1인당 연구비(교내)", "전임교원 1인당 연구비(교외)"}
+    assert frame["학교명"].eq("성신여자대학교").any()
+
+
+def test_academyinfo_paper_candidate_outputs_are_raw_backed_and_national() -> None:
+    assert PAPER_CANDIDATE.exists()
+    assert PAPER_MISMATCH.exists()
+    frame = pd.read_csv(PAPER_CANDIDATE)
+    mismatch = pd.read_csv(PAPER_MISMATCH)
+    report = _load_report(PAPER_REPORT)
+
+    assert str(PAPER_CANDIDATE.relative_to(PROJECT_ROOT)) == report["output_file"]
+    assert report["version"] == "academyinfo_paper_raw_xlsx_candidate_v1"
+    assert report["source_input_kind"] == "raw_xlsx"
+    assert report["source_preservation_status"] == "raw_preserved"
+    assert report["row_counts"]["source_input_rows"] == 4445
+    assert report["row_counts"]["candidate_rows"] == len(frame) == 3108
+    assert report["row_counts"]["mismatch_rows"] == len(mismatch) == 0
+    assert report["coverage"]["comparison_11_present_latest_year"] == 11
+    assert report["coverage"]["default_scope_34_present_latest_year"] == 34
+    assert set(frame.columns) >= {
+        "기준년도",
+        "학교명",
+        "전임교원1인당논문실적(국내, 연구재단등재지(후보포함))",
+        "전임교원1인당논문실적(국제, SCI급/SCOPUS학술지)",
+    }
     assert frame["학교명"].eq("성신여자대학교").any()
 
 

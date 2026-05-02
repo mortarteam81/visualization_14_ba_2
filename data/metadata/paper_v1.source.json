@@ -1,0 +1,53 @@
+{
+  "dataset_id": "paper",
+  "dataset_name_ko": "전임교원 1인당 논문실적",
+  "dataset_name_en": "Paper Performance Per Full-Time Faculty",
+  "schema_version": "v1",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 7-가. 전임교원의 연구실적_대학",
+  "download_method": "공시데이터 추이 XLSX 원자료 다운로드 후 candidate CSV로 변환",
+  "original_file_name": "7-가. 전임교원의 연구실적_대학_전임교원 1인당 논문 실적(국내, 국제).xlsx",
+  "raw_source_files": [
+    {
+      "path": "data/raw/academyinfo/paper/original/7-가. 전임교원의 연구실적_대학_전임교원 1인당 논문 실적(국내, 국제).xlsx",
+      "sha256": "daeb7bdc95bdcfb775108b7de3a3a5ef361a334942cb961f274be0bc0863ac35",
+      "file_size_bytes": 709126,
+      "downloaded_at": "2026-05-02T16:36:13+09:00",
+      "source_menu": "공시데이터 추이",
+      "search_keyword": "논문",
+      "academic_system": "대학",
+      "std_dta_div_cd": "051",
+      "download_reason_popup_required": false,
+      "popup_personal_fields_stored": false
+    }
+  ],
+  "candidate_conversion": {
+    "script": "scripts/converters/academyinfo_paper.py",
+    "output_file": "data/conversion_outputs/academyinfo/paper/paper_2007_2024_candidate.csv",
+    "processing_report": "data/validation/processing_reports/academyinfo_paper.processing_report.json",
+    "mismatch_report": "data/validation/mismatch_reports/academyinfo_paper.mismatch.csv",
+    "source_preservation_status": "raw_preserved"
+  },
+  "current_dashboard_asset": {
+    "path": "data/전임교원 논문실적.csv",
+    "scope": "서울 소재 사립 일반대학 중심의 legacy subset",
+    "promotion_status": "candidate_not_promoted"
+  },
+  "formula_checks": [
+    {
+      "field": "전임교원1인당논문실적(국내, 연구재단등재지(후보포함))",
+      "formula": "논문실적(국내, 연구재단등재지(후보포함)) / 전임교원, 소수점 4자리 half-up 반올림"
+    },
+    {
+      "field": "전임교원1인당논문실적(국제, SCI급/SCOPUS학술지)",
+      "formula": "논문실적(국제, SCI급/SCOPUS학술지) / 전임교원, 소수점 4자리 half-up 반올림"
+    }
+  ],
+  "notes": [
+    "운영 CSV는 변경하지 않았고, 전국 단위 후보 CSV만 별도 경로에 생성한다.",
+    "현재 운영 CSV의 본교 기준 34개교, 2007~2024년 행은 raw-XLSX 후보값과 일치하는지 mismatch report로 검증한다.",
+    "학과별 상세 원자료 5건은 별도 후속 검증 대상으로 남겨둔다."
+  ]
+}

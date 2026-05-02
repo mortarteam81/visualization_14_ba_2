@@ -1,0 +1,36 @@
+{
+  "dataset_id": "paper",
+  "dataset_name_ko": "전임교원 1인당 논문실적",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 7-가. 전임교원의 연구실적_대학",
+  "processed_at": "2026-05-02T07:42:53.707678+00:00",
+  "source_preservation_status": "raw_preserved",
+  "source_input_kind": "raw_xlsx",
+  "source_input_file": "data/raw/academyinfo/paper/original/7-가. 전임교원의 연구실적_대학_전임교원 1인당 논문 실적(국내, 국제).xlsx",
+  "files": [
+    {
+      "path": "data/전임교원 논문실적.csv",
+      "exists": true,
+      "sha256": "91ae49c62a7aae53e98e557fa44ef4953982f5a617cfa63193f73c6be79f1c2a",
+      "kind": "processed_input"
+    },
+    {
+      "path": "data/raw/academyinfo/paper/original/7-가. 전임교원의 연구실적_대학_전임교원 1인당 논문 실적(국내, 국제).xlsx",
+      "exists": true,
+      "sha256": "daeb7bdc95bdcfb775108b7de3a3a5ef361a334942cb961f274be0bc0863ac35",
+      "kind": "expected_raw_source"
+    },
+    {
+      "path": "data/metadata/paper_v1.source.json",
+      "exists": true,
+      "sha256": "05802cfb026d43cad4acc5918a4d83adca48121bfa02d212e405d5cd288750bc",
+      "kind": "source_metadata"
+    }
+  ],
+  "notes": [
+    "No official-site mass download was performed.",
+    "Existing processed/current assets were not overwritten or promoted."
+  ]
+}
