@@ -15,6 +15,7 @@ from utils.data_validation_modes import (
     REVIEW_DECISIONS,
     build_dormitory_shadow_status,
     build_mismatch_review_frame,
+    build_research_validation_status,
     build_review_completion_status,
     build_student_recruitment_validation_status,
     load_dormitory_candidate_frame,
@@ -22,6 +23,11 @@ from utils.data_validation_modes import (
     load_dormitory_processing_report,
     load_dormitory_review_decisions,
     load_dormitory_source_acquisition,
+    load_research_candidate_frame,
+    load_research_mismatch_frame,
+    load_research_processing_report,
+    load_research_review_decisions,
+    load_research_source_acquisition,
     load_student_recruitment_candidate_frame,
     load_student_recruitment_current_frame,
     load_student_recruitment_mismatch_frame,
@@ -30,6 +36,7 @@ from utils.data_validation_modes import (
     load_student_recruitment_source_metadata,
     review_decisions_from_frame,
     save_dormitory_review_decisions,
+    save_research_review_decisions,
     save_student_recruitment_review_decisions,
 )
 from utils.query import get_dataset
@@ -37,14 +44,44 @@ from utils.theme import apply_app_theme
 
 
 DORMITORY_PAGE = get_metric("dormitory_rate")
+RESEARCH_PAGE = get_metric("research")
 YEAR_COL = "기준년도"
 SCHOOL_COL = "학교명"
 RATE_COL = "기숙사수용률"
+RESEARCH_IN_COL = "전임교원 1인당 연구비(교내)"
+RESEARCH_OUT_COL = "전임교원 1인당 연구비(교외)"
 STUDENT_YEAR_COL = "공시연도"
 STUDENT_VALUE_COL = "재학생충원율"
 
 
 def _target_config(target_key: str) -> dict[str, object]:
+    if target_key == "research":
+        return {
+            "target_key": "research",
+            "title": "연구비 수혜 실적",
+            "pilot_note": "대학알리미 원자료에서 재가공한 연구비 후보 데이터입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.",
+            "goal_text": "이 화면은 연구비 수혜 실적 후보 데이터가 운영 화면에 반영 가능한지 판단하기 위한 운영자용 검증 콘솔입니다.",
+            "status_loader": build_research_validation_status,
+            "mismatch_loader": load_research_mismatch_frame,
+            "decisions_loader": load_research_review_decisions,
+            "decisions_saver": save_research_review_decisions,
+            "report_loader": load_research_processing_report,
+            "source_loader": load_research_source_acquisition,
+            "operating_loader": lambda: get_dataset(RESEARCH_PAGE.dataset_key),
+            "candidate_loader": load_research_candidate_frame,
+            "year_col": YEAR_COL,
+            "school_col": SCHOOL_COL,
+            "value_col": RESEARCH_OUT_COL,
+            "value_options": {
+                "교외 연구비": RESEARCH_OUT_COL,
+                "교내 연구비": RESEARCH_IN_COL,
+            },
+            "value_label": "전임교원 1인당 연구비(천원)",
+            "chart_title": "운영 CSV와 Candidate CSV 비교",
+            "promotion_button_label": "운영 CSV로 승격",
+            "current_label": "운영 CSV",
+            "candidate_label": "Candidate CSV",
+        }
     if target_key == "student_recruitment":
         return {
             "target_key": "student_recruitment",
@@ -314,7 +351,16 @@ def _render_preview_mode(context: dict[str, object]) -> None:
     candidate = config["candidate_loader"]()
     school_col = str(config["school_col"])
     year_col = str(config["year_col"])
-    value_col = str(config["value_col"])
+    value_options = config.get("value_options")
+    if isinstance(value_options, dict) and value_options:
+        selected_value_label = st.selectbox(
+            "미리보기 지표",
+            list(value_options.keys()),
+            key=f"{config['target_key']}_validation_preview_metric",
+        )
+        value_col = str(value_options[selected_value_label])
+    else:
+        value_col = str(config["value_col"])
 
     st.markdown("#### 화면 미리보기")
     st.write("운영 데이터와 후보 데이터를 전체 지표 화면에 반영하기 전에 필요한 범위만 단순 비교합니다.")
@@ -428,10 +474,15 @@ def main() -> None:
     st.caption(f"{APP_SUBTITLE} | 운영자 전용")
     target_label = st.selectbox(
         "검증 대상",
-        ["기숙사 수용률", "학생 충원 성과"],
+        ["기숙사 수용률", "연구비 수혜 실적", "학생 충원 성과"],
         key="data_validation_target_label",
     )
-    target_key = "student_recruitment" if target_label == "학생 충원 성과" else "dormitory_accommodation_status"
+    target_key_map = {
+        "기숙사 수용률": "dormitory_accommodation_status",
+        "연구비 수혜 실적": "research",
+        "학생 충원 성과": "student_recruitment",
+    }
+    target_key = target_key_map[target_label]
     context = _build_context(target_key)
     st.info(str(context["config"]["pilot_note"]))
     _render_status_cards(context["status"], context["review_status"])

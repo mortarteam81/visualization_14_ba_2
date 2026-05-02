@@ -49,6 +49,43 @@ DORMITORY_REVIEW_DECISIONS_PATH = (
     / "review_decisions"
     / "academyinfo_dormitory_accommodation_status.review.json"
 )
+RESEARCH_CANDIDATE_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "conversion_outputs"
+    / "academyinfo"
+    / "research"
+    / "research_2007_2024_candidate.csv"
+)
+RESEARCH_REPORT_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "processing_reports"
+    / "academyinfo_research.processing_report.json"
+)
+RESEARCH_MISMATCH_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "mismatch_reports"
+    / "academyinfo_research.mismatch.csv"
+)
+RESEARCH_SOURCE_ACQUISITION_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "raw"
+    / "academyinfo"
+    / "research"
+    / "source_acquisition.json"
+)
+RESEARCH_REVIEW_DECISIONS_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "review_decisions"
+    / "academyinfo_research.review.json"
+)
 STUDENT_RECRUITMENT_CURRENT_PATH = (
     PROJECT_ROOT
     / "data"
@@ -87,6 +124,7 @@ STUDENT_RECRUITMENT_REVIEW_DECISIONS_PATH = (
 )
 
 DORMITORY_DATASET_ID = "dormitory_accommodation_status"
+RESEARCH_DATASET_ID = "research"
 STUDENT_RECRUITMENT_DATASET_ID = "student_recruitment"
 DECISION_PENDING = "미검토"
 DECISION_ACCEPT_RAW = "원자료값 채택"
@@ -253,6 +291,10 @@ def load_dormitory_candidate_frame() -> pd.DataFrame:
     return pd.read_csv(DORMITORY_CANDIDATE_PATH, encoding="utf-8-sig")
 
 
+def load_research_candidate_frame() -> pd.DataFrame:
+    return pd.read_csv(RESEARCH_CANDIDATE_PATH, encoding="utf-8-sig")
+
+
 def load_student_recruitment_current_frame() -> pd.DataFrame:
     return pd.read_csv(STUDENT_RECRUITMENT_CURRENT_PATH, encoding="utf-8-sig")
 
@@ -267,6 +309,12 @@ def load_dormitory_mismatch_frame() -> pd.DataFrame:
     return pd.read_csv(DORMITORY_MISMATCH_PATH, encoding="utf-8-sig")
 
 
+def load_research_mismatch_frame() -> pd.DataFrame:
+    if not RESEARCH_MISMATCH_PATH.exists():
+        return pd.DataFrame()
+    return pd.read_csv(RESEARCH_MISMATCH_PATH, encoding="utf-8-sig")
+
+
 def load_student_recruitment_mismatch_frame() -> pd.DataFrame:
     if not STUDENT_RECRUITMENT_MISMATCH_PATH.exists():
         return pd.DataFrame()
@@ -277,12 +325,20 @@ def load_dormitory_processing_report() -> dict[str, Any]:
     return _read_json(DORMITORY_REPORT_PATH)
 
 
+def load_research_processing_report() -> dict[str, Any]:
+    return _read_json(RESEARCH_REPORT_PATH)
+
+
 def load_student_recruitment_processing_report() -> dict[str, Any]:
     return _read_json(STUDENT_RECRUITMENT_REPORT_PATH)
 
 
 def load_dormitory_source_acquisition() -> dict[str, Any]:
     return _read_json(DORMITORY_SOURCE_ACQUISITION_PATH)
+
+
+def load_research_source_acquisition() -> dict[str, Any]:
+    return _read_json(RESEARCH_SOURCE_ACQUISITION_PATH)
 
 
 def load_student_recruitment_source_metadata() -> dict[str, Any]:
@@ -351,6 +407,12 @@ def load_student_recruitment_review_decisions(
     return load_dormitory_review_decisions(path)
 
 
+def load_research_review_decisions(
+    path: Path | str = RESEARCH_REVIEW_DECISIONS_PATH,
+) -> dict[str, ReviewDecision]:
+    return load_dormitory_review_decisions(path)
+
+
 def save_dormitory_review_decisions(
     decisions: Mapping[str, ReviewDecision],
     path: Path | str = DORMITORY_REVIEW_DECISIONS_PATH,
@@ -378,6 +440,17 @@ def save_student_recruitment_review_decisions(
         decisions,
         path=path,
         dataset_id=STUDENT_RECRUITMENT_DATASET_ID,
+    )
+
+
+def save_research_review_decisions(
+    decisions: Mapping[str, ReviewDecision],
+    path: Path | str = RESEARCH_REVIEW_DECISIONS_PATH,
+) -> None:
+    save_dormitory_review_decisions(
+        decisions,
+        path=path,
+        dataset_id=RESEARCH_DATASET_ID,
     )
 
 
@@ -547,6 +620,55 @@ def build_dormitory_shadow_status() -> ValidationModeStatus:
         medium_mismatches=medium_mismatches,
         ready_for_preview=ready_for_preview,
         ready_for_promotion=ready_for_promotion,
+        reason=reason,
+    )
+
+
+def build_research_validation_status() -> ValidationModeStatus:
+    report = load_research_processing_report()
+    candidate_exists = RESEARCH_CANDIDATE_PATH.exists()
+    report_exists = RESEARCH_REPORT_PATH.exists()
+    mismatch_exists = RESEARCH_MISMATCH_PATH.exists()
+    mismatch = load_research_mismatch_frame()
+
+    row_counts = report.get("row_counts", {}) if isinstance(report, dict) else {}
+    source_preservation_status = report.get("source_preservation_status") if isinstance(report, dict) else None
+    source_input_kind = report.get("source_input_kind") if isinstance(report, dict) else None
+
+    high_mismatches = int((mismatch.get("severity") == "high").sum()) if not mismatch.empty else 0
+    medium_mismatches = int((mismatch.get("severity") == "medium").sum()) if not mismatch.empty else 0
+    mismatch_rows = int(len(mismatch)) if mismatch_exists else int(row_counts.get("mismatch_rows", 0) or 0)
+    raw_preserved = source_preservation_status == "raw_preserved"
+    ready_for_preview = candidate_exists and report_exists and raw_preserved and source_input_kind == "raw_xlsx"
+    review_status = build_review_completion_status(
+        mismatch,
+        load_research_review_decisions(),
+        base_ready=ready_for_preview,
+        high_mismatches=high_mismatches,
+        dataset_id=str(report.get("dataset_id") or RESEARCH_DATASET_ID),
+    )
+
+    if not ready_for_preview:
+        reason = "원자료 기반 연구비 candidate/report가 아직 완성되지 않았습니다."
+    elif not review_status.ready_for_promotion:
+        reason = "Preview 가능. 단, 운영 CSV와 candidate 차이에 대한 운영자 검토가 필요합니다."
+    else:
+        reason = "Preview 가능하며 승격 전 검토 기준을 충족했습니다."
+
+    return ValidationModeStatus(
+        dataset_id=str(report.get("dataset_id") or RESEARCH_DATASET_ID),
+        candidate_exists=candidate_exists,
+        report_exists=report_exists,
+        mismatch_exists=mismatch_exists,
+        raw_preserved=raw_preserved,
+        source_input_kind=str(source_input_kind) if source_input_kind else None,
+        source_input_rows=int(row_counts.get("source_input_rows", 0) or 0),
+        candidate_rows=int(row_counts.get("candidate_rows", 0) or 0),
+        mismatch_rows=mismatch_rows,
+        high_mismatches=high_mismatches,
+        medium_mismatches=medium_mismatches,
+        ready_for_preview=ready_for_preview,
+        ready_for_promotion=review_status.ready_for_promotion,
         reason=reason,
     )
 

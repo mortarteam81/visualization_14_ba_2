@@ -84,7 +84,7 @@ def test_dataset_manifest_status_values_match_known_data_scopes() -> None:
     expected = {
         "budam": ("seoul_subset_legacy", "legacy_schema_missing"),
         "gyowon": ("seoul_subset_legacy", "legacy_schema_missing"),
-        "research": ("seoul_subset_legacy", "legacy_schema_missing"),
+        "research": ("seoul_subset_legacy", "partial"),
         "paper": ("seoul_subset_legacy", "legacy_schema_missing"),
         "jirosung": ("national_raw", "partial"),
         "gyeolsan": ("national_raw", "legacy_schema_missing"),

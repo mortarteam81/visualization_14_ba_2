@@ -1,0 +1,46 @@
+{
+  "dataset_id": "research",
+  "dataset_name_ko": "전임교원 1인당 연구비",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_menu": "공시데이터 추이",
+  "search_keyword": "연구비",
+  "academic_system": "대학",
+  "item_id": 150,
+  "std_dta_div_cd": "075",
+  "item_name": "12-가. 연구비 수혜 실적_대학_전임교원 1인당 연구비(교내, 교외)",
+  "original_file_name": "12-가. 연구비 수혜 실적_대학_전임교원 1인당 연구비(교내, 교외).xlsx",
+  "local_raw_path": "data/raw/academyinfo/research/original/12-가. 연구비 수혜 실적_대학_전임교원 1인당 연구비(교내, 교외).xlsx",
+  "downloaded_at": "2026-05-02T14:19:11+09:00",
+  "sha256": "0c8eea1dd2198da22875118f9ce96575ec60f8d147791eaef399e5b66b232607",
+  "file_size_bytes": 599920,
+  "download_reason_popup_required": false,
+  "download_method": "공시데이터 추이 목록에서 확인한 FileDown.do 엔드포인트와 파일 식별자를 사용해 원본 XLSX를 직접 보존",
+  "popup_personal_fields_stored": false,
+  "workbook_profile": {
+    "sheet_names": ["Sheet 1"],
+    "row_count": 4444,
+    "column_count": 25,
+    "year_min": 2007,
+    "year_max": 2024,
+    "school_count": 293
+  },
+  "related_files_identified_not_downloaded": [
+    {
+      "std_dta_div_cd": "330",
+      "file_dtl_nm": "CMN81_330.xlsx",
+      "file_name": "(원자료) 12-가. 연구비 수혜 실적_대학_학과별_2008~2016.xlsx"
+    },
+    {
+      "std_dta_div_cd": "331",
+      "file_dtl_nm": "CMN81_331.xlsx",
+      "file_name": "(원자료) 12-가. 연구비 수혜 실적_대학_학과별_2017~.xlsx"
+    }
+  ],
+  "notes": [
+    "현재 대시보드 지표가 사용하는 교내/교외 전임교원 1인당 연구비와 직접 대응되는 학교 단위 XLSX를 1차 원자료로 보존했다.",
+    "학과별 원자료 2건은 동일 항목의 상세 파일로 확인했으나 이번 자동화 범위에는 포함하지 않았다.",
+    "개인정보성 다운로드 사유 입력값은 저장하지 않았다."
+  ]
+}

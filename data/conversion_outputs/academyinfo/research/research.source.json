@@ -1,0 +1,36 @@
+{
+  "dataset_id": "research",
+  "dataset_name_ko": "전임교원 1인당 연구비",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 12-가. 연구비 수혜 실적_대학",
+  "processed_at": "2026-05-02T05:22:15.089860+00:00",
+  "source_preservation_status": "raw_preserved",
+  "source_input_kind": "raw_xlsx",
+  "source_input_file": "data/raw/academyinfo/research/original/12-가. 연구비 수혜 실적_대학_전임교원 1인당 연구비(교내, 교외).xlsx",
+  "files": [
+    {
+      "path": "data/연구비_수혜실적.csv",
+      "exists": true,
+      "sha256": "d6e801c940e4015aa02e2a126e7e07b9eee83e52895910e9a35ddedcd823a90b",
+      "kind": "processed_input"
+    },
+    {
+      "path": "data/raw/academyinfo/research/original/12-가. 연구비 수혜 실적_대학_전임교원 1인당 연구비(교내, 교외).xlsx",
+      "exists": true,
+      "sha256": "0c8eea1dd2198da22875118f9ce96575ec60f8d147791eaef399e5b66b232607",
+      "kind": "expected_raw_source"
+    },
+    {
+      "path": "data/metadata/research_v1.source.json",
+      "exists": true,
+      "sha256": "0361f931bc1779ef9e0a153a057ba4726bda1d67e0881a794a144caa5a1bbef2",
+      "kind": "source_metadata"
+    }
+  ],
+  "notes": [
+    "No official-site mass download was performed.",
+    "Existing processed/current assets were not overwritten or promoted."
+  ]
+}

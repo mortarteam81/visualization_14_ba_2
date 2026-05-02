@@ -279,6 +279,19 @@ class TestPageSmoke:
         assert [exception.message for exception in app.exception] == []
         assert any("학생 충원 후보 데이터" in info.value for info in app.info)
 
+    def test_data_validation_page_can_select_research(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_authenticated_user)
+        app = AppTest.from_file(str(PAGE_DIR / "01_데이터_검증.py"), default_timeout=20)
+
+        app.run()
+        app.selectbox[0].select("연구비 수혜 실적").run()
+
+        assert [exception.message for exception in app.exception] == []
+        assert any("연구비 후보 데이터" in info.value for info in app.info)
+        assert any(selectbox.label == "미리보기 지표" for selectbox in app.selectbox)
+
     def test_data_validation_page_blocks_viewer(self, monkeypatch: pytest.MonkeyPatch) -> None:
         import utils.auth as auth
 

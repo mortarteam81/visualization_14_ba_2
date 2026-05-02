@@ -12,12 +12,15 @@ from utils.data_validation_modes import (
     ReviewDecision,
     build_mismatch_review_frame,
     build_mismatch_review_id,
+    build_research_validation_status,
     build_review_completion_status,
     build_student_recruitment_validation_status,
     load_dormitory_review_decisions,
+    load_research_review_decisions,
     load_student_recruitment_review_decisions,
     review_decisions_from_frame,
     save_dormitory_review_decisions,
+    save_research_review_decisions,
     save_student_recruitment_review_decisions,
 )
 
@@ -159,6 +162,21 @@ def test_student_recruitment_status_uses_preserved_raw_sources() -> None:
     assert status.mismatch_rows >= status.medium_mismatches
 
 
+def test_research_status_uses_preserved_raw_source_and_zero_mismatches() -> None:
+    status = build_research_validation_status()
+
+    assert status.dataset_id == "research"
+    assert status.raw_preserved is True
+    assert status.candidate_exists is True
+    assert status.report_exists is True
+    assert status.source_input_kind == "raw_xlsx"
+    assert status.source_input_rows == 4444
+    assert status.candidate_rows == 3108
+    assert status.mismatch_rows == 0
+    assert status.ready_for_preview is True
+    assert status.ready_for_promotion is True
+
+
 def test_student_recruitment_review_decision_save_and_load_roundtrip(tmp_path) -> None:
     review_id = build_mismatch_review_id(
         dataset_id="student_recruitment",
@@ -187,4 +205,35 @@ def test_student_recruitment_review_decision_save_and_load_roundtrip(tmp_path) -
     loaded = load_student_recruitment_review_decisions(path)
 
     assert loaded[review_id].dataset_id == "student_recruitment"
+    assert loaded[review_id].decision == DECISION_ACCEPT_RAW
+
+
+def test_research_review_decision_save_and_load_roundtrip(tmp_path) -> None:
+    review_id = build_mismatch_review_id(
+        dataset_id="research",
+        school_name="성신여자대학교",
+        year=2024,
+        field="전임교원 1인당 연구비(교외)",
+    )
+    path = tmp_path / "research_review.json"
+
+    save_research_review_decisions(
+        {
+            review_id: ReviewDecision(
+                review_id=review_id,
+                dataset_id="research",
+                school_name="성신여자대학교",
+                year=2024,
+                field="전임교원 1인당 연구비(교외)",
+                decision=DECISION_ACCEPT_RAW,
+                note="연구비 원자료 기준 확인",
+                updated_at="2026-05-02T00:00:00+00:00",
+            )
+        },
+        path=path,
+    )
+
+    loaded = load_research_review_decisions(path)
+
+    assert loaded[review_id].dataset_id == "research"
     assert loaded[review_id].decision == DECISION_ACCEPT_RAW
