@@ -1,9 +1,9 @@
 {
   "report_id": "conversion_system_qa_report",
-  "generated_at": "2026-05-02T08:11:53.965700+00:00",
+  "generated_at": "2026-05-02T08:51:34.512730+00:00",
   "project_root": "/Users/mortarteam81/Documents/Codex/2026-04-25/users-mortarteam81-visualization-14-ba-2/visualization_14_ba_2",
   "summary": {
-    "candidate_batch_count": 12,
+    "candidate_batch_count": 13,
     "blocker_count": 3,
     "warning_count": 4,
     "comparison_11_count": 11,
@@ -47,6 +47,124 @@
     }
   ],
   "candidate_batches": [
+    {
+      "dataset_id": "budam",
+      "root": "data/conversion_outputs/academyinfo/budam",
+      "file_count": 2,
+      "checks": [
+        {
+          "check": "candidate_files_under_conversion_outputs",
+          "passed": true,
+          "details": {
+            "files": [
+              "data/conversion_outputs/academyinfo/budam/budam.source.json",
+              "data/conversion_outputs/academyinfo/budam/budam_2011_2024_candidate.csv"
+            ]
+          }
+        },
+        {
+          "check": "candidate_files_not_under_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_not_under_raw",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "candidate_files_do_not_symlink_to_raw_or_processed",
+          "passed": true,
+          "details": {}
+        },
+        {
+          "check": "no_current_asset_promotion_marker",
+          "passed": true,
+          "details": {
+            "markers": [
+              "current",
+              "latest",
+              "production"
+            ]
+          }
+        },
+        {
+          "check": "source_metadata_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/academyinfo/budam/budam.source.json",
+              "data/metadata/budam_v1.source.json"
+            ]
+          }
+        },
+        {
+          "check": "processing_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/conversion_outputs/academyinfo/budam/budam.processing_report.json",
+              "data/validation/processing_reports/academyinfo_budam.processing_report.json"
+            ]
+          }
+        },
+        {
+          "check": "mismatch_report_exists",
+          "passed": true,
+          "details": {
+            "matched_files": [
+              "data/validation/mismatch_reports/academyinfo_budam.mismatch.csv"
+            ]
+          }
+        },
+        {
+          "check": "no_inf_or_literal_inf",
+          "passed": true,
+          "details": {
+            "scanned_files": 1,
+            "findings": []
+          }
+        },
+        {
+          "check": "comparison_11_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/academyinfo/budam/budam_2011_2024_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        },
+        {
+          "check": "default_scope_34_coverage",
+          "passed": true,
+          "details": {
+            "files_with_school_names": 1,
+            "best_comparison_11_count": 11,
+            "best_default_scope_34_count": 34,
+            "per_file": [
+              {
+                "file": "data/conversion_outputs/academyinfo/budam/budam_2011_2024_candidate.csv",
+                "school_column": "학교명",
+                "comparison_11_count": 11,
+                "default_scope_34_count": 34,
+                "missing_comparison_11": [],
+                "missing_default_scope_34": []
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "dataset_id": "dormitory_accommodation_status",
       "root": "data/conversion_outputs/academyinfo/dormitory_accommodation_status",

@@ -4,19 +4,21 @@
   "title": "법정부담금 부담율",
   "current_asset": "data/법정부담금_부담율.csv",
   "source_data_scope": "seoul_subset_legacy",
-  "verification_status": "legacy_schema_missing",
+  "verification_status": "partial",
   "default_analysis_scope": "legacy Seoul private university subset",
   "metadata_files": {
-    "source": null,
-    "schema": null,
-    "report": null,
+    "source": "data/metadata/budam_v1.source.json",
+    "schema": "data/metadata/budam_v1_schema.md",
+    "report": "data/validation/processing_reports/academyinfo_budam.processing_report.json",
     "guide": null
   },
   "quality_flags": [
     "legacy_seoul_subset",
-    "schema_metadata_missing"
+    "academyinfo_raw_preserved",
+    "national_candidate_available",
+    "promotion_pending"
   ],
   "backlog": [
-    "Recover source/schema provenance for the legacy CSV."
+    "Review national candidate output and mismatch report before promoting any raw-XLSX derived asset into production."
   ]
 }

@@ -13,6 +13,7 @@ from utils.data_validation_modes import (
     DECISION_NEEDS_CHECK,
     DECISION_PENDING,
     REVIEW_DECISIONS,
+    build_budam_validation_status,
     build_dormitory_shadow_status,
     build_gyowon_validation_status,
     build_jirosung_validation_status,
@@ -21,6 +22,11 @@ from utils.data_validation_modes import (
     build_research_validation_status,
     build_review_completion_status,
     build_student_recruitment_validation_status,
+    load_budam_candidate_frame,
+    load_budam_mismatch_frame,
+    load_budam_processing_report,
+    load_budam_review_decisions,
+    load_budam_source_acquisition,
     load_dormitory_candidate_frame,
     load_dormitory_mismatch_frame,
     load_dormitory_processing_report,
@@ -53,6 +59,7 @@ from utils.data_validation_modes import (
     load_student_recruitment_review_decisions,
     load_student_recruitment_source_metadata,
     review_decisions_from_frame,
+    save_budam_review_decisions,
     save_dormitory_review_decisions,
     save_gyowon_review_decisions,
     save_jirosung_review_decisions,
@@ -65,6 +72,7 @@ from utils.theme import apply_app_theme
 
 
 DORMITORY_PAGE = get_metric("dormitory_rate")
+BUDAM_PAGE = get_metric("budam")
 GYOWON_PAGE = get_metric("gyowon")
 RESEARCH_PAGE = get_metric("research")
 PAPER_PAGE = get_metric("paper")
@@ -72,6 +80,7 @@ JIROSUNG_PAGE = get_metric("jirosung")
 YEAR_COL = "기준년도"
 SCHOOL_COL = "학교명"
 RATE_COL = "기숙사수용률"
+BUDAM_VALUE_COL = "부담율"
 GYOWON_QUOTA_COL = "전임교원 확보율(학생정원 기준)"
 GYOWON_ENROLLED_COL = "전임교원 확보율(재학생 기준)"
 RESEARCH_IN_COL = "전임교원 1인당 연구비(교내)"
@@ -84,6 +93,29 @@ STUDENT_VALUE_COL = "재학생충원율"
 
 
 def _target_config(target_key: str) -> dict[str, object]:
+    if target_key == "budam":
+        return {
+            "target_key": "budam",
+            "title": "법정부담금 부담율",
+            "pilot_note": "대학알리미 원자료에서 재가공한 법정부담금 부담율 후보 데이터입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.",
+            "goal_text": "이 화면은 법정부담금 부담율 후보 데이터가 운영 화면에 반영 가능한지 판단하기 위한 운영자용 검증 콘솔입니다.",
+            "status_loader": build_budam_validation_status,
+            "mismatch_loader": load_budam_mismatch_frame,
+            "decisions_loader": load_budam_review_decisions,
+            "decisions_saver": save_budam_review_decisions,
+            "report_loader": load_budam_processing_report,
+            "source_loader": load_budam_source_acquisition,
+            "operating_loader": lambda: get_dataset(BUDAM_PAGE.dataset_key),
+            "candidate_loader": load_budam_candidate_frame,
+            "year_col": YEAR_COL,
+            "school_col": SCHOOL_COL,
+            "value_col": BUDAM_VALUE_COL,
+            "value_label": "법정부담금 부담율(%)",
+            "chart_title": "운영 CSV와 Candidate CSV 비교",
+            "promotion_button_label": "운영 CSV로 승격",
+            "current_label": "운영 CSV",
+            "candidate_label": "Candidate CSV",
+        }
     if target_key == "gyowon":
         return {
             "target_key": "gyowon",
@@ -580,11 +612,20 @@ def main() -> None:
     st.caption(f"{APP_SUBTITLE} | 운영자 전용")
     target_label = st.selectbox(
         "검증 대상",
-        ["기숙사 수용률", "전임교원 확보율", "연구비 수혜 실적", "논문실적", "졸업생 진로 성과", "학생 충원 성과"],
+        [
+            "기숙사 수용률",
+            "법정부담금 부담율",
+            "전임교원 확보율",
+            "연구비 수혜 실적",
+            "논문실적",
+            "졸업생 진로 성과",
+            "학생 충원 성과",
+        ],
         key="data_validation_target_label",
     )
     target_key_map = {
         "기숙사 수용률": "dormitory_accommodation_status",
+        "법정부담금 부담율": "budam",
         "전임교원 확보율": "gyowon",
         "연구비 수혜 실적": "research",
         "논문실적": "paper",

@@ -35,4 +35,4 @@ def test_format_source_caption_for_legacy_metric() -> None:
 
     assert "데이터 출처: 대학알리미" in caption
     assert "자료 범위: 서울 subset legacy CSV" in caption
-    assert "검증 상태: 기존 자료/스키마 보강 필요" in caption
+    assert "검증 상태: 부분 검증" in caption

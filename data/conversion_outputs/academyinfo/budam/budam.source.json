@@ -1,0 +1,36 @@
+{
+  "dataset_id": "budam",
+  "dataset_name_ko": "법정부담금 부담율",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 14-바-2. 법정부담금 부담 현황_대학",
+  "processed_at": "2026-05-02T08:46:27.416662+00:00",
+  "source_preservation_status": "raw_preserved",
+  "source_input_kind": "raw_xlsx",
+  "source_input_file": "data/raw/academyinfo/budam/original/14-바-2. 법정부담금 부담 현황_대학_법정부담금 부담률.xlsx",
+  "files": [
+    {
+      "path": "data/법정부담금_부담율.csv",
+      "exists": true,
+      "sha256": "88cce52fcf56340da6677152453034415686d299c56541cad02d58d911ddcf16",
+      "kind": "processed_input"
+    },
+    {
+      "path": "data/raw/academyinfo/budam/original/14-바-2. 법정부담금 부담 현황_대학_법정부담금 부담률.xlsx",
+      "exists": true,
+      "sha256": "124833ce61fc2eb03682f39725c7a0bcf2465e019873caa9905e95b174a979a1",
+      "kind": "expected_raw_source"
+    },
+    {
+      "path": "data/metadata/budam_v1.source.json",
+      "exists": true,
+      "sha256": "7c853cc1a141f15c07ff017eb761fa51ea1d41a0231d457dd973dcb0054e6aa6",
+      "kind": "source_metadata"
+    }
+  ],
+  "notes": [
+    "No official-site mass download was performed.",
+    "Existing processed/current assets were not overwritten or promoted."
+  ]
+}

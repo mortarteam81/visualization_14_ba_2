@@ -1,0 +1,32 @@
+{
+  "dataset_id": "budam",
+  "dataset_name_ko": "법정부담금 부담율",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_menu": "공시데이터 추이",
+  "search_keyword": "법정",
+  "academic_system": "대학",
+  "item_name": "14-바-2. 법정부담금 부담 현황_대학_법정부담금 부담률",
+  "original_file_name": "14-바-2. 법정부담금 부담 현황_대학_법정부담금 부담률.xlsx",
+  "local_raw_path": "data/raw/academyinfo/budam/original/14-바-2. 법정부담금 부담 현황_대학_법정부담금 부담률.xlsx",
+  "downloaded_at": "2026-05-02T17:42:15+09:00",
+  "sha256": "124833ce61fc2eb03682f39725c7a0bcf2465e019873caa9905e95b174a979a1",
+  "file_size_bytes": 256449,
+  "download_reason_popup_required": true,
+  "download_method": "공시데이터 추이 화면에서 항목명 '법정' 검색 후 다운로드 사유 팝업을 거쳐 원본 XLSX 보존",
+  "popup_personal_fields_stored": false,
+  "workbook_profile": {
+    "sheet_names": ["Sheet 1"],
+    "row_count": 2424,
+    "column_count": 20,
+    "year_min": 2011,
+    "year_max": 2024,
+    "school_count": 200
+  },
+  "notes": [
+    "현재 대시보드의 법정부담금 부담율과 직접 대응되는 학교 단위 XLSX를 원자료로 보존했다.",
+    "개인정보성 다운로드 사유 입력값은 저장하지 않았다.",
+    "운영 CSV는 변경하지 않고 candidate CSV 및 검증 리포트만 별도 생성한다."
+  ]
+}
