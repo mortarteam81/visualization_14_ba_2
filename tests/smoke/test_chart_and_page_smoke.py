@@ -348,6 +348,7 @@ class TestPageSmoke:
             ("세입 중 등록금 비율", "세입 중 등록금 비율 후보 데이터"),
             ("세입 중 기부금 비율", "세입 중 기부금 비율 후보 데이터"),
             ("교육비 환원율", "교육비 환원율 후보 데이터"),
+            ("직원 1인당 학생수", "직원 1인당 학생수 후보 데이터"),
         ],
     )
     def test_data_validation_page_can_select_gyeolsan_metrics(

@@ -9,12 +9,13 @@
   "metadata_files": {
     "source": "data/metadata/kcue_university_indicators_v1.source.json",
     "schema": "data/metadata/kcue_university_indicators_v1_schema.md",
-    "report": "data/metadata/kcue_university_indicators_v1.processing_report.json",
+    "report": "data/validation/processing_reports/kcue_staff_per_student.processing_report.json",
     "guide": null
   },
   "quality_flags": [
     "processed_kcue_dataset",
-    "contract_verified"
+    "contract_verified",
+    "validation_console_available"
   ],
   "backlog": []
 }

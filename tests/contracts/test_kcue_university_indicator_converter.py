@@ -9,10 +9,15 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CANDIDATE_DIR = PROJECT_ROOT / "data/conversion_outputs/kcue"
 CANDIDATE_WIDE = CANDIDATE_DIR / "kcue_university_indicators_2015_2025_v1_candidate_utf8.csv"
 CANDIDATE_LONG = CANDIDATE_DIR / "kcue_university_metric_values_2015_2025_v1_candidate_utf8.csv"
+STAFF_PER_STUDENT_CANDIDATE = CANDIDATE_DIR / "staff_per_student_2015_2025_candidate.csv"
 SOURCE_METADATA = CANDIDATE_DIR / "kcue_university_indicators_v1_candidate.source.json"
 CANDIDATE_METADATA = CANDIDATE_DIR / "kcue_university_indicators_v1_candidate.metadata.json"
 PROCESSING_REPORT = PROJECT_ROOT / "data/validation/processing_reports/kcue_university_indicators_v1_candidate.processing_report.json"
 MISMATCH_REPORT = PROJECT_ROOT / "data/validation/mismatch_reports/kcue_university_indicators_v1_candidate.mismatch.csv"
+STAFF_PER_STUDENT_PROCESSING_REPORT = PROJECT_ROOT / "data/validation/processing_reports/kcue_staff_per_student.processing_report.json"
+STAFF_PER_STUDENT_MISMATCH_REPORT = PROJECT_ROOT / "data/validation/mismatch_reports/kcue_staff_per_student.mismatch.csv"
+STAFF_PER_STUDENT_DOWNLOAD_CROSSCHECK_REPORT = PROJECT_ROOT / "data/validation/mismatch_reports/kcue_staff_per_student_download_crosscheck.csv"
+STAFF_PER_STUDENT_SOURCE_ACQUISITION = PROJECT_ROOT / "data/raw/kcue_university_indicators/staff_per_student_verification/source_acquisition.json"
 
 CURRENT_WIDE = PROJECT_ROOT / "data/processed/kcue_university_indicators/kcue_university_indicators_2015_2025_v1_utf8.csv"
 CURRENT_LONG = PROJECT_ROOT / "data/processed/kcue_university_indicators/kcue_university_metric_values_2015_2025_v1_utf8.csv"
@@ -41,7 +46,19 @@ SOURCE_VALUE_ONLY_2025 = {
 
 
 def test_kcue_candidate_outputs_exist_and_match_current_shape() -> None:
-    for path in (CANDIDATE_WIDE, CANDIDATE_LONG, SOURCE_METADATA, CANDIDATE_METADATA, PROCESSING_REPORT, MISMATCH_REPORT):
+    for path in (
+        CANDIDATE_WIDE,
+        CANDIDATE_LONG,
+        STAFF_PER_STUDENT_CANDIDATE,
+        SOURCE_METADATA,
+        CANDIDATE_METADATA,
+        PROCESSING_REPORT,
+        MISMATCH_REPORT,
+        STAFF_PER_STUDENT_PROCESSING_REPORT,
+        STAFF_PER_STUDENT_MISMATCH_REPORT,
+        STAFF_PER_STUDENT_DOWNLOAD_CROSSCHECK_REPORT,
+        STAFF_PER_STUDENT_SOURCE_ACQUISITION,
+    ):
         assert path.exists(), path
 
     candidate_wide = pd.read_csv(CANDIDATE_WIDE)
@@ -95,3 +112,53 @@ def test_kcue_candidate_metadata_has_raw_hashes_and_review_policy() -> None:
     mismatch = pd.read_csv(MISMATCH_REPORT)
     assert list(mismatch.columns) == ["asset", "severity", "key", "column", "candidate_value", "current_value", "reason"]
     assert mismatch.empty
+
+
+def test_kcue_staff_per_student_candidate_is_validation_ready() -> None:
+    candidate = pd.read_csv(STAFF_PER_STUDENT_CANDIDATE)
+    report = json.loads(STAFF_PER_STUDENT_PROCESSING_REPORT.read_text(encoding="utf-8"))
+    mismatch = pd.read_csv(STAFF_PER_STUDENT_MISMATCH_REPORT)
+    download_crosscheck = pd.read_csv(STAFF_PER_STUDENT_DOWNLOAD_CROSSCHECK_REPORT)
+    source_acquisition = json.loads(STAFF_PER_STUDENT_SOURCE_ACQUISITION.read_text(encoding="utf-8"))
+
+    assert candidate.shape[0] == 374
+    assert candidate["기준년도"].min() == 2015
+    assert candidate["기준년도"].max() == 2025
+    assert candidate["학교명"].nunique() == 34
+    assert "직원1인당학생수" in candidate.columns
+    assert report["dataset_id"] == "staff_per_student"
+    assert report["source_dataset_id"] == "kcue_university_indicators"
+    assert report["source_preservation_status"] == "raw_preserved"
+    assert report["source_input_kind"] == "raw_xlsx"
+    assert report["row_counts"]["source_input_rows"] == 2054
+    assert report["row_counts"]["candidate_rows"] == 374
+    assert report["mismatch_summary"] == {"total": 0, "high": 0, "medium": 0}
+    assert report["official_download_crosscheck"]["status"] == "matched"
+    assert report["official_download_crosscheck"]["checked_rows"] == 552
+    assert report["official_download_crosscheck"]["mismatch_rows"] == 0
+    assert report["official_download_crosscheck"]["verification_file_count"] == 1
+    assert source_acquisition["download_purpose"] == "데이터 분석"
+    assert "email" not in json.dumps(source_acquisition, ensure_ascii=False).lower()
+    assert len(source_acquisition["verification_files"]) == 1
+    assert list(mismatch.columns) == [
+        "severity",
+        "field",
+        "school_name",
+        "year",
+        "processed_value",
+        "raw_value",
+        "reason",
+        "source_path",
+    ]
+    assert mismatch.empty
+    assert list(download_crosscheck.columns) == [
+        "severity",
+        "school_name",
+        "year",
+        "downloaded_value",
+        "processed_value",
+        "display_value",
+        "reason",
+        "source_path",
+    ]
+    assert download_crosscheck.empty

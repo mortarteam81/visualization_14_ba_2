@@ -19,6 +19,7 @@ from utils.data_validation_modes import (
     build_mismatch_review_id,
     build_paper_validation_status,
     build_research_validation_status,
+    build_staff_per_student_validation_status,
     build_review_completion_status,
     build_student_recruitment_validation_status,
     load_budam_review_decisions,
@@ -30,6 +31,7 @@ from utils.data_validation_modes import (
     load_jirosung_review_decisions,
     load_paper_review_decisions,
     load_research_review_decisions,
+    load_staff_per_student_review_decisions,
     load_student_recruitment_review_decisions,
     review_decisions_from_frame,
     save_budam_review_decisions,
@@ -40,6 +42,7 @@ from utils.data_validation_modes import (
     save_jirosung_review_decisions,
     save_paper_review_decisions,
     save_research_review_decisions,
+    save_staff_per_student_review_decisions,
     save_student_recruitment_review_decisions,
 )
 
@@ -292,6 +295,21 @@ def test_education_return_status_uses_preserved_kasfo_raw_source_and_reports_mis
     assert report["row_counts"]["theme_issue_operating_mismatch_rows"] == 0
 
 
+def test_staff_per_student_status_uses_preserved_kcue_raw_source_and_zero_mismatches() -> None:
+    status = build_staff_per_student_validation_status()
+
+    assert status.dataset_id == "staff_per_student"
+    assert status.raw_preserved is True
+    assert status.candidate_exists is True
+    assert status.report_exists is True
+    assert status.source_input_kind == "raw_xlsx"
+    assert status.source_input_rows == 2054
+    assert status.candidate_rows == 374
+    assert status.mismatch_rows == 0
+    assert status.ready_for_preview is True
+    assert status.ready_for_promotion is True
+
+
 def test_student_recruitment_review_decision_save_and_load_roundtrip(tmp_path) -> None:
     review_id = build_mismatch_review_id(
         dataset_id="student_recruitment",
@@ -537,4 +555,35 @@ def test_education_return_review_decision_save_and_load_roundtrip(tmp_path) -> N
     loaded = load_education_return_review_decisions(path)
 
     assert loaded[review_id].dataset_id == "education_return"
+    assert loaded[review_id].decision == DECISION_ACCEPT_RAW
+
+
+def test_staff_per_student_review_decision_save_and_load_roundtrip(tmp_path) -> None:
+    review_id = build_mismatch_review_id(
+        dataset_id="staff_per_student",
+        school_name="성신여자대학교",
+        year=2024,
+        field="직원1인당학생수",
+    )
+    path = tmp_path / "staff_per_student_review.json"
+
+    save_staff_per_student_review_decisions(
+        {
+            review_id: ReviewDecision(
+                review_id=review_id,
+                dataset_id="staff_per_student",
+                school_name="성신여자대학교",
+                year=2024,
+                field="직원1인당학생수",
+                decision=DECISION_ACCEPT_RAW,
+                note="한국대학평가원 대학통계 원자료 기준 확인",
+                updated_at="2026-05-02T00:00:00+00:00",
+            )
+        },
+        path=path,
+    )
+
+    loaded = load_staff_per_student_review_decisions(path)
+
+    assert loaded[review_id].dataset_id == "staff_per_student"
     assert loaded[review_id].decision == DECISION_ACCEPT_RAW

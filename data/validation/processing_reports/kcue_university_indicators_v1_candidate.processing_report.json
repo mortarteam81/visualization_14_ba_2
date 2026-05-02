@@ -1,16 +1,20 @@
 {
   "dataset_id": "kcue_university_indicators",
   "version": "v1_candidate",
-  "processed_at": "2026-05-01T10:33:33.941575+00:00",
+  "processed_at": "2026-05-02T14:35:10.084992+00:00",
   "raw_input_directory": "data/raw/kcue_university_indicators/original",
   "raw_file_count": 11,
   "candidate_outputs": {
     "wide": "data/conversion_outputs/kcue/kcue_university_indicators_2015_2025_v1_candidate_utf8.csv",
     "long": "data/conversion_outputs/kcue/kcue_university_metric_values_2015_2025_v1_candidate_utf8.csv",
+    "staff_per_student": "data/conversion_outputs/kcue/staff_per_student_2015_2025_candidate.csv",
     "source_metadata": "data/conversion_outputs/kcue/kcue_university_indicators_v1_candidate.source.json",
     "candidate_metadata": "data/conversion_outputs/kcue/kcue_university_indicators_v1_candidate.metadata.json",
     "processing_report": "data/validation/processing_reports/kcue_university_indicators_v1_candidate.processing_report.json",
-    "mismatch_report": "data/validation/mismatch_reports/kcue_university_indicators_v1_candidate.mismatch.csv"
+    "mismatch_report": "data/validation/mismatch_reports/kcue_university_indicators_v1_candidate.mismatch.csv",
+    "staff_per_student_processing_report": "data/validation/processing_reports/kcue_staff_per_student.processing_report.json",
+    "staff_per_student_mismatch_report": "data/validation/mismatch_reports/kcue_staff_per_student.mismatch.csv",
+    "staff_per_student_download_crosscheck_report": "data/validation/mismatch_reports/kcue_staff_per_student_download_crosscheck.csv"
   },
   "current_assets_compared": {
     "wide": "data/processed/kcue_university_indicators/kcue_university_indicators_2015_2025_v1_utf8.csv",

@@ -308,6 +308,42 @@ EDUCATION_RETURN_REVIEW_DECISIONS_PATH = (
     / "review_decisions"
     / "kasfo_education_return.review.json"
 )
+STAFF_PER_STUDENT_CANDIDATE_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "conversion_outputs"
+    / "kcue"
+    / "staff_per_student_2015_2025_candidate.csv"
+)
+STAFF_PER_STUDENT_REPORT_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "processing_reports"
+    / "kcue_staff_per_student.processing_report.json"
+)
+STAFF_PER_STUDENT_MISMATCH_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "mismatch_reports"
+    / "kcue_staff_per_student.mismatch.csv"
+)
+STAFF_PER_STUDENT_SOURCE_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "raw"
+    / "kcue_university_indicators"
+    / "staff_per_student_verification"
+    / "source_acquisition.json"
+)
+STAFF_PER_STUDENT_REVIEW_DECISIONS_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "review_decisions"
+    / "kcue_staff_per_student.review.json"
+)
 STUDENT_RECRUITMENT_CURRENT_PATH = (
     PROJECT_ROOT
     / "data"
@@ -353,6 +389,7 @@ PAPER_DATASET_ID = "paper"
 JIROSUNG_DATASET_ID = "jirosung"
 GYEOLSAN_DATASET_ID = "gyeolsan"
 EDUCATION_RETURN_DATASET_ID = "education_return"
+STAFF_PER_STUDENT_DATASET_ID = "staff_per_student"
 STUDENT_RECRUITMENT_DATASET_ID = "student_recruitment"
 DECISION_PENDING = "미검토"
 DECISION_ACCEPT_RAW = "원자료값 채택"
@@ -547,6 +584,10 @@ def load_education_return_candidate_frame() -> pd.DataFrame:
     return pd.read_csv(EDUCATION_RETURN_CANDIDATE_PATH, encoding="utf-8-sig")
 
 
+def load_staff_per_student_candidate_frame() -> pd.DataFrame:
+    return pd.read_csv(STAFF_PER_STUDENT_CANDIDATE_PATH, encoding="utf-8-sig")
+
+
 def load_student_recruitment_current_frame() -> pd.DataFrame:
     return pd.read_csv(STUDENT_RECRUITMENT_CURRENT_PATH, encoding="utf-8-sig")
 
@@ -603,6 +644,12 @@ def load_education_return_mismatch_frame() -> pd.DataFrame:
     return pd.read_csv(EDUCATION_RETURN_MISMATCH_PATH, encoding="utf-8-sig")
 
 
+def load_staff_per_student_mismatch_frame() -> pd.DataFrame:
+    if not STAFF_PER_STUDENT_MISMATCH_PATH.exists():
+        return pd.DataFrame()
+    return pd.read_csv(STAFF_PER_STUDENT_MISMATCH_PATH, encoding="utf-8-sig")
+
+
 def load_student_recruitment_mismatch_frame() -> pd.DataFrame:
     if not STUDENT_RECRUITMENT_MISMATCH_PATH.exists():
         return pd.DataFrame()
@@ -641,6 +688,10 @@ def load_education_return_processing_report() -> dict[str, Any]:
     return _read_json(EDUCATION_RETURN_REPORT_PATH)
 
 
+def load_staff_per_student_processing_report() -> dict[str, Any]:
+    return _read_json(STAFF_PER_STUDENT_REPORT_PATH)
+
+
 def load_student_recruitment_processing_report() -> dict[str, Any]:
     return _read_json(STUDENT_RECRUITMENT_REPORT_PATH)
 
@@ -675,6 +726,10 @@ def load_gyeolsan_source_acquisition() -> dict[str, Any]:
 
 def load_education_return_source_acquisition() -> dict[str, Any]:
     return _read_json(EDUCATION_RETURN_SOURCE_ACQUISITION_PATH)
+
+
+def load_staff_per_student_source_acquisition() -> dict[str, Any]:
+    return _read_json(STAFF_PER_STUDENT_SOURCE_PATH)
 
 
 def load_student_recruitment_source_metadata() -> dict[str, Any]:
@@ -785,6 +840,12 @@ def load_education_return_review_decisions(
     return load_dormitory_review_decisions(path)
 
 
+def load_staff_per_student_review_decisions(
+    path: Path | str = STAFF_PER_STUDENT_REVIEW_DECISIONS_PATH,
+) -> dict[str, ReviewDecision]:
+    return load_dormitory_review_decisions(path)
+
+
 def save_dormitory_review_decisions(
     decisions: Mapping[str, ReviewDecision],
     path: Path | str = DORMITORY_REVIEW_DECISIONS_PATH,
@@ -889,6 +950,17 @@ def save_education_return_review_decisions(
         decisions,
         path=path,
         dataset_id=EDUCATION_RETURN_DATASET_ID,
+    )
+
+
+def save_staff_per_student_review_decisions(
+    decisions: Mapping[str, ReviewDecision],
+    path: Path | str = STAFF_PER_STUDENT_REVIEW_DECISIONS_PATH,
+) -> None:
+    save_dormitory_review_decisions(
+        decisions,
+        path=path,
+        dataset_id=STAFF_PER_STUDENT_DATASET_ID,
     )
 
 
@@ -1398,6 +1470,56 @@ def build_education_return_validation_status() -> ValidationModeStatus:
 
     return ValidationModeStatus(
         dataset_id=str(report.get("dataset_id") or EDUCATION_RETURN_DATASET_ID),
+        candidate_exists=candidate_exists,
+        report_exists=report_exists,
+        mismatch_exists=mismatch_exists,
+        raw_preserved=raw_preserved,
+        source_input_kind=str(source_input_kind) if source_input_kind else None,
+        source_input_rows=int(row_counts.get("source_input_rows", 0) or 0),
+        candidate_rows=int(row_counts.get("candidate_rows", 0) or 0),
+        mismatch_rows=mismatch_rows,
+        high_mismatches=high_mismatches,
+        medium_mismatches=medium_mismatches,
+        ready_for_preview=ready_for_preview,
+        ready_for_promotion=review_status.ready_for_promotion,
+        reason=reason,
+    )
+
+
+def build_staff_per_student_validation_status() -> ValidationModeStatus:
+    report = load_staff_per_student_processing_report()
+    source = load_staff_per_student_source_acquisition()
+    candidate_exists = STAFF_PER_STUDENT_CANDIDATE_PATH.exists()
+    report_exists = STAFF_PER_STUDENT_REPORT_PATH.exists()
+    mismatch_exists = STAFF_PER_STUDENT_MISMATCH_PATH.exists()
+    mismatch = load_staff_per_student_mismatch_frame()
+
+    row_counts = report.get("row_counts", {}) if isinstance(report, dict) else {}
+    source_preservation_status = report.get("source_preservation_status") if isinstance(report, dict) else None
+    source_input_kind = report.get("source_input_kind") if isinstance(report, dict) else None
+
+    high_mismatches = int((mismatch.get("severity") == "high").sum()) if not mismatch.empty else 0
+    medium_mismatches = int((mismatch.get("severity") == "medium").sum()) if not mismatch.empty else 0
+    mismatch_rows = int(len(mismatch)) if mismatch_exists else int(row_counts.get("mismatch_rows", 0) or 0)
+    raw_preserved = source_preservation_status == "raw_preserved" and _source_raw_files_exist(source)
+    ready_for_preview = candidate_exists and report_exists and raw_preserved and source_input_kind == "raw_xlsx"
+    review_status = build_review_completion_status(
+        mismatch,
+        load_staff_per_student_review_decisions(),
+        base_ready=ready_for_preview,
+        high_mismatches=high_mismatches,
+        dataset_id=str(report.get("dataset_id") or STAFF_PER_STUDENT_DATASET_ID),
+    )
+
+    if not ready_for_preview:
+        reason = "한국대학평가원 대학통계 원자료 기반 직원 1인당 학생수 candidate/report가 아직 완성되지 않았습니다."
+    elif not review_status.ready_for_promotion:
+        reason = "Preview 가능. 단, 운영 CSV와 candidate 차이에 대한 운영자 검토가 필요합니다."
+    else:
+        reason = "Preview 가능하며 승격 전 검토 기준을 충족했습니다."
+
+    return ValidationModeStatus(
+        dataset_id=str(report.get("dataset_id") or STAFF_PER_STUDENT_DATASET_ID),
         candidate_exists=candidate_exists,
         report_exists=report_exists,
         mismatch_exists=mismatch_exists,
