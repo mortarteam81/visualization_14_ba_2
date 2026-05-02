@@ -1,0 +1,53 @@
+{
+  "dataset_id": "jirosung",
+  "dataset_name_ko": "졸업생 진로 성과",
+  "dataset_name_en": "Graduate Career Outcome",
+  "schema_version": "v1",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 5-다. 졸업생의 취업 현황_대학",
+  "download_method": "공시데이터 추이 XLSX 원자료 다운로드 후 candidate CSV로 변환",
+  "original_file_name": "5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+  "raw_source_files": [
+    {
+      "path": "data/raw/academyinfo/jirosung/original/5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+      "sha256": "76ed5cd00e68cc8f285d786d4c63ede2ffb3ae4d347e3d2eaed11b8585dbbc8b",
+      "file_size_bytes": 620809,
+      "downloaded_at": "2026-05-02T17:04:50+09:00",
+      "source_menu": "공시데이터 추이",
+      "search_keyword": "취업률",
+      "academic_system": "대학",
+      "std_dta_div_cd": "039",
+      "download_reason_popup_required": false,
+      "popup_personal_fields_stored": false
+    }
+  ],
+  "candidate_conversion": {
+    "script": "scripts/converters/academyinfo_jirosung.py",
+    "output_file": "data/conversion_outputs/academyinfo/jirosung/jirosung_2008_2024_candidate.csv",
+    "processing_report": "data/validation/processing_reports/academyinfo_jirosung.processing_report.json",
+    "mismatch_report": "data/validation/mismatch_reports/academyinfo_jirosung.mismatch.csv",
+    "source_preservation_status": "raw_preserved"
+  },
+  "current_dashboard_asset": {
+    "path": "data/졸업생_취업률.csv",
+    "scope": "전국 학교 단위 raw extract, 화면 기본 범위는 서울 소재 사립 일반대학",
+    "promotion_status": "candidate_not_promoted"
+  },
+  "formula_checks": [
+    {
+      "field": "취업률(%)",
+      "formula": "취업자 / (졸업자 - 진학자 - 입대자 - 취업불가능자 - 외국인유학생 - 건강보험직장가입제외대상) * 100, 소수점 1자리 half-up 반올림"
+    },
+    {
+      "field": "졸업생_진로_성과",
+      "formula": "(취업자 + 진학자) / (졸업자 - 입대자 - 취업불가능자 - 외국인유학생 - 제외인정자) * 100. 대학알리미 학교 단위 XLSX에서는 세부 취업 항목 합계가 취업자, 제외인정자가 건강보험직장가입제외대상 컬럼으로 제공된다."
+    }
+  ],
+  "notes": [
+    "운영 CSV는 변경하지 않았고, 원자료 기반 후보 CSV만 별도 경로에 생성한다.",
+    "현재 운영 CSV의 사립 본교 기준 2008~2024년 행은 raw-XLSX 후보값과 일치하는지 mismatch report로 검증한다.",
+    "학과별 상세 원자료 5건은 별도 후속 검증 대상으로 남겨둔다."
+  ]
+}

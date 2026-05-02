@@ -1,0 +1,64 @@
+{
+  "dataset_id": "jirosung",
+  "dataset_name_ko": "졸업생 진로 성과",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_menu": "공시데이터 추이",
+  "search_keyword": "취업률",
+  "academic_system": "대학",
+  "item_id": 46,
+  "std_dta_div_cd": "039",
+  "file_dtl_nm": "CMN81_039.xlsx",
+  "item_name": "5-다. 졸업생의 취업 현황_대학_졸업생 취업률",
+  "original_file_name": "5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+  "local_raw_path": "data/raw/academyinfo/jirosung/original/5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+  "downloaded_at": "2026-05-02T17:04:50+09:00",
+  "sha256": "76ed5cd00e68cc8f285d786d4c63ede2ffb3ae4d347e3d2eaed11b8585dbbc8b",
+  "file_size_bytes": 620809,
+  "download_reason_popup_required": false,
+  "download_method": "공시데이터 추이 목록에서 확인한 FileDown.do 엔드포인트와 파일 식별자를 사용해 원본 XLSX를 직접 보존",
+  "popup_personal_fields_stored": false,
+  "workbook_profile": {
+    "sheet_names": ["Sheet 1"],
+    "row_count": 5387,
+    "column_count": 24,
+    "year_min": 2008,
+    "year_max": 2024,
+    "school_count": 307
+  },
+  "related_files_identified_not_downloaded": [
+    {
+      "std_dta_div_cd": "212",
+      "file_dtl_nm": "CMN81_212.xlsx",
+      "file_name": "(원자료) 5-다. 졸업생의 취업 현황_대학_학과별_2010.xlsx"
+    },
+    {
+      "std_dta_div_cd": "213",
+      "file_dtl_nm": "CMN81_213.xlsx",
+      "file_name": "(원자료) 5-다. 졸업생의 취업 현황_대학_학과별_2011.xlsx"
+    },
+    {
+      "std_dta_div_cd": "214",
+      "file_dtl_nm": "CMN81_214.xlsx",
+      "file_name": "(원자료) 5-다. 졸업생의 취업 현황_대학_학과별_2012.xlsx"
+    },
+    {
+      "std_dta_div_cd": "215",
+      "file_dtl_nm": "CMN81_215.xlsx",
+      "file_name": "(원자료) 5-다. 졸업생의 취업 현황_대학_학과별_2013~2015.xlsx"
+    },
+    {
+      "std_dta_div_cd": "216",
+      "file_dtl_nm": "CMN81_216.xlsx",
+      "file_name": "(원자료) 5-다. 졸업생의 취업 현황_대학_학과별_2016~.xlsx"
+    }
+  ],
+  "notes": [
+    "현재 대시보드 지표의 졸업생 진로 성과 산식에 필요한 졸업자, 취업자, 진학자, 제외대상자 컬럼을 포함한 학교 단위 XLSX를 1차 원자료로 보존했다.",
+    "공식 산식의 세부 취업 항목은 학교 단위 XLSX에서 취업자로 집계 제공되며, 제외인정자는 건강보험직장가입제외대상 컬럼으로 대응한다.",
+    "대학알리미 원자료의 취업률(%)은 진학자를 취업률 분모에서 제외해 검증하고, 대시보드의 졸업생 진로 성과는 취업자와 진학자를 함께 성과로 반영한다.",
+    "학과별 원자료 5건은 동일 항목의 상세 파일로 확인했으나 이번 자동화 범위에는 포함하지 않았다.",
+    "개인정보성 다운로드 사유 입력값은 저장하지 않았다."
+  ]
+}

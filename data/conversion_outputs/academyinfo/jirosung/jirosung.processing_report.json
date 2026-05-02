@@ -1,0 +1,59 @@
+{
+  "dataset_id": "jirosung",
+  "dataset_name_ko": "졸업생 진로 성과",
+  "version": "academyinfo_jirosung_raw_xlsx_candidate_v1",
+  "processed_at": "2026-05-02T08:11:15.774707+00:00",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 5-다. 졸업생의 취업 현황_대학",
+  "source_preservation_status": "raw_preserved",
+  "source_input_kind": "raw_xlsx",
+  "input_file": "data/raw/academyinfo/jirosung/original/5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+  "output_file": "data/conversion_outputs/academyinfo/jirosung/jirosung_2008_2024_candidate.csv",
+  "metadata_file": "data/conversion_outputs/academyinfo/jirosung/jirosung.source.json",
+  "mismatch_report": "data/validation/mismatch_reports/academyinfo_jirosung.mismatch.csv",
+  "row_counts": {
+    "source_input_rows": 5387,
+    "candidate_rows": 3678,
+    "mismatch_rows": 0
+  },
+  "coverage": {
+    "comparison_11_expected": 11,
+    "comparison_11_present_any_year": 11,
+    "comparison_11_missing_any_year": [],
+    "default_scope_34_expected": 34,
+    "default_scope_34_present_any_year": 34,
+    "default_scope_34_missing_any_year": [],
+    "years": [
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "latest_year": 2024,
+    "comparison_11_present_latest_year": 11,
+    "comparison_11_missing_latest_year": [],
+    "default_scope_34_present_latest_year": 34,
+    "default_scope_34_missing_latest_year": []
+  },
+  "mismatch_summary": {
+    "total": 0,
+    "high": 0,
+    "medium": 0
+  },
+  "known_limitations": [
+    "This run writes candidate artifacts only and does not promote them to current dashboard assets."
+  ]
+}

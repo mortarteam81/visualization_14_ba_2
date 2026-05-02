@@ -7,16 +7,19 @@
   "verification_status": "partial",
   "default_analysis_scope": "raw national school-level extract",
   "metadata_files": {
-    "source": null,
-    "schema": null,
-    "report": null,
+    "source": "data/metadata/jirosung_v1.source.json",
+    "schema": "data/metadata/jirosung_v1_schema.md",
+    "report": "data/validation/processing_reports/academyinfo_jirosung.processing_report.json",
     "guide": null
   },
   "quality_flags": [
     "raw_national_extract",
-    "partial_verification"
+    "academyinfo_raw_preserved",
+    "national_candidate_available",
+    "promotion_pending"
   ],
   "backlog": [
-    "Add source/schema metadata for the raw graduate outcome asset."
+    "Review national candidate output and decide whether to promote it to the operating dashboard asset.",
+    "Download and validate related department-level graduate employment raw files if department drill-down is added."
   ]
 }

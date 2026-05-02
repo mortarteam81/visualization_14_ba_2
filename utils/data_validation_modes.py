@@ -160,6 +160,43 @@ PAPER_REVIEW_DECISIONS_PATH = (
     / "review_decisions"
     / "academyinfo_paper.review.json"
 )
+JIROSUNG_CANDIDATE_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "conversion_outputs"
+    / "academyinfo"
+    / "jirosung"
+    / "jirosung_2008_2024_candidate.csv"
+)
+JIROSUNG_REPORT_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "processing_reports"
+    / "academyinfo_jirosung.processing_report.json"
+)
+JIROSUNG_MISMATCH_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "mismatch_reports"
+    / "academyinfo_jirosung.mismatch.csv"
+)
+JIROSUNG_SOURCE_ACQUISITION_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "raw"
+    / "academyinfo"
+    / "jirosung"
+    / "source_acquisition.json"
+)
+JIROSUNG_REVIEW_DECISIONS_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "validation"
+    / "review_decisions"
+    / "academyinfo_jirosung.review.json"
+)
 STUDENT_RECRUITMENT_CURRENT_PATH = (
     PROJECT_ROOT
     / "data"
@@ -201,6 +238,7 @@ DORMITORY_DATASET_ID = "dormitory_accommodation_status"
 GYOWON_DATASET_ID = "gyowon"
 RESEARCH_DATASET_ID = "research"
 PAPER_DATASET_ID = "paper"
+JIROSUNG_DATASET_ID = "jirosung"
 STUDENT_RECRUITMENT_DATASET_ID = "student_recruitment"
 DECISION_PENDING = "미검토"
 DECISION_ACCEPT_RAW = "원자료값 채택"
@@ -379,6 +417,10 @@ def load_paper_candidate_frame() -> pd.DataFrame:
     return pd.read_csv(PAPER_CANDIDATE_PATH, encoding="utf-8-sig")
 
 
+def load_jirosung_candidate_frame() -> pd.DataFrame:
+    return pd.read_csv(JIROSUNG_CANDIDATE_PATH, encoding="utf-8-sig")
+
+
 def load_student_recruitment_current_frame() -> pd.DataFrame:
     return pd.read_csv(STUDENT_RECRUITMENT_CURRENT_PATH, encoding="utf-8-sig")
 
@@ -411,6 +453,12 @@ def load_paper_mismatch_frame() -> pd.DataFrame:
     return pd.read_csv(PAPER_MISMATCH_PATH, encoding="utf-8-sig")
 
 
+def load_jirosung_mismatch_frame() -> pd.DataFrame:
+    if not JIROSUNG_MISMATCH_PATH.exists():
+        return pd.DataFrame()
+    return pd.read_csv(JIROSUNG_MISMATCH_PATH, encoding="utf-8-sig")
+
+
 def load_student_recruitment_mismatch_frame() -> pd.DataFrame:
     if not STUDENT_RECRUITMENT_MISMATCH_PATH.exists():
         return pd.DataFrame()
@@ -433,6 +481,10 @@ def load_paper_processing_report() -> dict[str, Any]:
     return _read_json(PAPER_REPORT_PATH)
 
 
+def load_jirosung_processing_report() -> dict[str, Any]:
+    return _read_json(JIROSUNG_REPORT_PATH)
+
+
 def load_student_recruitment_processing_report() -> dict[str, Any]:
     return _read_json(STUDENT_RECRUITMENT_REPORT_PATH)
 
@@ -451,6 +503,10 @@ def load_research_source_acquisition() -> dict[str, Any]:
 
 def load_paper_source_acquisition() -> dict[str, Any]:
     return _read_json(PAPER_SOURCE_ACQUISITION_PATH)
+
+
+def load_jirosung_source_acquisition() -> dict[str, Any]:
+    return _read_json(JIROSUNG_SOURCE_ACQUISITION_PATH)
 
 
 def load_student_recruitment_source_metadata() -> dict[str, Any]:
@@ -537,6 +593,12 @@ def load_paper_review_decisions(
     return load_dormitory_review_decisions(path)
 
 
+def load_jirosung_review_decisions(
+    path: Path | str = JIROSUNG_REVIEW_DECISIONS_PATH,
+) -> dict[str, ReviewDecision]:
+    return load_dormitory_review_decisions(path)
+
+
 def save_dormitory_review_decisions(
     decisions: Mapping[str, ReviewDecision],
     path: Path | str = DORMITORY_REVIEW_DECISIONS_PATH,
@@ -597,6 +659,17 @@ def save_paper_review_decisions(
         decisions,
         path=path,
         dataset_id=PAPER_DATASET_ID,
+    )
+
+
+def save_jirosung_review_decisions(
+    decisions: Mapping[str, ReviewDecision],
+    path: Path | str = JIROSUNG_REVIEW_DECISIONS_PATH,
+) -> None:
+    save_dormitory_review_decisions(
+        decisions,
+        path=path,
+        dataset_id=JIROSUNG_DATASET_ID,
     )
 
 
@@ -901,6 +974,55 @@ def build_paper_validation_status() -> ValidationModeStatus:
 
     return ValidationModeStatus(
         dataset_id=str(report.get("dataset_id") or PAPER_DATASET_ID),
+        candidate_exists=candidate_exists,
+        report_exists=report_exists,
+        mismatch_exists=mismatch_exists,
+        raw_preserved=raw_preserved,
+        source_input_kind=str(source_input_kind) if source_input_kind else None,
+        source_input_rows=int(row_counts.get("source_input_rows", 0) or 0),
+        candidate_rows=int(row_counts.get("candidate_rows", 0) or 0),
+        mismatch_rows=mismatch_rows,
+        high_mismatches=high_mismatches,
+        medium_mismatches=medium_mismatches,
+        ready_for_preview=ready_for_preview,
+        ready_for_promotion=review_status.ready_for_promotion,
+        reason=reason,
+    )
+
+
+def build_jirosung_validation_status() -> ValidationModeStatus:
+    report = load_jirosung_processing_report()
+    candidate_exists = JIROSUNG_CANDIDATE_PATH.exists()
+    report_exists = JIROSUNG_REPORT_PATH.exists()
+    mismatch_exists = JIROSUNG_MISMATCH_PATH.exists()
+    mismatch = load_jirosung_mismatch_frame()
+
+    row_counts = report.get("row_counts", {}) if isinstance(report, dict) else {}
+    source_preservation_status = report.get("source_preservation_status") if isinstance(report, dict) else None
+    source_input_kind = report.get("source_input_kind") if isinstance(report, dict) else None
+
+    high_mismatches = int((mismatch.get("severity") == "high").sum()) if not mismatch.empty else 0
+    medium_mismatches = int((mismatch.get("severity") == "medium").sum()) if not mismatch.empty else 0
+    mismatch_rows = int(len(mismatch)) if mismatch_exists else int(row_counts.get("mismatch_rows", 0) or 0)
+    raw_preserved = source_preservation_status == "raw_preserved"
+    ready_for_preview = candidate_exists and report_exists and raw_preserved and source_input_kind == "raw_xlsx"
+    review_status = build_review_completion_status(
+        mismatch,
+        load_jirosung_review_decisions(),
+        base_ready=ready_for_preview,
+        high_mismatches=high_mismatches,
+        dataset_id=str(report.get("dataset_id") or JIROSUNG_DATASET_ID),
+    )
+
+    if not ready_for_preview:
+        reason = "원자료 기반 졸업생 진로 성과 candidate/report가 아직 완성되지 않았습니다."
+    elif not review_status.ready_for_promotion:
+        reason = "Preview 가능. 단, 운영 CSV와 candidate 차이에 대한 운영자 검토가 필요합니다."
+    else:
+        reason = "Preview 가능하며 승격 전 검토 기준을 충족했습니다."
+
+    return ValidationModeStatus(
+        dataset_id=str(report.get("dataset_id") or JIROSUNG_DATASET_ID),
         candidate_exists=candidate_exists,
         report_exists=report_exists,
         mismatch_exists=mismatch_exists,

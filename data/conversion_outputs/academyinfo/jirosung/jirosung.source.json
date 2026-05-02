@@ -1,0 +1,36 @@
+{
+  "dataset_id": "jirosung",
+  "dataset_name_ko": "졸업생 진로 성과",
+  "source_name": "대학알리미",
+  "source_org": "한국대학교육협의회",
+  "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+  "source_section": "공시 데이터 다운로드 > 공시데이터 추이 > 5-다. 졸업생의 취업 현황_대학",
+  "processed_at": "2026-05-02T08:11:15.774707+00:00",
+  "source_preservation_status": "raw_preserved",
+  "source_input_kind": "raw_xlsx",
+  "source_input_file": "data/raw/academyinfo/jirosung/original/5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+  "files": [
+    {
+      "path": "data/졸업생_취업률.csv",
+      "exists": true,
+      "sha256": "51773ffbf1dc0781fa98aace2f0bfff2bb7376dbdab76836b0dc911176374e98",
+      "kind": "processed_input"
+    },
+    {
+      "path": "data/raw/academyinfo/jirosung/original/5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+      "exists": true,
+      "sha256": "76ed5cd00e68cc8f285d786d4c63ede2ffb3ae4d347e3d2eaed11b8585dbbc8b",
+      "kind": "expected_raw_source"
+    },
+    {
+      "path": "data/metadata/jirosung_v1.source.json",
+      "exists": true,
+      "sha256": "b0bddce4268ad88e5ffc85209de5929117ff0abb4ca0da62bff996ffbb2300c8",
+      "kind": "source_metadata"
+    }
+  ],
+  "notes": [
+    "No official-site mass download was performed.",
+    "Existing processed/current assets were not overwritten or promoted."
+  ]
+}

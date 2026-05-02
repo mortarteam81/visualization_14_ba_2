@@ -9,16 +9,19 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DORMITORY_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/dormitory_accommodation_status/dormitory_accommodation_status_2025_candidate.csv"
 GYOWON_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/gyowon/gyowon_2008_2025_candidate.csv"
+JIROSUNG_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/jirosung/jirosung_2008_2024_candidate.csv"
 LECTURER_PAY_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/lecturer_pay/lecturer_pay_2023_2025_candidate.csv"
 RESEARCH_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/research/research_2007_2024_candidate.csv"
 PAPER_CANDIDATE = PROJECT_ROOT / "data/conversion_outputs/academyinfo/paper/paper_2007_2024_candidate.csv"
 DORMITORY_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_dormitory_accommodation_status.processing_report.json"
 GYOWON_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_gyowon.processing_report.json"
+JIROSUNG_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_jirosung.processing_report.json"
 LECTURER_PAY_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_lecturer_pay.processing_report.json"
 RESEARCH_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_research.processing_report.json"
 PAPER_REPORT = PROJECT_ROOT / "data/validation/processing_reports/academyinfo_paper.processing_report.json"
 DORMITORY_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_dormitory_accommodation_status.mismatch.csv"
 GYOWON_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_gyowon.mismatch.csv"
+JIROSUNG_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_jirosung.mismatch.csv"
 LECTURER_PAY_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_lecturer_pay.mismatch.csv"
 RESEARCH_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_research.mismatch.csv"
 PAPER_MISMATCH = PROJECT_ROOT / "data/validation/mismatch_reports/academyinfo_paper.mismatch.csv"
@@ -127,6 +130,26 @@ def test_academyinfo_paper_candidate_outputs_are_raw_backed_and_national() -> No
         "전임교원1인당논문실적(국내, 연구재단등재지(후보포함))",
         "전임교원1인당논문실적(국제, SCI급/SCOPUS학술지)",
     }
+    assert frame["학교명"].eq("성신여자대학교").any()
+
+
+def test_academyinfo_jirosung_candidate_outputs_are_raw_backed_and_national() -> None:
+    assert JIROSUNG_CANDIDATE.exists()
+    assert JIROSUNG_MISMATCH.exists()
+    frame = pd.read_csv(JIROSUNG_CANDIDATE)
+    mismatch = pd.read_csv(JIROSUNG_MISMATCH)
+    report = _load_report(JIROSUNG_REPORT)
+
+    assert str(JIROSUNG_CANDIDATE.relative_to(PROJECT_ROOT)) == report["output_file"]
+    assert report["version"] == "academyinfo_jirosung_raw_xlsx_candidate_v1"
+    assert report["source_input_kind"] == "raw_xlsx"
+    assert report["source_preservation_status"] == "raw_preserved"
+    assert report["row_counts"]["source_input_rows"] == 5387
+    assert report["row_counts"]["candidate_rows"] == len(frame) == 3678
+    assert report["row_counts"]["mismatch_rows"] == len(mismatch) == 0
+    assert report["coverage"]["comparison_11_present_latest_year"] == 11
+    assert report["coverage"]["default_scope_34_present_latest_year"] == 34
+    assert set(frame.columns) >= {"기준년도", "학교명", "본분교명", "졸업생_진로_성과"}
     assert frame["학교명"].eq("성신여자대학교").any()
 
 
