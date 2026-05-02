@@ -1,0 +1,117 @@
+{
+  "report_id": "academyinfo_reacquisition_2026-05-02",
+  "checked_at": "2026-05-02T18:12:24+09:00",
+  "purpose": "법정부담금 부담율을 제외한 대학알리미 기반 자동화 항목의 원자료 재다운로드 및 기존 보존 원자료 동일성 검증",
+  "source": {
+    "source_name": "대학알리미",
+    "source_org": "한국대학교육협의회",
+    "source_url": "https://academyinfo.go.kr/main/main0830/main0830.do",
+    "source_menu": "공시데이터 추이",
+    "academic_system": "대학"
+  },
+  "method": {
+    "search_result_api": "https://academyinfo.go.kr/main/main0830/selectGongsiDataList.do",
+    "download_endpoint": "https://academyinfo.go.kr/main/main0830/FileDown.do",
+    "comparison_method": "SHA-256 checksum comparison between newly downloaded XLSX and preserved project raw XLSX",
+    "temporary_download_directory": "/private/tmp/academyinfo_reacquire_20260502",
+    "popup_personal_fields_stored": false,
+    "notes": [
+      "다운로드 사유 팝업 입력값은 저장하지 않았다.",
+      "법정부담금 부담율은 이미 동일 세션에서 브라우저 다운로드 후 원자료 보존 및 검증을 완료했으므로 이번 재확보 비교 범위에서 제외했다.",
+      "이번 검증은 운영 CSV 교체나 candidate 재생성을 수행하지 않고 원자료 동일성만 확인했다."
+    ]
+  },
+  "summary": {
+    "checked_source_files": 6,
+    "matched_existing_raw_files": 6,
+    "mismatched_files": 0,
+    "missing_files": 0,
+    "overall_result": "all_reacquired_files_match_existing_raw"
+  },
+  "items": [
+    {
+      "dataset_id": "dormitory_accommodation_status",
+      "dataset_name_ko": "기숙사 수용률",
+      "search_keyword": "기숙사",
+      "item_id": 193,
+      "std_dta_div_cd": "093",
+      "file_dtl_nm": "CMN81_093.xlsx",
+      "original_file_name": "14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+      "preserved_raw_path": "data/raw/academyinfo/dormitory_accommodation_status/original/14-마-1. 기숙사 수용 현황_대학_기숙사 수용률.xlsx",
+      "reacquired_temp_path": "/private/tmp/academyinfo_reacquire_20260502/dormitory.xlsx",
+      "sha256": "742ceb8fdabf83b0df0fe729002d18da772aab1267b243505464abacecc2128c",
+      "file_size_bytes": 458311,
+      "matches_existing_raw": true
+    },
+    {
+      "dataset_id": "gyowon",
+      "dataset_name_ko": "전임교원 확보율",
+      "search_keyword": "전임교원 확보율",
+      "item_id": 52,
+      "std_dta_div_cd": "043",
+      "file_dtl_nm": "CMN81_043.xlsx",
+      "original_file_name": "6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준).xlsx",
+      "preserved_raw_path": "data/raw/academyinfo/gyowon/original/6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준).xlsx",
+      "reacquired_temp_path": "/private/tmp/academyinfo_reacquire_20260502/gyowon_043.xlsx",
+      "sha256": "8755f3e2b793f37d7a5052db7f27cd97edcdbfa0b98c56b99d047e8b213cbd5a",
+      "file_size_bytes": 508113,
+      "matches_existing_raw": true
+    },
+    {
+      "dataset_id": "gyowon",
+      "dataset_name_ko": "전임교원 확보율_의학계열제외",
+      "search_keyword": "전임교원 확보율",
+      "item_id": 52,
+      "std_dta_div_cd": "045",
+      "file_dtl_nm": "CMN81_045.xlsx",
+      "original_file_name": "6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준)_의학계열제외.xlsx",
+      "preserved_raw_path": "data/raw/academyinfo/gyowon/original/6-나-(1). 전임교원 1인당 학생 수 및 전임교원 확보율_대학_전임교원 확보율(학생정원 기준, 재학생 기준)_의학계열제외.xlsx",
+      "reacquired_temp_path": "/private/tmp/academyinfo_reacquire_20260502/gyowon_045_medical_excluded.xlsx",
+      "sha256": "b56b9167c37ec11bc9fec03c4789867b0ff26d346027dfe02ab606efe242dd2d",
+      "file_size_bytes": 489965,
+      "matches_existing_raw": true
+    },
+    {
+      "dataset_id": "research",
+      "dataset_name_ko": "연구비 수혜 실적",
+      "search_keyword": "연구비",
+      "item_id": 150,
+      "std_dta_div_cd": "075",
+      "file_dtl_nm": "CMN81_075.xlsx",
+      "original_file_name": "12-가. 연구비 수혜 실적_대학_전임교원 1인당 연구비(교내, 교외).xlsx",
+      "preserved_raw_path": "data/raw/academyinfo/research/original/12-가. 연구비 수혜 실적_대학_전임교원 1인당 연구비(교내, 교외).xlsx",
+      "reacquired_temp_path": "/private/tmp/academyinfo_reacquire_20260502/research_075.xlsx",
+      "sha256": "0c8eea1dd2198da22875118f9ce96575ec60f8d147791eaef399e5b66b232607",
+      "file_size_bytes": 599920,
+      "matches_existing_raw": true
+    },
+    {
+      "dataset_id": "paper",
+      "dataset_name_ko": "논문실적",
+      "search_keyword": "논문",
+      "item_id": 63,
+      "std_dta_div_cd": "051",
+      "file_dtl_nm": "CMN81_051.xlsx",
+      "original_file_name": "7-가. 전임교원의 연구실적_대학_전임교원 1인당 논문 실적(국내, 국제).xlsx",
+      "preserved_raw_path": "data/raw/academyinfo/paper/original/7-가. 전임교원의 연구실적_대학_전임교원 1인당 논문 실적(국내, 국제).xlsx",
+      "reacquired_temp_path": "/private/tmp/academyinfo_reacquire_20260502/paper_051.xlsx",
+      "sha256": "daeb7bdc95bdcfb775108b7de3a3a5ef361a334942cb961f274be0bc0863ac35",
+      "file_size_bytes": 709126,
+      "matches_existing_raw": true
+    },
+    {
+      "dataset_id": "jirosung",
+      "dataset_name_ko": "졸업생 진로 성과",
+      "search_keyword": "취업률",
+      "item_id": 46,
+      "std_dta_div_cd": "039",
+      "file_dtl_nm": "CMN81_039.xlsx",
+      "original_file_name": "5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+      "preserved_raw_path": "data/raw/academyinfo/jirosung/original/5-다. 졸업생의 취업 현황_대학_졸업생 취업률.xlsx",
+      "reacquired_temp_path": "/private/tmp/academyinfo_reacquire_20260502/jirosung_039.xlsx",
+      "sha256": "76ed5cd00e68cc8f285d786d4c63ede2ffb3ae4d347e3d2eaed11b8585dbbc8b",
+      "file_size_bytes": 620809,
+      "matches_existing_raw": true
+    }
+  ]
+}

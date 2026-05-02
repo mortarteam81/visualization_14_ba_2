@@ -64,6 +64,7 @@
   "notes": [
     "현재 대시보드 전임교원 확보율 지표와 직접 대응되는 학교 단위 XLSX는 std_dta_div_cd=043 파일이다.",
     "의학계열제외 파일은 동일 지표의 관련 variant로 보존했지만 이번 candidate 변환에는 사용하지 않았다.",
-    "개인정보성 다운로드 사유 입력값은 저장하지 않았다."
+    "개인정보성 다운로드 사유 입력값은 저장하지 않았다.",
+    "2026-05-02 재다운로드 원자료 2건과 기존 보존 원자료의 SHA-256 동일성을 확인했다: data/validation/source_reacquisition/academyinfo_reacquisition_2026-05-02.json"
   ]
 }

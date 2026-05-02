@@ -39,6 +39,7 @@
   "acquisition_method": "academyinfo-trend-download skill workflow; file was already present in the user's Downloads folder and was preserved into the project raw directory without modifying the workbook.",
   "notes": [
     "Popup fields such as user name, download purpose, and detail text are intentionally not stored.",
-    "This record documents raw-source acquisition only; converter and processed/current asset promotion are separate steps."
+    "This record documents raw-source acquisition only; converter and processed/current asset promotion are separate steps.",
+    "2026-05-02 재다운로드 원자료와 기존 보존 원자료의 SHA-256 동일성을 확인했다: data/validation/source_reacquisition/academyinfo_reacquisition_2026-05-02.json"
   ]
 }

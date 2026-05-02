@@ -1,0 +1,87 @@
+{
+  "dataset_id": "gyeolsan",
+  "dataset_name_ko": "결산 기반 세입 비율",
+  "metric_ids": [
+    "tuition",
+    "donation"
+  ],
+  "source_name": "사학재정알리미",
+  "source_org": "한국사학진흥재단",
+  "source_url": "https://uniarlimi.kasfo.or.kr/knowledge/data2Room",
+  "source_menu": "대학재정데이터",
+  "downloaded_at": "2026-05-02T09:55:13.531550+00:00",
+  "source_preservation_status": "raw_preserved",
+  "source_input_kind": "raw_xlsx_zip",
+  "raw_files": [
+    {
+      "year_range": "2015-2020",
+      "path": "data/raw/kasfo/gyeolsan/original/2015_2020_corporate_school_account_settlement.zip",
+      "page_url": "https://uniarlimi.kasfo.or.kr/knowledge/data2Room/24513?pageIdx=10",
+      "download_url": "https://support.kasfo.or.kr/component/file/download.asp?sBrdID=24513&sBrdFileID=5354",
+      "post_id": "24513",
+      "file_id": "5354",
+      "original_file_name": "2015~2020회계연도 사립대학 법인교비 결산.zip",
+      "exists": true,
+      "sha256": "19967808c4b3588f8985f3f608acfe6df0b21876adc4e3fb1ff038a5a0611296",
+      "file_size_bytes": 14406739
+    },
+    {
+      "year_range": "2021",
+      "path": "data/raw/kasfo/gyeolsan/original/2021_corporate_school_account_settlement.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/knowledge/data2Room/25271?pageIdx=8",
+      "download_url": "https://support.kasfo.or.kr/component/file/download.asp?sBrdID=25271&sBrdFileID=5630",
+      "post_id": "25271",
+      "file_id": "5630",
+      "original_file_name": "법인일반 및 교비회계(통합) 결산(2021회계연도).xlsx",
+      "exists": true,
+      "sha256": "5b04bb3e6aea2e83c8846ec8f66ab542877d3935a5dc792ecdca6305b44200e0",
+      "file_size_bytes": 4151382
+    },
+    {
+      "year_range": "2022",
+      "path": "data/raw/kasfo/gyeolsan/original/2022_corporate_school_account_settlement.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/knowledge/data2Room/28353?pageIdx=6",
+      "download_url": "https://support.kasfo.or.kr/component/file/download.asp?sBrdID=28353&sBrdFileID=6971",
+      "post_id": "28353",
+      "file_id": "6971",
+      "original_file_name": "법인일반 및 교비회계(통합) 결산(2022회계연도).xlsx",
+      "exists": true,
+      "sha256": "ed408c18dbbb8543ae14c58a6487ce0d197b11351061702d7d55b47588797bb3",
+      "file_size_bytes": 3990339
+    },
+    {
+      "year_range": "2023",
+      "path": "data/raw/kasfo/gyeolsan/original/2023_corporate_school_account_settlement.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/knowledge/data2Room/31474?pageIdx=4",
+      "download_url": "https://support.kasfo.or.kr/component/file/download.asp?sBrdID=31474&sBrdFileID=8512",
+      "post_id": "31474",
+      "file_id": "8512",
+      "original_file_name": "법인일반회계 및 교비회계 결산(2023회계연도).xlsx",
+      "exists": true,
+      "sha256": "428afa9d3fcd57f8f26c75074711c8c12466f4ec59bbe911a487d32f07e26291",
+      "file_size_bytes": 4091438
+    },
+    {
+      "year_range": "2024",
+      "path": "data/raw/kasfo/gyeolsan/original/2024_corporate_school_account_settlement.xlsx",
+      "page_url": "https://uniarlimi.kasfo.or.kr/knowledge/data2Room/35283?pageIdx=2",
+      "download_url": "https://support.kasfo.or.kr/component/file/download.asp?sBrdID=35283&sBrdFileID=9832",
+      "post_id": "35283",
+      "file_id": "9832",
+      "original_file_name": "법인일반회계 및 교비회계 결산(2024회계연도).xlsx",
+      "exists": true,
+      "sha256": "e75250c0022acfa1fba5d95f1e7798a1315117cd824b435d12f3f8aef41022dc",
+      "file_size_bytes": 2548482
+    }
+  ],
+  "formula": {
+    "private_university_tuition_ratio": "등록금수입 / 운영수입 * 100",
+    "private_university_donation_ratio": "기부금수입 / 운영수입 * 100",
+    "amount_unit": "천원"
+  },
+  "notes": [
+    "사립대 기준 산식을 적용했다.",
+    "등록금회계/비등록금회계 분리 파일은 내부 전입 등으로 단순 합산 시 운영수입 이중 반영 위험이 있어 지표 산출 원천으로 사용하지 않았다.",
+    "운영 CSV는 이 converter에서 자동 교체하지 않는다."
+  ]
+}

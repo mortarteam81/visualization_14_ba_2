@@ -12,6 +12,7 @@ from utils.data_validation_modes import (
     ReviewDecision,
     build_budam_validation_status,
     build_gyowon_validation_status,
+    build_gyeolsan_validation_status,
     build_jirosung_validation_status,
     build_mismatch_review_frame,
     build_mismatch_review_id,
@@ -22,6 +23,7 @@ from utils.data_validation_modes import (
     load_budam_review_decisions,
     load_dormitory_review_decisions,
     load_gyowon_review_decisions,
+    load_gyeolsan_review_decisions,
     load_jirosung_review_decisions,
     load_paper_review_decisions,
     load_research_review_decisions,
@@ -30,6 +32,7 @@ from utils.data_validation_modes import (
     save_budam_review_decisions,
     save_dormitory_review_decisions,
     save_gyowon_review_decisions,
+    save_gyeolsan_review_decisions,
     save_jirosung_review_decisions,
     save_paper_review_decisions,
     save_research_review_decisions,
@@ -251,6 +254,21 @@ def test_jirosung_status_uses_preserved_raw_source_and_zero_mismatches() -> None
     assert status.ready_for_promotion is True
 
 
+def test_gyeolsan_status_uses_preserved_kasfo_raw_source_and_zero_mismatches() -> None:
+    status = build_gyeolsan_validation_status()
+
+    assert status.dataset_id == "gyeolsan"
+    assert status.raw_preserved is True
+    assert status.candidate_exists is True
+    assert status.report_exists is True
+    assert status.source_input_kind == "raw_xlsx_zip"
+    assert status.source_input_rows == 6302
+    assert status.candidate_rows == 1492
+    assert status.mismatch_rows == 0
+    assert status.ready_for_preview is True
+    assert status.ready_for_promotion is True
+
+
 def test_student_recruitment_review_decision_save_and_load_roundtrip(tmp_path) -> None:
     review_id = build_mismatch_review_id(
         dataset_id="student_recruitment",
@@ -434,4 +452,35 @@ def test_jirosung_review_decision_save_and_load_roundtrip(tmp_path) -> None:
     loaded = load_jirosung_review_decisions(path)
 
     assert loaded[review_id].dataset_id == "jirosung"
+    assert loaded[review_id].decision == DECISION_ACCEPT_RAW
+
+
+def test_gyeolsan_review_decision_save_and_load_roundtrip(tmp_path) -> None:
+    review_id = build_mismatch_review_id(
+        dataset_id="gyeolsan",
+        school_name="성신여자대학교",
+        year=2024,
+        field="등록금비율",
+    )
+    path = tmp_path / "gyeolsan_review.json"
+
+    save_gyeolsan_review_decisions(
+        {
+            review_id: ReviewDecision(
+                review_id=review_id,
+                dataset_id="gyeolsan",
+                school_name="성신여자대학교",
+                year=2024,
+                field="등록금비율",
+                decision=DECISION_ACCEPT_RAW,
+                note="사학재정알리미 통합 결산 원자료 기준 확인",
+                updated_at="2026-05-02T00:00:00+00:00",
+            )
+        },
+        path=path,
+    )
+
+    loaded = load_gyeolsan_review_decisions(path)
+
+    assert loaded[review_id].dataset_id == "gyeolsan"
     assert loaded[review_id].decision == DECISION_ACCEPT_RAW

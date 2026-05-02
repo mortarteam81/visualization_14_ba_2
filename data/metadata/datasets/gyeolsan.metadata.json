@@ -4,20 +4,22 @@
   "title": "결산 기반 세입 비율",
   "current_asset": "data/결산(22,23,24).csv",
   "source_data_scope": "national_raw",
-  "verification_status": "legacy_schema_missing",
-  "default_analysis_scope": "2022-2024 settlement raw extract",
+  "verification_status": "partial",
+  "default_analysis_scope": "서울 소재 사립 일반대학(4년제) 본교, 기존 학교",
   "metadata_files": {
-    "source": null,
-    "schema": null,
-    "report": null,
+    "source": "data/metadata/gyeolsan_v1.source.json",
+    "schema": "data/metadata/gyeolsan_v1_schema.md",
+    "report": "data/validation/processing_reports/kasfo_gyeolsan.processing_report.json",
     "guide": null
   },
   "quality_flags": [
     "raw_national_extract",
-    "schema_metadata_missing",
-    "shared_dataset_for_multiple_metrics"
+    "kasfo_official_raw_preserved",
+    "shared_dataset_for_multiple_metrics",
+    "candidate_not_promoted"
   ],
   "backlog": [
-    "Recover source/schema provenance for the settlement CSV."
+    "Review 2015-2024 candidate before replacing the current 2022-2024 operating CSV.",
+    "국공립대 산식 적용은 별도 후보 데이터로 분리 검토한다."
   ]
 }

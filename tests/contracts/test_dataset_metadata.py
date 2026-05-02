@@ -87,7 +87,7 @@ def test_dataset_manifest_status_values_match_known_data_scopes() -> None:
         "research": ("seoul_subset_legacy", "partial"),
         "paper": ("seoul_subset_legacy", "partial"),
         "jirosung": ("national_raw", "partial"),
-        "gyeolsan": ("national_raw", "legacy_schema_missing"),
+        "gyeolsan": ("national_raw", "partial"),
         "education_return": ("national_processed", "partial"),
         "dormitory_rate": ("national_processed", "partial"),
         "lecturer_pay": ("national_processed", "partial"),

@@ -342,6 +342,30 @@ class TestPageSmoke:
         assert [exception.message for exception in app.exception] == []
         assert any("졸업생 진로 성과 후보 데이터" in info.value for info in app.info)
 
+    @pytest.mark.parametrize(
+        ("metric_name", "expected_info"),
+        [
+            ("세입 중 등록금 비율", "세입 중 등록금 비율 후보 데이터"),
+            ("세입 중 기부금 비율", "세입 중 기부금 비율 후보 데이터"),
+        ],
+    )
+    def test_data_validation_page_can_select_gyeolsan_metrics(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        metric_name: str,
+        expected_info: str,
+    ) -> None:
+        import utils.auth as auth
+
+        monkeypatch.setattr(auth, "require_authenticated_user", _fake_authenticated_user)
+        app = AppTest.from_file(str(PAGE_DIR / "01_데이터_검증.py"), default_timeout=20)
+
+        app.run()
+        app.selectbox[0].select(metric_name).run()
+
+        assert [exception.message for exception in app.exception] == []
+        assert any(expected_info in info.value for info in app.info)
+
     def test_data_validation_page_blocks_viewer(self, monkeypatch: pytest.MonkeyPatch) -> None:
         import utils.auth as auth
 

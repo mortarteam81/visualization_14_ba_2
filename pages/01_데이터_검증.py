@@ -15,6 +15,7 @@ from utils.data_validation_modes import (
     REVIEW_DECISIONS,
     build_budam_validation_status,
     build_dormitory_shadow_status,
+    build_gyeolsan_validation_status,
     build_gyowon_validation_status,
     build_jirosung_validation_status,
     build_mismatch_review_frame,
@@ -32,6 +33,11 @@ from utils.data_validation_modes import (
     load_dormitory_processing_report,
     load_dormitory_review_decisions,
     load_dormitory_source_acquisition,
+    load_gyeolsan_candidate_frame,
+    load_gyeolsan_mismatch_frame,
+    load_gyeolsan_processing_report,
+    load_gyeolsan_review_decisions,
+    load_gyeolsan_source_acquisition,
     load_gyowon_candidate_frame,
     load_gyowon_mismatch_frame,
     load_gyowon_processing_report,
@@ -61,6 +67,7 @@ from utils.data_validation_modes import (
     review_decisions_from_frame,
     save_budam_review_decisions,
     save_dormitory_review_decisions,
+    save_gyeolsan_review_decisions,
     save_gyowon_review_decisions,
     save_jirosung_review_decisions,
     save_paper_review_decisions,
@@ -77,6 +84,8 @@ GYOWON_PAGE = get_metric("gyowon")
 RESEARCH_PAGE = get_metric("research")
 PAPER_PAGE = get_metric("paper")
 JIROSUNG_PAGE = get_metric("jirosung")
+TUITION_PAGE = get_metric("tuition")
+DONATION_PAGE = get_metric("donation")
 YEAR_COL = "기준년도"
 SCHOOL_COL = "학교명"
 RATE_COL = "기숙사수용률"
@@ -88,6 +97,8 @@ RESEARCH_OUT_COL = "전임교원 1인당 연구비(교외)"
 PAPER_DOMESTIC_COL = "전임교원1인당논문실적(국내, 연구재단등재지(후보포함))"
 PAPER_SCI_COL = "전임교원1인당논문실적(국제, SCI급/SCOPUS학술지)"
 JIROSUNG_VALUE_COL = "졸업생_진로_성과"
+TUITION_VALUE_COL = "등록금비율"
+DONATION_VALUE_COL = "기부금비율"
 STUDENT_YEAR_COL = "공시연도"
 STUDENT_VALUE_COL = "재학생충원율"
 
@@ -215,6 +226,52 @@ def _target_config(target_key: str) -> dict[str, object]:
             "school_col": SCHOOL_COL,
             "value_col": JIROSUNG_VALUE_COL,
             "value_label": "졸업생 진로 성과(%)",
+            "chart_title": "운영 CSV와 Candidate CSV 비교",
+            "promotion_button_label": "운영 CSV로 승격",
+            "current_label": "운영 CSV",
+            "candidate_label": "Candidate CSV",
+        }
+    if target_key == "tuition":
+        return {
+            "target_key": "tuition",
+            "title": "세입 중 등록금 비율",
+            "pilot_note": "사학재정알리미 통합 결산 원자료에서 재가공한 세입 중 등록금 비율 후보 데이터입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.",
+            "goal_text": "이 화면은 세입 중 등록금 비율 후보 데이터가 운영 화면에 반영 가능한지 판단하기 위한 운영자용 검증 콘솔입니다.",
+            "status_loader": build_gyeolsan_validation_status,
+            "mismatch_loader": load_gyeolsan_mismatch_frame,
+            "decisions_loader": load_gyeolsan_review_decisions,
+            "decisions_saver": save_gyeolsan_review_decisions,
+            "report_loader": load_gyeolsan_processing_report,
+            "source_loader": load_gyeolsan_source_acquisition,
+            "operating_loader": lambda: get_dataset(TUITION_PAGE.dataset_key),
+            "candidate_loader": load_gyeolsan_candidate_frame,
+            "year_col": YEAR_COL,
+            "school_col": SCHOOL_COL,
+            "value_col": TUITION_VALUE_COL,
+            "value_label": "등록금 비율(%)",
+            "chart_title": "운영 CSV와 Candidate CSV 비교",
+            "promotion_button_label": "운영 CSV로 승격",
+            "current_label": "운영 CSV",
+            "candidate_label": "Candidate CSV",
+        }
+    if target_key == "donation":
+        return {
+            "target_key": "donation",
+            "title": "세입 중 기부금 비율",
+            "pilot_note": "사학재정알리미 통합 결산 원자료에서 재가공한 세입 중 기부금 비율 후보 데이터입니다. 운영 CSV는 이 화면에서 변경되지 않습니다.",
+            "goal_text": "이 화면은 세입 중 기부금 비율 후보 데이터가 운영 화면에 반영 가능한지 판단하기 위한 운영자용 검증 콘솔입니다.",
+            "status_loader": build_gyeolsan_validation_status,
+            "mismatch_loader": load_gyeolsan_mismatch_frame,
+            "decisions_loader": load_gyeolsan_review_decisions,
+            "decisions_saver": save_gyeolsan_review_decisions,
+            "report_loader": load_gyeolsan_processing_report,
+            "source_loader": load_gyeolsan_source_acquisition,
+            "operating_loader": lambda: get_dataset(DONATION_PAGE.dataset_key),
+            "candidate_loader": load_gyeolsan_candidate_frame,
+            "year_col": YEAR_COL,
+            "school_col": SCHOOL_COL,
+            "value_col": DONATION_VALUE_COL,
+            "value_label": "기부금 비율(%)",
             "chart_title": "운영 CSV와 Candidate CSV 비교",
             "promotion_button_label": "운영 CSV로 승격",
             "current_label": "운영 CSV",
@@ -619,6 +676,8 @@ def main() -> None:
             "연구비 수혜 실적",
             "논문실적",
             "졸업생 진로 성과",
+            "세입 중 등록금 비율",
+            "세입 중 기부금 비율",
             "학생 충원 성과",
         ],
         key="data_validation_target_label",
@@ -630,6 +689,8 @@ def main() -> None:
         "연구비 수혜 실적": "research",
         "논문실적": "paper",
         "졸업생 진로 성과": "jirosung",
+        "세입 중 등록금 비율": "tuition",
+        "세입 중 기부금 비율": "donation",
         "학생 충원 성과": "student_recruitment",
     }
     target_key = target_key_map[target_label]

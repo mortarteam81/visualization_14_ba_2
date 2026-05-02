@@ -1,0 +1,28 @@
+{
+  "dataset": "kasfo_gyeolsan",
+  "candidate_only": true,
+  "do_not_promote_current_asset": true,
+  "unit": "천원 for source amounts; percent for ratio columns",
+  "source_files": {
+    "data/raw/kasfo/gyeolsan/original/2015_2020_corporate_school_account_settlement.zip": {
+      "sha256": "19967808c4b3588f8985f3f608acfe6df0b21876adc4e3fb1ff038a5a0611296"
+    },
+    "data/raw/kasfo/gyeolsan/original/2021_corporate_school_account_settlement.xlsx": {
+      "sha256": "5b04bb3e6aea2e83c8846ec8f66ab542877d3935a5dc792ecdca6305b44200e0"
+    },
+    "data/raw/kasfo/gyeolsan/original/2022_corporate_school_account_settlement.xlsx": {
+      "sha256": "ed408c18dbbb8543ae14c58a6487ce0d197b11351061702d7d55b47588797bb3"
+    },
+    "data/raw/kasfo/gyeolsan/original/2023_corporate_school_account_settlement.xlsx": {
+      "sha256": "428afa9d3fcd57f8f26c75074711c8c12466f4ec59bbe911a487d32f07e26291"
+    },
+    "data/raw/kasfo/gyeolsan/original/2024_corporate_school_account_settlement.xlsx": {
+      "sha256": "e75250c0022acfa1fba5d95f1e7798a1315117cd824b435d12f3f8aef41022dc"
+    }
+  },
+  "outputs": {
+    "candidate": "data/conversion_outputs/kasfo/gyeolsan/kasfo_gyeolsan_2015_2024_candidate.csv",
+    "processing_report": "data/validation/processing_reports/kasfo_gyeolsan.processing_report.json",
+    "mismatch_report": "data/validation/mismatch_reports/kasfo_gyeolsan.mismatch.csv"
+  }
+}
